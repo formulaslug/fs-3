@@ -1,0 +1,3 @@
+[submodule "ETC/mbed-os"]
+	path = ETC/mbed-os
+	url = https://github.com/mbed-ce/mbed-os.git
