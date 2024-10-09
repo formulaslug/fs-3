@@ -23,7 +23,11 @@ add_subdirectory(mbed-os) # Load Mbed OS build targets.  Must be added before an
 
 project(ETC) # TODO: change this to your project name
 
-add_executable(ETC main.cpp)
+add_executable(ETC main.cpp
+        src/console.cpp
+        src/inc/console.h
+        src/inc/module.h
+)
 target_link_libraries(ETC mbed-os) # Can also link to mbed-baremetal here
 mbed_set_post_build(ETC) # Must call this for each target to set up bin file creation, code upload, etc
 

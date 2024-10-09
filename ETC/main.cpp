@@ -3,14 +3,12 @@
 //
 #include "mbed.h"
 
+#include "src/inc/console.h"
+
 int main()
 {
+    Console console{};
     while(true) {
-        printf("Hello World\n");
-        ThisThread::sleep_for(1s);
+        console.run();
     }
-
-    // main() is expected to loop forever.
-    // If main() actually returns the processor will halt
-    return 0;
 }
