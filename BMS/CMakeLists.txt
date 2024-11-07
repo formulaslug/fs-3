@@ -20,13 +20,18 @@ set(STLINK_LOAD_ADDRESS 0x8000000)
 set(STLINK_ARGS --connect-under-reset)
 
 add_subdirectory(mbed-os) # Load Mbed OS build targets.  Must be added before any other subdirectories
+# Tell CMake to build lib-mbed-ltc681x
+add_subdirectory(lib-mbed-ltc681x)
 
 project(BMS) # TODO: change this to your project name
 
 add_executable(BMS main.cpp
         
 )
-target_link_libraries(BMS mbed-os) # Can also link to mbed-baremetal here
+target_link_libraries(BMS 
+	mbed-os
+	lib-mbed-ltc681x
+) # Can also link to mbed-baremetal here
 mbed_set_post_build(BMS) # Must call this for each target to set up bin file creation, code upload, etc
 
 mbed_finalize_build() # Make sure this is the last line of the top-level buildscript
