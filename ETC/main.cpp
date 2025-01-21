@@ -62,7 +62,7 @@ int main()
  high_priority_thread.start(do_can_processing);
 
  while(true) {
-  /* update the etc-sensor readings and subsequent information */
+  /* update the etc-sensor readings */
   etc_handle->updatePedalTravel();
  }
 
