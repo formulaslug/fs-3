@@ -90,7 +90,7 @@ public:
     void resetState();
 
     /**
-     *  Runs on rising cockpit switch, checks if brakes are pressed and TS is ready, then switches motor_enabled to true
+     *  Runs on falling cockpit switch, checks if brakes are pressed and TS is ready, then switches motor_enabled to true
      */
     void checkStartConditions();
 

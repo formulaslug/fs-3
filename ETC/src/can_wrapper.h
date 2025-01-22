@@ -39,6 +39,8 @@ public:
 
     CANWrapper(ETCController& etcController, EventFlags& events) : Global_Events(events), etc(etcController) {
         /* Attempt CAN connections */
+
+        //TODO add fail code for failed CAN instantiation
         mainBus = new CAN(MAIN_BUS_RD, MAIN_BUS_TD, CAN_FREQ);
         motorBus = new CAN(MOTOR_BUS_RD, MOTOR_BUS_TD, CAN_FREQ);
 
@@ -67,6 +69,7 @@ public:
     }
 
 
+    //TODO move definitions to .cpp file
     /**
     * Sends throttle data to the CANBus
     *
@@ -102,7 +105,6 @@ public:
         //send syncMessage
     };
 
-    //TODO add the proper values
     void sendState() {
 
         ETCState state = etc.getState();
