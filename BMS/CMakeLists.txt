@@ -25,8 +25,18 @@ add_subdirectory(lib-mbed-ltc681x)
 
 project(BMS) # TODO: change this to your project name
 
-add_executable(BMS main.cpp
-        
+add_executable(BMS src/main.cpp
+		src/BmsThread.h
+		src/BmsThread.cpp
+		src/Can.h
+		src/Can.cpp
+		src/BmsConfig.h
+		src/EnergusTempSensor.cpp
+		src/EnergusTempSensor.h
+		src/Event.h
+		src/LTC6811.h
+		src/LTC6811.cpp
+
 )
 target_link_libraries(BMS 
 	mbed-os
