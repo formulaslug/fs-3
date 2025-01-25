@@ -49,8 +49,9 @@ Doxygen
 # Python virtual environment (for using mbed-cli)
 .venv/
 
-# clangd lsp cache
+# clangd lsp stuff
 **/.cache
+**/compile_commands.json
 
 # cmake build cache
 **/cmake_build
