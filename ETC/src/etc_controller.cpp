@@ -4,7 +4,7 @@
 
 #include "etc_controller.h"
 
-//TODO make the function :)))
+// TODO make the function :)))
 void ETCController::updatePedalTravel() {
     /* read HE1 and HE2 sensors */
 
@@ -20,11 +20,9 @@ void ETCController::updateMBBAlive() {
     state.mbb_alive %= 16;
 }
 
-void ETCController::updateStateFromCAN(const ETCState& new_state) {
-    state = new_state;
-}
+void ETCController::updateStateFromCAN(const ETCState& new_state) { state = new_state; }
 
-//TODO make function : )
+// TODO make function : )
 void ETCController::checkStartConditions() {
     /* this function is already set up to run when the cockpit is switched on */
 
@@ -33,11 +31,8 @@ void ETCController::checkStartConditions() {
     /* if all that is happening switch motor_on to true */
 }
 
-//TODO make function :)
-void ETCController::runRTDS() {
-    /* Run RTDS for 3 seconds */
-}
-
+// TODO make function :)
+void ETCController::runRTDS() { /* Run RTDS for 3 seconds */ }
 
 void ETCController::resetState() {
     state.mbb_alive = 0;
