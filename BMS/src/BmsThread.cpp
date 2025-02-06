@@ -226,7 +226,7 @@ void BMSThread::threadWorker() {
         if (index != -1) {
           allVoltages[(BMS_BANK_CELL_COUNT * i) + index] = voltage;
 
-        //   printf("%d: V: %d\n", index, voltage);
+        // printf("%d: V: %d\n", index, voltage);
         }
       }
     }
@@ -373,5 +373,5 @@ void BMSThread::threadWorker() {
 }
 
 void BMSThread::throwBmsFault() {
-    bmsState = BMSThreadState::BMSFault;
+    //bmsState = BMSThreadState::BMSFault;
 }
