@@ -1,0 +1,17 @@
+# Options: https://clang.llvm.org/docs/ClangFormatStyleOptions.html
+BasedOnStyle: Google
+AccessModifierOffset: -4
+AllowShortIfStatementsOnASingleLine: false
+AllowShortLoopsOnASingleLine: false
+AlwaysBreakTemplateDeclarations: Yes
+BreakBeforeBraces: Attach
+ColumnLimit: 100
+ContinuationIndentWidth: 4
+IndentWidth: 4
+UseTab: Never
+AlignTrailingComments:
+  Kind: Always
+  OverEmptyLines: 1
+SpacesBeforeTrailingComments: 2
+PointerAlignment: Left
+PackConstructorInitializers: Never
