@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="VcsDirectoryMappings">
+    <mapping directory="" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/BMS/lib-mbed-ltc681x" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/BMS/mbed-os" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/BMS/mbed-os/tools/doxygen-awesome-css" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/ETC/mbed-os" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/ETC/mbed-os/tools/doxygen-awesome-css" vcs="Git" />
+  </component>
+</project>
