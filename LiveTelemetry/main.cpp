@@ -7,25 +7,17 @@
 
 #define BUF_SIZE 1000
 
-static BufferedSerial radio_serial(PA_9, PA_10);
+static BufferedSerial radio_serial(PC_10, PC_11);
 static BufferedSerial usb_serial(USBTX, USBRX);
 static DigitalOut led(LED1);
 
 int main()
 {
     radio_serial.set_baud(9600);
-    radio_serial.set_format(
-        /* bits */ 8,
-        /* parity */ BufferedSerial::None,
-        /* stop bit */ 1
-    );
+    radio_serial.set_format(8, BufferedSerial::None, 1);
     radio_serial.set_blocking(false);
     usb_serial.set_baud(9600);
-    usb_serial.set_format(
-        /* bits */ 8,
-        /* parity */ BufferedSerial::None,
-        /* stop bit */ 1
-    );
+    usb_serial.set_format(8, BufferedSerial::None, 1);
     usb_serial.set_blocking(false);
 
     // printf("hellwo woasda\n");
@@ -41,13 +33,13 @@ int main()
     while (true) {
         if (uint32_t num = usb_serial.read(buf, sizeof(buf))) {
             led = !led;
-            // usb_serial.write(buf, num);
+            usb_serial.write(buf, num);
             radio_serial.write(buf, num);
         }
         
-        if (uint32_t num = radio_serial.read(buf, sizeof(buf))) {
-            usb_serial.write(buf, num);
-        }
+        // if (uint32_t num = radio_serial.read(buf, sizeof(buf))) {
+        //     usb_serial.write(buf, num);
+        // }
     }
     
     return 0;

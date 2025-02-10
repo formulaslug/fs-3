@@ -15,18 +15,26 @@ int main()
 {
     radio_serial.set_baud(9600);
     radio_serial.set_format(8, BufferedSerial::None, 1);
+    radio_serial.set_blocking(false);
     usb_serial.set_baud(9600);
     usb_serial.set_format(8, BufferedSerial::None, 1);
+    usb_serial.set_blocking(false);
 
     /* printf("hello world!\n"); */
 
     char buf[BUF_SIZE] = {0};
 
     while (true) {
-        if (uint32_t num = radio_serial.read(buf, sizeof(buf))) {
+        // if (uint32_t num = radio_serial.read(buf, sizeof(buf))) {
+        //     led = !led;
+        //     usb_serial.write(buf, num);
+        // }
+        if (uint32_t num = usb_serial.read(buf, sizeof(buf))) {
             led = !led;
             usb_serial.write(buf, num);
+            radio_serial.write(buf, num);
         }
+
     }
 
     return 0;
