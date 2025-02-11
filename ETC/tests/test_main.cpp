@@ -59,10 +59,10 @@ void tearDown() {
 int main() {
     UNITY_BEGIN();
     run_all_tests();
-    int status_code = UNITY_END();
+    UNITY_END();
 
     while (true) {
-        std::cout << "Status code: " << status_code << std::endl;
+        continue;
     }
 
     return 0;
