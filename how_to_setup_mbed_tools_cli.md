@@ -28,10 +28,6 @@ future`
    build system for the NUCLEO_L432KC microcontroller (run this for as many
    MCU's as you want, it will create separate build directories in
    `./cmake_build/` for each one!)
-   <!-- 1. Compile with cli to generate necessary build files (the `compile` flags are -->
-   <!--    identical to the `configure` ones, with the addition of -f (flash) and -s -->
-   <!--    (open serial terminal) which we will ignore this time): `mbed-tools compile -->
-   <!--    -t GCC_ARM -m NUCLEO_L432KC` -->
 6. Now run the build system manually with CMake to generate the
    compile_commands.json file (necessary for clangd to find mbed-os): `cmake -S
 . -B cmake_build/NUCLEO_L432KC/develop/GCC_ARM -GNinja
@@ -55,5 +51,10 @@ future`
    aliases like PA_2 and wait for autocompletion to show up. Then
    go-to-definition on one and you should be brought into the mbed-os source
    code.
-    
+9. To actually compile the code, use the `mbed-tools compile` command. It's
+   flags are identical to `configure`'s flags, with the addition of -f (flash
+   code) and -s (open serial terminal). They can be compined like this:
+   `mbed-tools compile -t GCC_ARM -m NUCLEO_L432KC -f -s` (compile code for
+   NUCLEO_L432KC mcu, then flash it, then open a serial terminal)
+
 Steps 5-8 will have to be repeated any time you want to switch microcontrollers.
