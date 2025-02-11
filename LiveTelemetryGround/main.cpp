@@ -15,6 +15,7 @@ int main()
 {
     radio_serial.set_baud(9600);
     radio_serial.set_format(8, BufferedSerial::None, 1);
+    radio_serial.set_flow_control(BufferedSerial::RTSCTS, PA_12, PA_11); // (PB_1, PB_4);
     usb_serial.set_baud(9600);
     usb_serial.set_format(8, BufferedSerial::None, 1);
 
@@ -33,7 +34,6 @@ int main()
         if (usb_serial.readable()) {
             uint32_t num = usb_serial.read(buf, sizeof(buf));
             if (num) {
-                led = !led;
                 // usb_serial.write(buf, num);
                 radio_serial.write(buf, num);
             }
@@ -42,6 +42,7 @@ int main()
         if (radio_serial.readable()) {
             uint32_t num = radio_serial.read(buf, sizeof(buf));
             if (num) {
+                led = !led;
                 usb_serial.write(buf, num);
             }
         }

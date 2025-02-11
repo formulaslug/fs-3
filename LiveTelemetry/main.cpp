@@ -16,10 +16,11 @@ int main()
 {
     radio_serial.set_baud(9600);
     radio_serial.set_format(8, BufferedSerial::None, 1);
+    radio_serial.set_flow_control(BufferedSerial::RTSCTS, PB_14, PB_13);
     usb_serial.set_baud(9600);
     usb_serial.set_format(8, BufferedSerial::None, 1);
 
-    pb1.write(1);
+    // pb1.write(1);
 
     printf("hello world!\n");
 
