@@ -15,7 +15,6 @@
 
 
 // Include other test files here. Remember to add test cases to the "run_all_tests" function!
-#include "example_test.h"
 
 // Standard headers begin here
 #include "mbed.h"
@@ -27,8 +26,7 @@
  * Add programmer-defined tests here.
  */
 void run_all_tests() {
-    RUN_TEST(some_example_test_that_will_pass);
-    RUN_TEST(some_example_test_that_will_fail);
+    // Use the RUN_TEST(<function_name>) macro here
 }
 
 
