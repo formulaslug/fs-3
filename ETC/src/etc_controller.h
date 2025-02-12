@@ -30,18 +30,19 @@ class ETCController {
     AnalogIn Brakes;
     InterruptIn Cockpit;
     InterruptIn Reverse;
+    DigitalOut BrakesOut;
     DigitalOut RTDS;
 
+    // State Variables
+    ETCState state{0};
+
+public:
     // Constants
     const int16_t MAX_SPEED = 7500;
     const int16_t MAX_TORQUE = 30000;
     const float MAX_V = 3.3;
     const float BRAKE_TOL = 0.1;
 
-    // State Variables
-    ETCState state{0};
-
-public:
     // Constructor
     ETCController()
         : HE1(PA_0),
@@ -49,6 +50,7 @@ public:
           Brakes(PC_0),
           Cockpit(PH_1),
           Reverse(PC_15),
+          BrakesOut(PC_14),
           RTDS(PC_13) {
         resetState();
 
@@ -77,6 +79,11 @@ public:
      * @param new_state
      */
     void updateStateFromCAN(const ETCState& new_state);
+
+    /**
+     * Updates the digital output signal on the brake light pin based on the current ETC state.
+     */
+    void updateBrakeSignal();
 
     /**
      * Reset state to default values
