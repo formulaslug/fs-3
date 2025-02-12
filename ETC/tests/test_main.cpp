@@ -3,6 +3,8 @@
  *
  * The main runner file for ETC unit tests. (This file does not test {@code main.cpp}).
  *
+ * Include test file headers in the specified section, then add test cases to {@code run_all_tests}.
+ *
  * @author Jonathan Uhler
  */
 
@@ -12,7 +14,7 @@
 #undef UNITY_INCLUDE_CONFIG_H
 
 
-// Include other test files here. Remember to add test cases to the "ETC_TEST_CASES" array!
+// Include other test files here. Remember to add test cases to the "run_all_tests" function!
 #include "example_test.h"
 
 // Standard headers begin here
@@ -22,10 +24,11 @@
 
 
 /**
- * Add tests here.
+ * Add programmer-defined tests here.
  */
 void run_all_tests() {
-    RUN_TEST(some_example_test);
+    RUN_TEST(some_example_test_that_will_pass);
+    RUN_TEST(some_example_test_that_will_fail);
 }
 
 

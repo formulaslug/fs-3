@@ -5,8 +5,12 @@
 #include "unity.h"
 
 
-void some_example_test() {
+void some_example_test_that_will_pass() {
     TEST_ASSERT_EQUAL(4, 2 * 2);
+}
+
+
+void some_example_test_that_will_fail() {
     TEST_ASSERT_EQUAL(3, 1 + 1);
 }
 
