@@ -36,6 +36,8 @@ class ETCController {
     // State Variables
     ETCState state{0};
 
+    Ticker brakeSignalTicker;
+
 public:
     // Constants
     const int16_t MAX_SPEED = 7500;
@@ -53,6 +55,11 @@ public:
           BrakesOut(PC_14),
           RTDS(PC_13) {
         resetState();
+
+        // Update the status of the brake light periodically.
+        this->brakeSignalTicker.attach(callback([this]() {
+            this->updateBrakeSignal();
+        }), 100ms);
 
         /* ADD ISR for Cockpit and Reverse */
         Cockpit.rise(callback([this]() { turnOffMotor(); }));

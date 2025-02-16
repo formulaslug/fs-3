@@ -22,9 +22,6 @@ void ETCController::updateMBBAlive() {
 
 void ETCController::updateStateFromCAN(const ETCState& new_state) {
     state = new_state;
-
-    // Perform actions that occur on each state update.
-    this->updateBrakeSignal();
 }
 
 void ETCController::updateBrakeSignal() {
