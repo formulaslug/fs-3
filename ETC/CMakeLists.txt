@@ -18,7 +18,8 @@ project(ETC)
 
 
 # Main ETC executable target
-add_executable(ETC main.cpp src/can_wrapper.cpp src/etc_controller.cpp)
+set(SRC_CPP_FILES src/can_wrapper.cpp src/etc_controller.cpp)
+add_executable(ETC main.cpp ${SRC_CPP_FILES})
 target_include_directories(ETC PRIVATE mbed-os)
 target_link_libraries(ETC mbed-os)
 mbed_set_post_build(ETC)
@@ -33,8 +34,9 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(unity)
 
-add_executable(ETC-unittests tests/test_main.cpp)
+add_executable(ETC-unittests tests/test_main.cpp ${SRC_CPP_FILES})
 target_include_directories(ETC-unittests PRIVATE
+  src
   tests
   mbed-os
   ${unity_SOURCE_DIR}/src
