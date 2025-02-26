@@ -20,25 +20,25 @@
 #include "Event.h"
 
 class BMSThread {
- public:
+public:
 
-  BMSThread(LTC681xBus& bus, unsigned int frequency, BmsEventMailbox* bmsEventMailbox, MainToBMSMailbox* mainToBMSMailbox);
+    BMSThread(LTC681xBus& bus, unsigned int frequency, BmsEventMailbox* bmsEventMailbox, MainToBMSMailbox* mainToBMSMailbox);
 
-  // Function to allow for starting threads from static context
-  static void startThread(BMSThread *p) {
-    p->threadWorker();
-  }
+    // Function to allow for starting threads from static context
+    static void startThread(BMSThread *p) {
+        p->threadWorker();
+    }
 
- private:
-  bool balanceAllowed = false;
-  bool charging = false;
-  LTC681xBus& m_bus;
-  std::vector<LTC6811> m_chips;
-  BmsEventMailbox* bmsEventMailbox;
-  MainToBMSMailbox* mainToBMSMailbox;
+private:
+    bool balanceAllowed = false;
+    bool charging = false;
+    LTC681xBus& m_bus;
+    std::vector<LTC6811> m_chips;
+    BmsEventMailbox* bmsEventMailbox;
+    MainToBMSMailbox* mainToBMSMailbox;
 
-  BMSThreadState bmsState = BMSThreadState::BMSStartup;
+    BMSThreadState bmsState = BMSThreadState::BMSStartup;
 
-  void throwBmsFault();
-  void threadWorker();
+    void throwBmsFault();
+    void threadWorker();
 };
