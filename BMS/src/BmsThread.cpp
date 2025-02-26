@@ -93,7 +93,6 @@ void BMSThread::threadWorker() {
   std::array<uint16_t, BMS_BANK_COUNT * BMS_BANK_CELL_COUNT> allVoltages;
   std::array<int8_t, BMS_BANK_COUNT * BMS_BANK_TEMP_COUNT> allTemps;
   while (true) {
-
       bool isBalancing = false;
 
     while(!mainToBMSMailbox->empty()) {
@@ -117,7 +116,6 @@ void BMSThread::threadWorker() {
     m_bus.WakeupBus();
 
     // Set all status lights high
-    // TODO: This should be in some sort of config class
 
     for (int i = 0; i < BMS_BANK_COUNT; i++) {
       LTC6811::Configuration &config = m_chips[i].getConfig();
@@ -144,92 +142,96 @@ void BMSThread::threadWorker() {
     }
 
     ThisThread::sleep_for(10ms);
-
     // Read back values from all chips
     for (int i = 0; i < BMS_BANK_COUNT; i++) {
-      if (m_bus.PollAdcCompletion(
-              LTC681xBus::BuildAddressedBusCommand(PollADCStatus(), 0)) ==
-          LTC681xBus::LTC681xBusStatus::PollTimeout) {
-        printf("Poll timeout.\n");
-      } else {
-        //printf("Poll OK.\n");
-      }
+        if (m_bus.PollAdcCompletion(
+                LTC681xBus::BuildAddressedBusCommand(PollADCStatus(), 0)) ==
+            LTC681xBus::LTC681xBusStatus::PollTimeout) {
+            printf("Poll timeout.\n");
+            } else {
+                //printf("Poll OK.\n");
+            }
 
-      uint16_t rawVoltages[12];
+        uint16_t rawVoltages[12];
 
-      if (m_bus.SendReadCommand(
-              LTC681xBus::BuildAddressedBusCommand(ReadCellVoltageGroupA(), i),
-              (uint8_t *)rawVoltages) != LTC681xBus::LTC681xBusStatus::Ok) {
-        printf("Things are not okay. VoltageA\n");
-      }
-      if (m_bus.SendReadCommand(
-              LTC681xBus::BuildAddressedBusCommand(ReadCellVoltageGroupB(), i),
-              (uint8_t *)rawVoltages + 6) != LTC681xBus::LTC681xBusStatus::Ok) {
-        printf("Things are not okay. VoltageB\n");
-      }
-      if (m_bus.SendReadCommand(
-              LTC681xBus::BuildAddressedBusCommand(ReadCellVoltageGroupC(), i),
-              (uint8_t *)rawVoltages + 12) !=
-          LTC681xBus::LTC681xBusStatus::Ok) {
-        printf("Things are not okay. VoltageC\n");
-      }
-      if (m_bus.SendReadCommand(
-              LTC681xBus::BuildAddressedBusCommand(ReadCellVoltageGroupD(), i),
-              (uint8_t *)rawVoltages + 18) !=
-          LTC681xBus::LTC681xBusStatus::Ok) {
-        printf("Things are not okay. VoltageD\n");
-      }
+        if (m_bus.SendReadCommand(
+                LTC681xBus::BuildAddressedBusCommand(ReadCellVoltageGroupA(), i),
+                (uint8_t *)rawVoltages) != LTC681xBus::LTC681xBusStatus::Ok) {
+            printf("Things are not okay. VoltageA\n");
+                }
+        if (m_bus.SendReadCommand(
+                LTC681xBus::BuildAddressedBusCommand(ReadCellVoltageGroupB(), i),
+                (uint8_t *)rawVoltages + 6) != LTC681xBus::LTC681xBusStatus::Ok) {
+            printf("Things are not okay. VoltageB\n");
+                }
+        if (m_bus.SendReadCommand(
+                LTC681xBus::BuildAddressedBusCommand(ReadCellVoltageGroupC(), i),
+                (uint8_t *)rawVoltages + 12) !=
+            LTC681xBus::LTC681xBusStatus::Ok) {
+            printf("Things are not okay. VoltageC\n");
+            }
+        if (m_bus.SendReadCommand(
+                LTC681xBus::BuildAddressedBusCommand(ReadCellVoltageGroupD(), i),
+                (uint8_t *)rawVoltages + 18) !=
+            LTC681xBus::LTC681xBusStatus::Ok) {
+            printf("Things are not okay. VoltageD\n");
+            }
+        for (int j = 0; j < 12; j++) {
+            // Endianness of the protocol allows a simple cast :-)
+            uint16_t voltage = rawVoltages[j] / 10;
 
-      // MUX get temp from each cell
-      for (uint8_t j = 0; j < BMS_BANK_CELL_COUNT; j++) {
+            int index = BMS_CELL_MAP[j];
+            if (index != -1) {
+                allVoltages[(BMS_BANK_CELL_COUNT * i) + index] = voltage;
 
-        LTC6811::Configuration &config = m_chips[i].getConfig();
-        config.gpio1 = (j & 0b001) ? LTC6811::GPIOOutputState::kHigh
-                                   : LTC6811::GPIOOutputState::kLow;
-        config.gpio2 = ((j & 0b010) >> 1) ? LTC6811::GPIOOutputState::kHigh
-                                          : LTC6811::GPIOOutputState::kLow;
-        config.gpio3 = ((j & 0b100) >> 2) ? LTC6811::GPIOOutputState::kHigh
-                                          : LTC6811::GPIOOutputState::kLow;
-        config.gpio4 = LTC6811::GPIOOutputState::kPassive;
-
-        m_chips[i].updateConfig();
-
-        auto gpioADCcmd = StartGpioADC(AdcMode::k7k, GpioSelection::k4);
-        if (m_bus.SendCommand(LTC681xBus::BuildAddressedBusCommand(
-                gpioADCcmd, i)) != LTC681xBus::LTC681xBusStatus::Ok) {
-          printf("Things are not okay. StartGPIO ADC\n");
+                // printf("%d: V: %d\n", index, voltage);
+            }
         }
-
-        ThisThread::sleep_for(5ms);
-
-        uint8_t rxbuf[8 * 2];
-
-        m_bus.SendReadCommand(
-            LTC681xBus::BuildAddressedBusCommand(ReadAuxiliaryGroupA(), i),
-            rxbuf);
-        m_bus.SendReadCommand(
-            LTC681xBus::BuildAddressedBusCommand(ReadAuxiliaryGroupB(), i),
-            rxbuf + 8);
-
-        uint16_t tempVoltage = ((uint16_t)rxbuf[8]) | ((uint16_t)rxbuf[9] << 8);
-
-        int8_t temp = convertTemp(tempVoltage / 10);
-        // printf("%d: T: %d\n", j, temp);
-        allTemps[(BMS_BANK_CELL_COUNT * i) + j] = temp;
-      }
-
-      for (int j = 0; j < 12; j++) {
-        // Endianness of the protocol allows a simple cast :-)
-        uint16_t voltage = rawVoltages[j] / 10;
-
-        int index = BMS_CELL_MAP[j];
-        if (index != -1) {
-          allVoltages[(BMS_BANK_CELL_COUNT * i) + index] = voltage;
-
-        // printf("%d: V: %d\n", index, voltage);
-        }
-      }
     }
+      // MUX get temp from each cell
+
+      // for every cell in a segment, go through each segment
+      for (uint8_t j = 0; j < BMS_BANK_CELL_COUNT; j++) {
+          for (int i = 0; i < BMS_BANK_COUNT; i++) {
+              // set the GPIOs for the segment we are looking at to the cell # we are getting temperature for
+              LTC6811::Configuration &config = m_chips[i].getConfig();
+              config.gpio1 = (j & 0b001) ? LTC6811::GPIOOutputState::kHigh
+                                         : LTC6811::GPIOOutputState::kLow;
+              config.gpio2 = ((j & 0b010) >> 1) ? LTC6811::GPIOOutputState::kHigh
+                                                : LTC6811::GPIOOutputState::kLow;
+              config.gpio3 = ((j & 0b100) >> 2) ? LTC6811::GPIOOutputState::kHigh
+                                                : LTC6811::GPIOOutputState::kLow;
+              config.gpio4 = LTC6811::GPIOOutputState::kPassive;
+
+              m_chips[i].updateConfig();
+
+              // queue the read command
+              auto gpioADCcmd = StartGpioADC(AdcMode::k7k, GpioSelection::k4);
+              if (m_bus.SendCommand(LTC681xBus::BuildAddressedBusCommand(
+                      gpioADCcmd, i)) != LTC681xBus::LTC681xBusStatus::Ok) {
+                  printf("Things are not okay. StartGPIO ADC\n");
+                      }
+          }
+          ThisThread::sleep_for(5ms);
+
+          uint8_t rxbuf[8 * 2];
+          // now read back all the temperatures for the 6 segments for cell j
+          for (int i = 0; i < BMS_BANK_COUNT; i++) {
+              m_bus.SendReadCommand(
+                  LTC681xBus::BuildAddressedBusCommand(ReadAuxiliaryGroupA(), i),
+                  rxbuf);
+              m_bus.SendReadCommand(
+                  LTC681xBus::BuildAddressedBusCommand(ReadAuxiliaryGroupB(), i),
+                  rxbuf + 8);
+
+              uint16_t tempVoltage = ((uint16_t)rxbuf[8]) | ((uint16_t)rxbuf[9] << 8);
+
+              int8_t temp = convertTemp(tempVoltage / 10);
+              // printf("%d: T: %d\n", j, temp);
+              allTemps[(BMS_BANK_CELL_COUNT * i) + j] = temp;
+          }
+      }
+
     // printf("Fuck: ");
     uint16_t minVoltage = allVoltages[0];
     uint16_t maxVoltage = 0;
@@ -287,8 +289,6 @@ void BMSThread::threadWorker() {
             printf("Temp too high: %d\n", maxTemp);
         }
 
-
-
         if (bmsState == BMSThreadState::BMSFaultRecover || bmsState == BMSThreadState::BMSFault) {
             printf("FAULT STATE\n");
             throwBmsFault();
@@ -315,15 +315,15 @@ void BMSThread::threadWorker() {
           uint16_t cellVoltage = allVoltages[i * BMS_BANK_CELL_COUNT + cellNum];
           if (cellVoltage >= BMS_BALANCE_THRESHOLD &&
               cellVoltage >= minVoltage + BMS_DISCHARGE_THRESHOLD) {
-            // printf("Balancing cell %d\?n", cellNum);
-            dischargeValue |= (0x1 << j);
+            printf("Balancing cell %d\?n", cellNum);
+            // dischargeValue |= (0x1 << j);
             isBalancing = true;
           }
         }
 
         // printf("discharge value: %x\n", dischargeValue);
 
-        config.dischargeState.value = dischargeValue;
+        // config.dischargeState.value = dischargeValue;
 
         m_chips[i].updateConfig();
       }
@@ -373,5 +373,5 @@ void BMSThread::threadWorker() {
 }
 
 void BMSThread::throwBmsFault() {
-    //bmsState = BMSThreadState::BMSFault;
+    bmsState = BMSThreadState::BMSFault;
 }

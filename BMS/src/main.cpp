@@ -18,77 +18,77 @@
 // CAN* canBus;
 
 void initIO();
-// void initDrivingCAN();
-// void initChargingCAN();
+void initDrivingCAN();
+void initChargingCAN();
 
-// void canRX();
+void canRX();
 
-// void canBootupTX();
-// void canBoardStateTX();
-// void canTempTX(uint8_t seg);
-// void canTempTX0();
-// void canTempTX1();
-// void canTempTX2();
-// void canTempTX3();
-// void canVoltTX(uint8_t seg);
-// void canVoltTX0();
-// void canVoltTX1();
-// void canVoltTX2();
-// void canVoltTX3();
-// void canCurrentLimTX();
+void canBootupTX();
+void canBoardStateTX();
+void canTempTX(uint8_t seg);
+void canTempTX0();
+void canTempTX1();
+void canTempTX2();
+void canTempTX3();
+void canVoltTX(uint8_t seg);
+void canVoltTX0();
+void canVoltTX1();
+void canVoltTX2();
+void canVoltTX3();
+void canCurrentLimTX();
 
-// void canLSS_SwitchStateGlobal();
-// void canLSS_SetNodeIDGlobal();
+void canLSS_SwitchStateGlobal();
+void canLSS_SetNodeIDGlobal();
 
-// void checkPrechargeVoltage();
-// void checkShutdownStatus();
+void checkPrechargeVoltage();
+void checkShutdownStatus();
 
-// void can_ChargerSync();
-// void can_ChargerChargeControl();
-// void can_ChargerMaxCurrentVoltage();
-
-
-
-// EventQueue queue(32*EVENTS_EVENT_SIZE);// creates an eventqueue which is thread and ISR safe. EVENTS_EVENT_SIZE is the size of the buffer allocated
+void can_ChargerSync();
+void can_ChargerChargeControl();
+void can_ChargerMaxCurrentVoltage();
 
 
 
-// CircularBuffer<CANMessage, 32> canqueue;
-
-// uint8_t canCount;
+ EventQueue queue(32*EVENTS_EVENT_SIZE);// creates an eventqueue which is thread and ISR safe. EVENTS_EVENT_SIZE is the size of the buffer allocated
 
 
-// DigitalIn shutdown_measure_pin(ACC_SHUTDOWN_MEASURE);
-// DigitalIn imd_status_pin(ACC_IMD_STATUS);
-// DigitalIn charge_state_pin(ACC_CHARGE_STATE);
+
+ CircularBuffer<CANMessage, 32> canqueue;
+
+ uint8_t canCount;
 
 
-// DigitalOut fan_control_pin(ACC_FAN_CONTROL);
-// DigitalOut charge_enable_pin(ACC_CHARGE_ENABLE);
-// DigitalOut bms_fault_pin(ACC_BMS_FAULT);
-// DigitalOut precharge_control_pin(ACC_PRECHARGE_CONTROL);
+ DigitalIn shutdown_measure_pin(ACC_SHUTDOWN_MEASURE);
+ DigitalIn imd_status_pin(ACC_IMD_STATUS);
+ DigitalIn charge_state_pin(ACC_CHARGE_STATE);
 
 
-// AnalogIn current_vref_pin(ACC_BUFFERED_C_VREF);
-// AnalogIn current_sense_pin(ACC_BUFFERED_C_OUT);
-// AnalogIn glv_voltage_pin(ACC_GLV_VOLTAGE);
+ DigitalOut fan_control_pin(ACC_FAN_CONTROL);
+ DigitalOut charge_enable_pin(ACC_CHARGE_ENABLE);
+ DigitalOut bms_fault_pin(ACC_BMS_FAULT);
+ DigitalOut precharge_control_pin(ACC_PRECHARGE_CONTROL);
 
-// bool checkingPrechargeStatus = false;
-// bool checkingShutdownStatus = false;
 
-// bool prechargeDone = false;
-// bool hasBmsFault = true;
-// bool isCharging = false;
-// bool hasFansOn = false;
-// bool isBalancing = false;
+ AnalogIn current_vref_pin(ACC_BUFFERED_C_VREF);
+ AnalogIn current_sense_pin(ACC_BUFFERED_C_OUT);
+ AnalogIn glv_voltage_pin(ACC_GLV_VOLTAGE);
 
-// bool chargeEnable = false;
+ bool checkingPrechargeStatus = false;
+ bool checkingShutdownStatus = false;
 
-// uint16_t dcBusVoltage; // in tenths of volts
-// uint32_t tsVoltagemV;
-//uint16_t tsVoltage;
-// uint8_t glvVoltage;
-// uint16_t tsCurrent;
+ bool prechargeDone = false;
+ bool hasBmsFault = true;
+ bool isCharging = false;
+ bool hasFansOn = false;
+ bool isBalancing = false;
+
+ bool chargeEnable = false;
+
+ uint16_t dcBusVoltage; // in tenths of volts
+ uint32_t tsVoltagemV;
+uint16_t tsVoltage;
+ uint8_t glvVoltage;
+ uint16_t tsCurrent;
 
 uint16_t allVoltages[BMS_BANK_COUNT*BMS_BANK_CELL_COUNT];
 int8_t allTemps[BMS_BANK_COUNT*BMS_BANK_TEMP_COUNT];
