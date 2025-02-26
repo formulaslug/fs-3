@@ -121,7 +121,7 @@ extern DigitalOut* chargerControl;
 //
 // This defines the mapping from LTC6811 pins to cell indicies.
 // Values of -1 indicate the pin is not connected.
-const int BMS_CELL_MAP[12] = {0, 1, 2, -1, -1, -1, 3, 4, 5, -1, -1, -1};
+const int BMS_CELL_MAP[12] = {0, 1, 2, 3, -1, -1, 4, 5, 6, -1, -1, -1};
 
 
 //
