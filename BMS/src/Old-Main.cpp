@@ -147,6 +147,7 @@ int main() {
         delete bmsEvent;
     }
 
+    //Take In And Process Incoming CAN Messages
     CANMessage readmsg;
     if (canBus->read(readmsg)) {
         canqueue.push(readmsg);
