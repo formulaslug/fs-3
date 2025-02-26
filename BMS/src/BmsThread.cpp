@@ -95,10 +95,10 @@ void BMSThread::threadWorker() {
   while (true) {
 
       bool isBalancing = false;
-
+      
     while(!mainToBMSMailbox->empty()) {
         MainToBMSEvent *mainToBMSEvent;
-
+        
         osEvent evt = mainToBMSMailbox->get();
         if (evt.status == osEventMessage) {
             mainToBMSEvent = (MainToBMSEvent*)evt.value.p;
@@ -128,7 +128,7 @@ void BMSThread::threadWorker() {
     // turn off cell balancing for voltage reading
     for (int i = 0; i < BMS_BANK_COUNT; i++) {
         LTC6811::Configuration &config = m_chips[i].getConfig();
-
+        
         config.dischargeState.value = 0x0000;
 
         m_chips[i].updateConfig();
@@ -226,7 +226,7 @@ void BMSThread::threadWorker() {
         if (index != -1) {
           allVoltages[(BMS_BANK_CELL_COUNT * i) + index] = voltage;
 
-        // printf("%d: V: %d\n", index, voltage);
+        //   printf("%d: V: %d\n", index, voltage);
         }
       }
     }
@@ -244,7 +244,7 @@ void BMSThread::threadWorker() {
       }
     }
     // printf ("\n");
-
+    
     int8_t minTemp = allTemps[0];
     int8_t maxTemp = 0;
     int8_t avgTemp = 0;
@@ -268,7 +268,7 @@ void BMSThread::threadWorker() {
         maxVoltage >= BMS_FAULT_VOLTAGE_THRESHOLD_HIGH ||
         minTemp <= BMS_FAULT_TEMP_THRESHOLD_LOW ||
         maxTemp >= ((charging) ? BMS_FAULT_TEMP_THRESHOLD_CHARING_HIGH : BMS_FAULT_TEMP_THRESHOLD_HIGH)) {
-
+        
         if (minVoltage <= BMS_FAULT_VOLTAGE_THRESHOLD_LOW) {
             printf("Voltage too low: %d\n", minVoltage);
         }
@@ -359,7 +359,7 @@ void BMSThread::threadWorker() {
         msg->avgTemp = avgTemp;
         bmsEventMailbox->put((BmsEvent *)msg);
     }
-
+    
 
     if (charging) {
         ThisThread::sleep_for(500ms); // longer duty cycle when charging, 500 default
@@ -373,5 +373,5 @@ void BMSThread::threadWorker() {
 }
 
 void BMSThread::throwBmsFault() {
-    //bmsState = BMSThreadState::BMSFault;
+    bmsState = BMSThreadState::BMSFault;
 }
