@@ -91,11 +91,6 @@ void ETCController::updateStateFromCAN(const ETCState& new_state) {
     state = new_state;
 }
 
-void ETCController::updateBrakeSignal() {
-    bool brake_light_on = this->state.brakes_read > this->BRAKE_TOL;
-    this->BrakesOut.write(brake_light_on);
-}
-
 // TODO make function : )
 void ETCController::checkStartConditions() {
     /* this function is already set up to run when the cockpit is switched on */
