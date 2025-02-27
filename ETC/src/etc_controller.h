@@ -31,15 +31,27 @@ class ETCController {
     InterruptIn Cockpit;
     InterruptIn Reverse;
     DigitalOut RTDS;
+    DigitalOut BrakeLight;
+
+    Timer VoltageTimer;
+    Timer OutOfRangeTimer;
+
+    Ticker RTDS_Ticker;
 
     // Constants
     const int16_t MAX_SPEED = 7500;
     const int16_t MAX_TORQUE = 30000;
     const float MAX_V = 3.3;
     const float BRAKE_TOL = 0.1;
+    const float VOLT_SCALE_he1 = 330./480.;
+    const float VOLT_SCALE_he2 = 1./2.;
+    const float PEDAL_RANGE = 20;
 
     // State Variables
     ETCState state{0};
+    bool voltage_timer_running = false;
+    bool out_of_range_timer_running = false;
+
 
 public:
     // Constructor
@@ -49,7 +61,9 @@ public:
           Brakes(PC_0),
           Cockpit(PH_1),
           Reverse(PC_15),
-          RTDS(PC_13) {
+          RTDS(PC_13),
+          BrakeLight(PB_6)
+    {
         resetState();
 
         /* ADD ISR for Cockpit and Reverse */
@@ -65,7 +79,7 @@ public:
      * Read Hall Effect Sensors and then update ETC State. Checks implausibility also and starts
      * timer.
      */
-    void updatePedalTravel();
+    void updateState();
 
     /**
      * Add to state.mbbalive and then %= 16
@@ -93,6 +107,8 @@ public:
      *  Runs RTDS for 3 seconds
      */
     void runRTDS();
+
+    void stopRTDS();
 
     // Accessors
     [[nodiscard]] uint8_t getMBBAlive() const { return state.mbb_alive; }

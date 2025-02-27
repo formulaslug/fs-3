@@ -64,7 +64,7 @@ int main() {
 
     while (true) {
         /* update the etc-sensor readings */
-        etc_handle->updatePedalTravel();
+        etc_handle->updateState();
     }
 
     return 0;
