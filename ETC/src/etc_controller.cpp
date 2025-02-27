@@ -25,8 +25,7 @@ void ETCController::updateState() {
 
 
    /* calculate pedal travel using voltage divider ratio */
-   if (he1_voltage == 0.0f || he1_voltage == 3.3f ||
-       he2_voltage == 0.0f || he2_voltage == 3.3f){
+   if (abs_difference > 0.1f){
        if (!voltage_timer_running) {
            // we now start our timer, if it's not already running
            VoltageTimer.start();
@@ -47,7 +46,8 @@ void ETCController::updateState() {
         }
     }
 
-   if (abs_difference > 0.1f) {
+    if (he1_voltage <= 0.0f || he1_voltage >= 3.3f ||
+        he2_voltage <= 0.0f || he2_voltage >= 3.3f) {
        if (!out_of_range_timer_running){
            // we now start our timer, if it's not already running
            OutOfRangeTimer.start();
