@@ -18,6 +18,9 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+// #include "L3GD20-and-LSM303DLHC-HAL-drivers/stm32f3xx_l3gd20.h"
+#include "L3GD20-and-LSM303DLHC-HAL-drivers/stm32f3xx_lsm303dlhc.h"
+#include <stdio.h>
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -45,7 +48,11 @@ I2C_HandleTypeDef hi2c1;
 UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
-
+// l3gd20_data_t l3gd20_data = { 0 };
+lsm303dlhc_data_raw_t lsm303dlhc_data_acc = { 0 };
+lsm303dlhc_data_raw_t lsm303dlhc_data_mag = { 0 };
+lsm303dlhc_data_t lsm303dlhc_data_acc_conv = { 0 };
+lsm303dlhc_data_t lsm303dlhc_data_mag_conv = { 0 };
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -95,6 +102,30 @@ int main(void)
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
 
+  lsm303dlhc_acc_init_t lsm303dlhc_acc_init = { 0 };
+  lsm303dlhc_mag_init_t lsm303dlhc_mag_init = { 0 };
+  
+  lsm303dlhc_acc_init.ctrl_reg1_a = LSM303DLHC_ACR1A_XEN | LSM303DLHC_ACR1A_YEN | LSM303DLHC_ACR1A_ZEN | LSM303DLHC_ACR1A_ODR30_100_HZ;
+  lsm303dlhc_acc_init.ctrl_reg4_a = LSM303DLHC_ACR4A_FS10_1MG;
+  
+  lsm303dlhc_mag_init.op = LSM303DLHC_MAGOP_CONT;
+  lsm303dlhc_mag_init.rate = LSM303DLHC_MAGRATE_15;
+  lsm303dlhc_mag_init.gain = LSM303DLHC_MAGGAIN_1_3;
+  lsm303dlhc_mag_init.auto_range = false;
+
+ // if (l3gd20_init(&hspi1, L3GD20_SCALE_2000) != L3GD20_OK) {
+  //   const uint8_t msg[] = "Error initializing L3GD20!\r\n";
+  //   HAL_UART_Transmit(&huart2, msg, sizeof(msg), 100);
+  // }
+  if (lsm303dlhc_init_acc(&hi2c1, &lsm303dlhc_acc_init) != LSM303DLHC_OK) {
+    const uint8_t msg[] = "Error initializing LSM303DLHC Accelerometer!\r\n";
+    HAL_UART_Transmit(&huart2, msg, sizeof(msg), 100);
+  }
+  if (lsm303dlhc_init_mag(&hi2c1, &lsm303dlhc_mag_init) != LSM303DLHC_OK) {
+    const uint8_t msg[] = "Error initializing LSM303DLHC Magnetometer!\r\n";
+    HAL_UART_Transmit(&huart2, msg, sizeof(msg), 100);
+  }
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -103,10 +134,39 @@ int main(void)
   {
     /* USER CODE END WHILE */
 
+    /* USER CODE BEGIN 3 */
+
     HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_3);
     HAL_Delay(500);
 
-    /* USER CODE BEGIN 3 */
+    // if (l3gd20_read(&l3gd20_data) == L3GD20_OK) {
+    // } else {
+    //   const uint8_t msg[] = "Error reading from L3GD20!\r\n";
+    //   HAL_UART_Transmit(&huart2, msg, sizeof(msg), 100);
+    // }
+    
+    if (lsm303dlhc_read_acc_raw(&lsm303dlhc_data_acc) == LSM303DLHC_OK) {
+      /* raw data in lsm303dlhc_data_acc */
+      /* if conversion is needed: */
+      lsm303dlhc_convert_acc(&lsm303dlhc_data_acc_conv, &lsm303dlhc_data_acc);
+    } else {
+      const uint8_t msg[] = "Error reading from LSM303DLHC Accelerometer!\r\n";
+      HAL_UART_Transmit(&huart2, msg, sizeof(msg), 100);
+    }
+    
+    if (lsm303dlhc_read_mag_raw(&lsm303dlhc_data_mag) == LSM303DLHC_OK) {
+      /* raw data in lsm303dlhc_data_mag */
+      /* if conversion is needed: */
+      lsm303dlhc_convert_mag(&lsm303dlhc_data_mag_conv, &lsm303dlhc_data_mag);
+    } else {
+      const uint8_t msg[] = "Error reading from LSM303DLHC Magnetometer!\r\n";
+      HAL_UART_Transmit(&huart2, msg, sizeof(msg), 100);
+    }
+
+    const uint8_t msg[50] = {0};
+    snprintf((char*)msg, sizeof(msg), "READ: %f, %f, %f\r\n", lsm303dlhc_data_mag_conv.x, lsm303dlhc_data_mag_conv.y, lsm303dlhc_data_mag_conv.z);
+    HAL_UART_Transmit(&huart2, msg, sizeof(msg), 100);
+
   }
   /* USER CODE END 3 */
 }
@@ -218,7 +278,7 @@ static void MX_USART2_UART_Init(void)
 
   /* USER CODE END USART2_Init 1 */
   huart2.Instance = USART2;
-  huart2.Init.BaudRate = 38400;
+  huart2.Init.BaudRate = 115200;
   huart2.Init.WordLength = UART_WORDLENGTH_8B;
   huart2.Init.StopBits = UART_STOPBITS_1;
   huart2.Init.Parity = UART_PARITY_NONE;
