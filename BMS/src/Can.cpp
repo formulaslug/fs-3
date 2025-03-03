@@ -43,35 +43,35 @@ void canBoardStateTX(const CANMessage &BoardState) {
 
 //--------------------------------------------------------------------------------
 // Accumulator Temperatures
-CANMessage accBoardTemp(uint8_t segment, const int8_t *temps) {
+CANMessage accBoardTemp(uint8_t segment, const uint8_t *temps) {
   uint8_t data[BMS_BANK_CELL_COUNT];
-  uint32_t id;
+  unsigned int id;
   switch (segment) {
       case 0:
           id = kTPDO_ACC_BOARD_Temp_0;
-      break;
+        break;
       case 1:
           id = kTPDO_ACC_BOARD_Temp_1;
-      break;
+        break;
       case 2:
           id = kTPDO_ACC_BOARD_Temp_2;
-      break;
+        break;
       case 3:
           id = kTPDO_ACC_BOARD_Temp_3;
-      break;
+        break;
       case 4:
           id = kTPDO_ACC_BOARD_Temp_4;
-      break;
+        break;
   }
   for (int i = 0; i < BMS_BANK_CELL_COUNT; i++) {
-    data[i] = (uint8_t)(temps[i]);
+    data[i] = static_cast<uint8_t>(temps[i]);
   }
 
-  return CANMessage{id, data}; //TODO: Reassign ID #'s To Be 8-Bit Ints Instead Of 12-Bit
+  return CANMessage{id, data};
 }
 
 void canTempTX(uint8_t segment, int8_t allTemps[]) {
-    uint8_t temps[BMS_BANK_COUNT];
+    uint8_t temps[BMS_BANK_COUNT * BMS_BANK_CELL_COUNT];
     for( uint8_t i = 0; i < BMS_BANK_COUNT; i++) {
         temps[i] = segment * BMS_BANK_CELL_COUNT + i;
     }
@@ -97,12 +97,14 @@ void canTempTX(uint8_t segment, int8_t allTemps[]) {
   case 3:
     id = kTPDO_ACC_BOARD_Volt_3;
     break;
+  case 4:
+    id = kTPDO_ACC_BOARD_Volt_4;
+    break;
   }
   for (int i = 0; i < BMS_BANK_CELL_COUNT; i++) {
     data[i] = (uint8_t)(50.0 * volts[i] / 1000.0);
   }
-
-  return CANMessage(id, data); //TODO: Reassign ID #'s To Be 8-Bit Ints Instead Of 12-Bit
+  return CANMessage(id, data);
 }
 
 void canVoltTX(uint8_t segment, uint16_t allVoltages[]) {
@@ -246,6 +248,11 @@ void initDrivingCAN(EventQueue &queue, const CANMessage &boardstate,
         canVoltTX(num, allVoltages);
     });
 
+    num = 4;
+    queue.call_every(200ms, [num, allVoltages]() {
+        canVoltTX(num, allVoltages);
+    });
+
     num = 0;
     queue.call_every(200ms, [num, allTemps]() {
         canTempTX(num, allTemps);
@@ -262,6 +269,11 @@ void initDrivingCAN(EventQueue &queue, const CANMessage &boardstate,
     });
 
     num = 3;
+    queue.call_every(200ms, [num, allTemps]() {
+        canTempTX(num, allTemps);
+    });
+
+    num = 4;
     queue.call_every(200ms, [num, allTemps]() {
         canTempTX(num, allTemps);
     });
@@ -320,6 +332,11 @@ void initChargingCAN(EventQueue &queue, const CANMessage &boardstate,
         canVoltTX(num, allVoltages);
     });
 
+    num = 4;
+    queue.call_every(200ms, [num, allVoltages]() {
+        canVoltTX(num, allVoltages);
+    });
+
     num = 0;
     queue.call_every(200ms, [num, allTemps]() {
         canTempTX(num, allTemps);
@@ -336,6 +353,11 @@ void initChargingCAN(EventQueue &queue, const CANMessage &boardstate,
     });
 
     num = 3;
+    queue.call_every(200ms, [num, allTemps]() {
+        canTempTX(num, allTemps);
+    });
+
+    num = 4;
     queue.call_every(200ms, [num, allTemps]() {
         canTempTX(num, allTemps);
     });

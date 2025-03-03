@@ -87,6 +87,6 @@ void can_ChargerChargeControl();
 
 void can_ChargerMaxCurrentVoltage();
 
-tuple<int, auto> readCAN();
+void writeCAN(string name, CANMessage message);
 
 #endif _FS_BMS_SRC_CAN_H_
