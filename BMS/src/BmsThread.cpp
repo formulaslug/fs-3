@@ -238,9 +238,9 @@ void BMSThread::threadWorker() {
     uint16_t minVoltage = allVoltages[0];
     uint16_t maxVoltage = 0;
     for (int i = 0; i < BMS_BANK_COUNT * BMS_BANK_CELL_COUNT; i++) {
-        // if (allVoltages[i] > BMS_FAULT_VOLTAGE_THRESHOLD_HIGH) {
-        //     printf("%d, ", i);
-        // }
+        if (allVoltages[i] > BMS_FAULT_VOLTAGE_THRESHOLD_HIGH) {
+            printf("%d, ", i);
+        }
       if (allVoltages[i] < minVoltage) {
         minVoltage = allVoltages[i];
       } else if (allVoltages[i] > maxVoltage) {
@@ -262,8 +262,8 @@ void BMSThread::threadWorker() {
       }
     }
     avgTemp = tempSum / (BMS_BANK_COUNT * BMS_BANK_TEMP_COUNT);
-    // printf("0 Temps: %d, %d, %d, %d, %d, %d, %d\n", allTemps[0], allTemps[1], allTemps[2], allTemps[3], allTemps[4], allTemps[5], allTemps[6]);
-    // printf("1 Temps: %d, %d, %d, %d, %d, %d, %d\n", allTemps[7], allTemps[8], allTemps[9], allTemps[10], allTemps[11], allTemps[12], allTemps[13]);
+    // printf("0 Temps: %d, %d, %d, %d, %d, %d\n", allTemps[0], allTemps[1], allTemps[2], allTemps[3], allTemps[4], allTemps[5]);
+    // printf("0 Volts: %d, %d, %d, %d, %d, %d\n", allVoltages[0], allVoltages[1], allVoltages[2], allVoltages[3], all[4], allVoltages[5]);
     // printf("2 Temps: %d, %d, %d, %d, %d, %d, %d\n", allTemps[14], allTemps[15], allTemps[16], allTemps[17], allTemps[18], allTemps[19], allTemps[20]);
     // printf("3 Temps: %d, %d, %d, %d, %d, %d, %d\n\n", allTemps[21], allTemps[22], allTemps[23], allTemps[24], allTemps[25], allTemps[26], allTemps[27]);
     // printf("min temp: %d, max temp: %d\nmin volt: %d, max volt %d\n", minTemp, maxTemp, minVoltage, maxVoltage);
@@ -319,7 +319,7 @@ void BMSThread::threadWorker() {
           uint16_t cellVoltage = allVoltages[i * BMS_BANK_CELL_COUNT + cellNum];
           if (cellVoltage >= BMS_BALANCE_THRESHOLD &&
               cellVoltage >= minVoltage + BMS_DISCHARGE_THRESHOLD) {
-            // printf("Balancing cell %d\?n", cellNum);
+            printf("Balancing cell %d\?n", cellNum);
             dischargeValue |= (0x1 << j);
             isBalancing = true;
           }

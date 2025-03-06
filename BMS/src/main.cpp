@@ -14,7 +14,6 @@
 
 #include "Can.h"
 
-
 CAN* canBus;
 
 void initIO();
@@ -120,6 +119,7 @@ int main() {
   bmsThreadThread.start(callback(&BMSThread::startThread, &bmsThread));
   printf("BMS thread started\n");
 
+
   Timer t; // create timer obj
   t.start(); // start timer
   while (1) { // infinite loop
@@ -144,6 +144,7 @@ int main() {
             case BMSThreadState::BMSIdle:
                 // printf("BMS Fault Idle State\n");
                 hasBmsFault = false;
+
 
                 maxCellTemp = bmsEvent->maxTemp; // Assign the maxTemp from bmsEvent
                 avgCellTemp = bmsEvent->avgTemp; // Assign the avgTemp from bmsEvent
@@ -205,6 +206,7 @@ int main() {
         }
     }
 
+
     if (!mainToBMSMailbox->full()) { //if mailbox is not full
         MainToBMSEvent* mainToBMSEvent = new MainToBMSEvent(); // Create a new MainToBMSEvent object and assign it to the pointer mainToBMSEvent
         mainToBMSEvent->balanceAllowed = shutdown_measure_pin; // Assign the shutdown_measure_pin value to mainToBMSEvent's balanceAllowed
@@ -230,7 +232,9 @@ int main() {
     } else if (dcBusVoltage < 20000 && !checkingPrechargeStatus) {
         checkingPrechargeStatus = true;
         queue.call_in(500ms, &checkPrechargeVoltage);
-        // prechargeDone = false;
+
+        prechargeDone = false;
+
     }
 
 
@@ -242,7 +246,9 @@ int main() {
 
 
     isCharging = charge_state_pin;
+
     // printf("charge state: %x\n", isCharging);
+
 
     precharge_control_pin = prechargeDone /*false*/;
 
@@ -252,7 +258,9 @@ int main() {
     charge_enable_pin = chargeEnable;
 
     fan_control_pin = hasFansOn;
-    // printf("charge state: %x, hasBmsFault: %x, shutdown_measure: %x\n", isCharging, hasBmsFault, true && shutdown_measure_pin);
+
+    printf("charge state: %x, hasBmsFault: %x, shutdown_measure: %x\n", isCharging, hasBmsFault, true && shutdown_measure_pin);
+
 
 
     float cSense = (current_sense_pin) * 5; // x5 for 5 volts, pin is number from 0-1
@@ -265,7 +273,7 @@ int main() {
 
 
     // printf("cSense: %d, cVref: %d, Ts current: %d\n", (uint32_t)(cSense*10000), (uint32_t)(cVref*10000), tsCurrent);
-
+    //
     // printf("Error Rx %d - tx %d\n", canBus->rderror(),canBus->tderror());
 
     queue.dispatch_once();
@@ -340,13 +348,15 @@ void initChargingCAN() {
     queue.call_every(200ms, &canTempTX3);
 }
 
-// void canRX() {
-//     CANMessage msg;
 
-//     if (canBus->read(msg)) {
-//         canqueue.push(msg);
-//     }
-// }
+void canRX() {
+    CANMessage msg;
+
+    if (canBus->read(msg)) {
+        canqueue.push(msg);
+    }
+}
+
 
 void canBootupTX() {
     canBus->write(accBoardBootup());
