@@ -4,6 +4,7 @@
 #include <cstdio>
 #include <string>
 #include <memory>
+#include <numeric>
 #include <vector>
 #include <iostream>
 
@@ -29,11 +30,13 @@ void canTempTX0();
 void canTempTX1();
 void canTempTX2();
 void canTempTX3();
+void canTempTX4();
 void canVoltTX(uint8_t seg);
 void canVoltTX0();
 void canVoltTX1();
 void canVoltTX2();
 void canVoltTX3();
+void canVoltTX4();
 void canCurrentLimTX();
 
 void canLSS_SwitchStateGlobal();
@@ -246,9 +249,7 @@ int main() {
 
 
     isCharging = charge_state_pin;
-
     // printf("charge state: %x\n", isCharging);
-
 
     precharge_control_pin = prechargeDone /*false*/;
 
@@ -259,7 +260,7 @@ int main() {
 
     fan_control_pin = hasFansOn;
 
-    printf("charge state: %x, hasBmsFault: %x, shutdown_measure: %x\n", isCharging, hasBmsFault, true && shutdown_measure_pin);
+    // printf("charge state: %x, hasBmsFault: %x, shutdown_measure: %x\n", isCharging, hasBmsFault, true && shutdown_measure_pin);
 
 
 
@@ -313,10 +314,12 @@ void initDrivingCAN() {
     queue.call_every(200ms, &canVoltTX1);
     queue.call_every(200ms, &canVoltTX2);
     queue.call_every(200ms, &canVoltTX3);
+    queue.call_every(200ms, &canVoltTX4);
     queue.call_every(200ms, &canTempTX0);
     queue.call_every(200ms, &canTempTX1);
     queue.call_every(200ms, &canTempTX2);
     queue.call_every(200ms, &canTempTX3);
+    queue.call_every(200ms, &canTempTX4);
 }
 
 void initChargingCAN() {
@@ -342,20 +345,22 @@ void initChargingCAN() {
     queue.call_every(200ms, &canVoltTX1);
     queue.call_every(200ms, &canVoltTX2);
     queue.call_every(200ms, &canVoltTX3);
+    queue.call_every(200ms, &canVoltTX4);
     queue.call_every(200ms, &canTempTX0);
     queue.call_every(200ms, &canTempTX1);
     queue.call_every(200ms, &canTempTX2);
     queue.call_every(200ms, &canTempTX3);
+    queue.call_every(200ms, &canTempTX4);
 }
 
 
-void canRX() {
-    CANMessage msg;
-
-    if (canBus->read(msg)) {
-        canqueue.push(msg);
-    }
-}
+// void canRX() {
+//     CANMessage msg;
+//
+//     if (canBus->read(msg)) {
+//         canqueue.push(msg);
+//     }
+// }
 
 
 void canBootupTX() {
@@ -382,33 +387,30 @@ void canBoardStateTX() {
 }
 
 void canTempTX(uint8_t segment) {
-    int8_t temps[7] = {
-            allTemps[(segment * BMS_BANK_CELL_COUNT)],
-            allTemps[(segment * BMS_BANK_CELL_COUNT) + 1],
-            allTemps[(segment * BMS_BANK_CELL_COUNT) + 2],
-            allTemps[(segment * BMS_BANK_CELL_COUNT) + 3],
-            allTemps[(segment * BMS_BANK_CELL_COUNT) + 4],
-            allTemps[(segment * BMS_BANK_CELL_COUNT) + 5],
-            allTemps[(segment * BMS_BANK_CELL_COUNT) + 6]
-    };
+    int8_t temps[6] = {
+        allTemps[(segment * BMS_BANK_CELL_COUNT)],
+        allTemps[(segment * BMS_BANK_CELL_COUNT) + 1],
+        allTemps[(segment * BMS_BANK_CELL_COUNT) + 2],
+        allTemps[(segment * BMS_BANK_CELL_COUNT) + 3],
+        allTemps[(segment * BMS_BANK_CELL_COUNT) + 4],
+        allTemps[(segment * BMS_BANK_CELL_COUNT) + 5],
+};
     canBus->write(accBoardTemp(segment, temps));
     ThisThread::sleep_for(1ms);
 }
 
 void canVoltTX(uint8_t segment) {
-    uint16_t volts[7] = {
-            allVoltages[(segment * BMS_BANK_CELL_COUNT)],
-            allVoltages[(segment * BMS_BANK_CELL_COUNT) + 1],
-            allVoltages[(segment * BMS_BANK_CELL_COUNT) + 2],
-            allVoltages[(segment * BMS_BANK_CELL_COUNT) + 3],
-            allVoltages[(segment * BMS_BANK_CELL_COUNT) + 4],
-            allVoltages[(segment * BMS_BANK_CELL_COUNT) + 5],
-            allVoltages[(segment * BMS_BANK_CELL_COUNT) + 6]
-    };
+    uint16_t volts[6] = {
+        allVoltages[(segment * BMS_BANK_CELL_COUNT)],
+        allVoltages[(segment * BMS_BANK_CELL_COUNT) + 1],
+        allVoltages[(segment * BMS_BANK_CELL_COUNT) + 2],
+        allVoltages[(segment * BMS_BANK_CELL_COUNT) + 3],
+        allVoltages[(segment * BMS_BANK_CELL_COUNT) + 4],
+        allVoltages[(segment * BMS_BANK_CELL_COUNT) + 5],
+};
     canBus->write(accBoardVolt(segment, volts));
     ThisThread::sleep_for(1ms);
 }
-
 void canCurrentLimTX() {
     uint16_t chargeCurrentLimit = 0x0000;
     uint16_t dischargeCurrentLimit = (uint16_t)(((CAR_MAX_POWER/(tsVoltagemV/1000.0))*CAR_POWER_PERCENT < CAR_CURRENT_MAX) ? (CAR_MAX_POWER/(tsVoltagemV/1000.0)*CAR_POWER_PERCENT) : CAR_CURRENT_MAX);
@@ -432,6 +434,10 @@ void canVoltTX3() {
     canVoltTX(3);
 }
 
+void canVoltTX4() {
+    canVoltTX(4);
+}
+
 void canTempTX0() {
     canTempTX(0);
 }
@@ -448,7 +454,9 @@ void canTempTX3() {
     canTempTX(3);
 }
 
-
+void canTempTX4() {
+    canTempTX(4);
+}
 
 void canLSS_SwitchStateGlobal() { // Switch state global protocal, switch to LSS configuration state
     uint8_t data[8] = {0x04, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};

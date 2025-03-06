@@ -184,56 +184,62 @@ void BMSThread::threadWorker() {
         printf("Things are not okay. VoltageD\n");
       }
 
-      // MUX get temp from each cell
-      for (uint8_t j = 0; j < BMS_BANK_CELL_COUNT; j++) {
-
-        LTC6811::Configuration &config = m_chips[i].getConfig();
-        config.gpio1 = (j & 0b001) ? LTC6811::GPIOOutputState::kHigh
-                                   : LTC6811::GPIOOutputState::kLow;
-        config.gpio2 = ((j & 0b010) >> 1) ? LTC6811::GPIOOutputState::kHigh
-                                          : LTC6811::GPIOOutputState::kLow;
-        config.gpio3 = ((j & 0b100) >> 2) ? LTC6811::GPIOOutputState::kHigh
-                                          : LTC6811::GPIOOutputState::kLow;
-        config.gpio4 = LTC6811::GPIOOutputState::kPassive;
-
-        m_chips[i].updateConfig();
-
-        auto gpioADCcmd = StartGpioADC(AdcMode::k7k, GpioSelection::k4);
-        if (m_bus.SendCommand(LTC681xBus::BuildAddressedBusCommand(
-                gpioADCcmd, i)) != LTC681xBus::LTC681xBusStatus::Ok) {
-          printf("Things are not okay. StartGPIO ADC\n");
-        }
-
-        ThisThread::sleep_for(5ms);
-
-        uint8_t rxbuf[8 * 2];
-
-        m_bus.SendReadCommand(
-            LTC681xBus::BuildAddressedBusCommand(ReadAuxiliaryGroupA(), i),
-            rxbuf);
-        m_bus.SendReadCommand(
-            LTC681xBus::BuildAddressedBusCommand(ReadAuxiliaryGroupB(), i),
-            rxbuf + 8);
-
-        uint16_t tempVoltage = ((uint16_t)rxbuf[8]) | ((uint16_t)rxbuf[9] << 8);
-
-        int8_t temp = convertTemp(tempVoltage / 10);
-        // printf("%d: T: %d\n", j, temp);
-        allTemps[(BMS_BANK_CELL_COUNT * i) + j] = temp;
-      }
-
       for (int j = 0; j < 12; j++) {
-        // Endianness of the protocol allows a simple cast :-)
-        uint16_t voltage = rawVoltages[j] / 10;
+            // Endianness of the protocol allows a simple cast :-)
+            uint16_t voltage = rawVoltages[j] / 10;
 
-        int index = BMS_CELL_MAP[j];
-        if (index != -1) {
-          allVoltages[(BMS_BANK_CELL_COUNT * i) + index] = voltage;
+            int index = BMS_CELL_MAP[j];
+            if (index != -1) {
+                allVoltages[(BMS_BANK_CELL_COUNT * i) + index] = voltage;
 
-        //   printf("%d: V: %d\n", index, voltage);
+                // printf("%d: V: %d\n", index, voltage);
+            }
         }
-      }
     }
+      // MUX get temp from each cell
+
+      // for every cell in a segment, go through each segment
+      for (uint8_t j = 0; j < BMS_BANK_CELL_COUNT; j++) {
+          for (int i = 0; i < BMS_BANK_COUNT; i++) {
+              // set the GPIOs for the segment we are looking at to the cell # we are getting temperature for
+              LTC6811::Configuration &config = m_chips[i].getConfig();
+              config.gpio1 = (j & 0b001) ? LTC6811::GPIOOutputState::kHigh
+                                         : LTC6811::GPIOOutputState::kLow;
+              config.gpio2 = ((j & 0b010) >> 1) ? LTC6811::GPIOOutputState::kHigh
+                                                : LTC6811::GPIOOutputState::kLow;
+              config.gpio3 = ((j & 0b100) >> 2) ? LTC6811::GPIOOutputState::kHigh
+                                                : LTC6811::GPIOOutputState::kLow;
+              config.gpio4 = LTC6811::GPIOOutputState::kPassive;
+
+              m_chips[i].updateConfig();
+
+              // queue the read command
+              auto gpioADCcmd = StartGpioADC(AdcMode::k7k, GpioSelection::k4);
+              if (m_bus.SendCommand(LTC681xBus::BuildAddressedBusCommand(
+                      gpioADCcmd, i)) != LTC681xBus::LTC681xBusStatus::Ok) {
+                  printf("Things are not okay. StartGPIO ADC\n");
+                      }
+          }
+          ThisThread::sleep_for(5ms);
+
+          uint8_t rxbuf[8 * 2];
+          // now read back all the temperatures for the 6 segments for cell j
+          for (int i = 0; i < BMS_BANK_COUNT; i++) {
+              m_bus.SendReadCommand(
+                  LTC681xBus::BuildAddressedBusCommand(ReadAuxiliaryGroupA(), i),
+                  rxbuf);
+              m_bus.SendReadCommand(
+                  LTC681xBus::BuildAddressedBusCommand(ReadAuxiliaryGroupB(), i),
+                  rxbuf + 8);
+
+              uint16_t tempVoltage = ((uint16_t)rxbuf[8]) | ((uint16_t)rxbuf[9] << 8);
+
+              int8_t temp = convertTemp(tempVoltage / 10);
+              // printf("%d: T: %d\n", j, temp);
+              allTemps[(BMS_BANK_CELL_COUNT * i) + j] = temp;
+          }
+      }
+
     // printf("Fuck: ");
     uint16_t minVoltage = allVoltages[0];
     uint16_t maxVoltage = 0;
@@ -357,8 +363,8 @@ void BMSThread::threadWorker() {
 //        }
 
         // #### I ADDED THIS #### MAYBE COULD BE USED INSTEAD OF THE FOR LOOPS?
-        std::copy(allVoltages, allVoltages + (BMS_BANK_COUNT * BMS_BANK_CELL_COUNT), msg->voltageValues); // Copy all voltage values
-    	std::copy(allTemps, allTemps + (BMS_BANK_COUNT * BMS_BANK_TEMP_COUNT), msg->temperatureValues); // Copy all temperature values
+        std::copy(allVoltages.begin(), allVoltages.end(), msg->voltageValues); // Copy all voltage values
+    	std::copy(allTemps.begin(), allTemps.end(), msg->temperatureValues); // Copy all temperature values
         // #### IDK IF THIS IS BETTER THOUGH.... ####
         msg->bmsState = bmsState; // Assign the current bmsState to the msg's bmsState
         msg->isBalancing = isBalancing; // Assign the current balancing state to the msg's isBalancing
