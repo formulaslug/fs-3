@@ -4,6 +4,7 @@
 #include <cstdio>
 #include <string>
 #include <memory>
+#include <numeric>
 #include <vector>
 #include <iostream>
 
@@ -11,9 +12,10 @@
 
 #include "LTC681xParallelBus.h"
 #include "BmsThread.h"
-
 #include "Can.h"
 
+
+#include "Can.h"
 
 CAN* canBus;
 
@@ -114,31 +116,32 @@ int main() {
   spiDriver->format(8, 0);
   auto ltcBus = LTC681xParallelBus(spiDriver);
 
-  BmsEventMailbox* bmsMailbox = new BmsEventMailbox();
-  MainToBMSMailbox* mainToBMSMailbox = new MainToBMSMailbox();
+  BmsEventMailbox* bmsMailbox = new BmsEventMailbox(); // define bms event mailbox
+  MainToBMSMailbox* mainToBMSMailbox = new MainToBMSMailbox(); // define main to bms mailbox (sends info from main to bms)
 
   Thread bmsThreadThread;
-  BMSThread bmsThread(ltcBus, 1, bmsMailbox, mainToBMSMailbox);
+  BMSThread bmsThread(ltcBus, 1, bmsMailbox, mainToBMSMailbox); // define bmsThread object...?
   bmsThreadThread.start(callback(&BMSThread::startThread, &bmsThread));
   printf("BMS thread started\n");
 
-  Timer t;
-  t.start();
-  while (1) {
-    glvVoltage = (uint8_t)(glv_voltage_pin * 185.3); // in mV
+  Timer t; // create timer obj
+  t.start(); // start timer
+  while (1) { // infinite loop
+    glvVoltage = (uint8_t)(glv_voltage_pin * 185.3); // Read voltage from glv_voltage_pin and convert it to mV
     //printf("GLV voltage: %d mV\n", glvVoltage * 100);
 
-    while (!bmsMailbox->empty()) {
-        BmsEvent *bmsEvent;
+    while (!bmsMailbox->empty()) { // while the bmsMailbox is not empty
+        BmsEvent *bmsEvent; // create bms event pointer
 
-        osEvent evt = bmsMailbox->get();
-        if (evt.status == osEventMessage) {
-            bmsEvent = (BmsEvent*)evt.value.p;
+        osEvent evt = bmsMailbox->get(); // Fetch a message (instance of BmsEvent) from the bmsMailbox
+        // fetch a message (instance of BmsEvent) from the bmsmailbox
+        if (evt.status == osEventMessage) {// if status is equal to event message
+            bmsEvent = (BmsEvent*)evt.value.p; // set bmsEvent to the value of the received message
         } else {
-            continue;
+            continue; // If not an osEventMessage, continue
         }
 
-        switch (bmsEvent->bmsState) {
+        switch (bmsEvent->bmsState) { // Process the bmsState value in bmsEvent
             case BMSThreadState::BMSStartup:
                 printf("BMS Fault Startup State\n");
                 break;
@@ -146,22 +149,28 @@ int main() {
                 // printf("BMS Fault Idle State\n");
                 hasBmsFault = false;
 
-                maxCellTemp = bmsEvent->maxTemp;
-                avgCellTemp = bmsEvent->avgTemp;
-                isBalancing = bmsEvent->isBalancing;
+
+                maxCellTemp = bmsEvent->maxTemp; // Assign the maxTemp from bmsEvent
+                avgCellTemp = bmsEvent->avgTemp; // Assign the avgTemp from bmsEvent
+                isBalancing = bmsEvent->isBalancing; // Assign the isBalancing value from bmsEvent
 
                 tsVoltagemV = 0;
 
-                for (int i = 0; i < BMS_BANK_COUNT*BMS_BANK_CELL_COUNT; i++) {
-                    allVoltages[i] = bmsEvent->voltageValues[i];
-                    tsVoltagemV += allVoltages[i];
-                    //printf("%d, V: %d\n", i, allVoltages[i]);
-                }
-                for (int i = 0; i < BMS_BANK_COUNT*BMS_BANK_TEMP_COUNT; i++) {
-                    allTemps[i] = bmsEvent->temperatureValues[i];
-                    // printf("%d, T: %d\n", i, allTemps[i]);
-                }
-
+                // for (int i = 0; i < BMS_BANK_COUNT*BMS_BANK_CELL_COUNT; i++) {// Loop through all bank cells
+                //     allVoltages[i] = bmsEvent->voltageValues[i]; // Assign voltage values from bmsEvent
+                //     tsVoltagemV += allVoltages[i]; // Sum of voltage values
+                //     //printf("%d, V: %d\n", i, allVoltages[i]);
+                // }
+                // for (int i = 0; i < BMS_BANK_COUNT*BMS_BANK_TEMP_COUNT; i++) {// Loop through all bank temperatures
+                //     allTemps[i] = bmsEvent->temperatureValues[i]; // Assign temperature values from bmsEvent
+                //     // printf("%d, T: %d\n", i, allTemps[i]);
+                // }
+            // #### I CHANGED THIS #### REPLACED THE FOR LOOPS WITH ACCUMLATE AND COPY...
+            tsVoltagemV = std::accumulate(bmsEvent->voltageValues, bmsEvent->voltageValues + BMS_BANK_COUNT * BMS_BANK_CELL_COUNT, 0);
+            // Sum of voltage values
+            std::copy(bmsEvent->temperatureValues, bmsEvent->temperatureValues + BMS_BANK_COUNT * BMS_BANK_TEMP_COUNT, allTemps);
+            // Copy temperature values
+            // #### THIS IS SOMETHING I ADDED IN ####
                 break;
             case BMSThreadState::BMSFaultRecover:
                 printf("BMS Fault Recovery State\n");
@@ -175,7 +184,7 @@ int main() {
                 printf("FUBAR\n");
                 break;
         }
-        delete bmsEvent;
+        delete bmsEvent;//// deallocate memory that was previously allocated dynamically to BMSEvent
     }
 
     CANMessage readmsg;
@@ -201,11 +210,12 @@ int main() {
         }
     }
 
-    if (!mainToBMSMailbox->full()) {
-        MainToBMSEvent* mainToBMSEvent = new MainToBMSEvent();
-        mainToBMSEvent->balanceAllowed = shutdown_measure_pin;
-        mainToBMSEvent->charging = isCharging;
-        mainToBMSMailbox->put(mainToBMSEvent);
+
+    if (!mainToBMSMailbox->full()) { //if mailbox is not full
+        MainToBMSEvent* mainToBMSEvent = new MainToBMSEvent(); // Create a new MainToBMSEvent object and assign it to the pointer mainToBMSEvent
+        mainToBMSEvent->balanceAllowed = shutdown_measure_pin; // Assign the shutdown_measure_pin value to mainToBMSEvent's balanceAllowed
+        mainToBMSEvent->charging = isCharging; // Assign the isCharging value to mainToBMSEvent's charging
+        mainToBMSMailbox->put(mainToBMSEvent); // Enqueue the newly allocated MainToBMSEvent object into the mainToBMSMailbox for later processing
     }
 
 
@@ -214,22 +224,15 @@ int main() {
         queue.call_in(100ms, &checkShutdownStatus);
     }
 
-
-
-
-
-
     if (dcBusVoltage >= (uint16_t)(tsVoltagemV/100.0) * PRECHARGE_PERCENT && tsVoltagemV >= 60000) {
         prechargeDone = true;
     } else if (dcBusVoltage < 20000 && !checkingPrechargeStatus) {
         checkingPrechargeStatus = true;
         queue.call_in(500ms, &checkPrechargeVoltage);
-        // prechargeDone = false;
+
+        prechargeDone = false;
+
     }
-
-
-
-
 
     bms_fault_pin = !hasBmsFault;
 
@@ -246,6 +249,7 @@ int main() {
     charge_enable_pin = chargeEnable;
 
     fan_control_pin = hasFansOn;
+
     // printf("charge state: %x, hasBmsFault: %x, shutdown_measure: %x\n", isCharging, hasBmsFault, true && shutdown_measure_pin);
 
 
@@ -259,7 +263,7 @@ int main() {
 
 
     // printf("cSense: %d, cVref: %d, Ts current: %d\n", (uint32_t)(cSense*10000), (uint32_t)(cVref*10000), tsCurrent);
-
+    //
     // printf("Error Rx %d - tx %d\n", canBus->rderror(),canBus->tderror());
 
     queue.dispatch_once();
@@ -338,13 +342,15 @@ void initChargingCAN() {
     queue.call_every(200ms, &canTempTX4);
 }
 
+
 // void canRX() {
 //     CANMessage msg;
-
+//
 //     if (canBus->read(msg)) {
 //         canqueue.push(msg);
 //     }
 // }
+
 
 void canBootupTX() {
     canBus->write(accBoardBootup());
@@ -371,26 +377,26 @@ void canBoardStateTX() {
 
 void canTempTX(uint8_t segment) {
     int8_t temps[6] = {
-            allTemps[(segment * BMS_BANK_CELL_COUNT)],
-            allTemps[(segment * BMS_BANK_CELL_COUNT) + 1],
-            allTemps[(segment * BMS_BANK_CELL_COUNT) + 2],
-            allTemps[(segment * BMS_BANK_CELL_COUNT) + 3],
-            allTemps[(segment * BMS_BANK_CELL_COUNT) + 4],
-            allTemps[(segment * BMS_BANK_CELL_COUNT) + 5],
-    };
+        allTemps[(segment * BMS_BANK_CELL_COUNT)],
+        allTemps[(segment * BMS_BANK_CELL_COUNT) + 1],
+        allTemps[(segment * BMS_BANK_CELL_COUNT) + 2],
+        allTemps[(segment * BMS_BANK_CELL_COUNT) + 3],
+        allTemps[(segment * BMS_BANK_CELL_COUNT) + 4],
+        allTemps[(segment * BMS_BANK_CELL_COUNT) + 5],
+};
     canBus->write(accBoardTemp(segment, temps));
     ThisThread::sleep_for(1ms);
 }
 
 void canVoltTX(uint8_t segment) {
     uint16_t volts[6] = {
-            allVoltages[(segment * BMS_BANK_CELL_COUNT)],
-            allVoltages[(segment * BMS_BANK_CELL_COUNT) + 1],
-            allVoltages[(segment * BMS_BANK_CELL_COUNT) + 2],
-            allVoltages[(segment * BMS_BANK_CELL_COUNT) + 3],
-            allVoltages[(segment * BMS_BANK_CELL_COUNT) + 4],
-            allVoltages[(segment * BMS_BANK_CELL_COUNT) + 5],
-    };
+        allVoltages[(segment * BMS_BANK_CELL_COUNT)],
+        allVoltages[(segment * BMS_BANK_CELL_COUNT) + 1],
+        allVoltages[(segment * BMS_BANK_CELL_COUNT) + 2],
+        allVoltages[(segment * BMS_BANK_CELL_COUNT) + 3],
+        allVoltages[(segment * BMS_BANK_CELL_COUNT) + 4],
+        allVoltages[(segment * BMS_BANK_CELL_COUNT) + 5],
+};
     canBus->write(accBoardVolt(segment, volts));
     ThisThread::sleep_for(1ms);
 }

@@ -95,21 +95,25 @@ void BMSThread::threadWorker() {
   while (true) {
 
       bool isBalancing = false;
-      
-    while(!mainToBMSMailbox->empty()) {
+
+    while(!mainToBMSMailbox->empty()) { // checks if maintoBMSMailbox pointer is NOT empty (assuming in order to read
+                                        // inforation from that mailbox that has data in it?  )
         MainToBMSEvent *mainToBMSEvent;
-        
-        osEvent evt = mainToBMSMailbox->get();
-        if (evt.status == osEventMessage) {
-            mainToBMSEvent = (MainToBMSEvent*)evt.value.p;
-        } else {
+
+        osEvent evt = mainToBMSMailbox->get(); //osEvent type of variable(?) evt is being assigned to information
+                                               // that is being being sent to BMS using the mainToBMSMailbox
+        if (evt.status == osEventMessage) { // if the message went through (?) then status will equal osEventMessage
+            mainToBMSEvent = (MainToBMSEvent*)evt.value.p; //set mainToBMSEvent to evt.value(casted to MainToBMSEvent* pointer!)
+        } else { //otherwise keep going
             continue;
         }
 
-        balanceAllowed = mainToBMSEvent->balanceAllowed;
-        charging = mainToBMSEvent->charging;
+        balanceAllowed = mainToBMSEvent->balanceAllowed; // assign balanceAllowed to mainToBMSEvent
+                                                         // that is assigned the value held by balanceAllowed
+        charging = mainToBMSEvent->charging;// assign charging to mainToBMSEvent
+                                            // that is assigned the value held by charging
         // printf("Balance Allowed: %x\nCharging: %x\n", balanceAllowed, charging);
-        delete mainToBMSEvent;
+        delete mainToBMSEvent; // deallocate memory that was previously allocated dynamically to mainToBMSEvent
     }
 
 
@@ -180,63 +184,68 @@ void BMSThread::threadWorker() {
         printf("Things are not okay. VoltageD\n");
       }
 
-      // MUX get temp from each cell
-      for (uint8_t j = 0; j < BMS_BANK_CELL_COUNT; j++) {
-
-        LTC6811::Configuration &config = m_chips[i].getConfig();
-        config.gpio1 = (j & 0b001) ? LTC6811::GPIOOutputState::kHigh
-                                   : LTC6811::GPIOOutputState::kLow;
-        config.gpio2 = ((j & 0b010) >> 1) ? LTC6811::GPIOOutputState::kHigh
-                                          : LTC6811::GPIOOutputState::kLow;
-        config.gpio3 = ((j & 0b100) >> 2) ? LTC6811::GPIOOutputState::kHigh
-                                          : LTC6811::GPIOOutputState::kLow;
-        config.gpio4 = LTC6811::GPIOOutputState::kPassive;
-
-        m_chips[i].updateConfig();
-
-        auto gpioADCcmd = StartGpioADC(AdcMode::k7k, GpioSelection::k4);
-        if (m_bus.SendCommand(LTC681xBus::BuildAddressedBusCommand(
-                gpioADCcmd, i)) != LTC681xBus::LTC681xBusStatus::Ok) {
-          printf("Things are not okay. StartGPIO ADC\n");
-        }
-
-        ThisThread::sleep_for(5ms);
-
-        uint8_t rxbuf[8 * 2];
-
-        m_bus.SendReadCommand(
-            LTC681xBus::BuildAddressedBusCommand(ReadAuxiliaryGroupA(), i),
-            rxbuf);
-        m_bus.SendReadCommand(
-            LTC681xBus::BuildAddressedBusCommand(ReadAuxiliaryGroupB(), i),
-            rxbuf + 8);
-
-        uint16_t tempVoltage = ((uint16_t)rxbuf[8]) | ((uint16_t)rxbuf[9] << 8);
-
-        int8_t temp = convertTemp(tempVoltage / 10);
-        // printf("%d: T: %d\n", j, temp);
-        allTemps[(BMS_BANK_CELL_COUNT * i) + j] = temp;
-      }
-
       for (int j = 0; j < 12; j++) {
-        // Endianness of the protocol allows a simple cast :-)
-        uint16_t voltage = rawVoltages[j] / 10;
+            // Endianness of the protocol allows a simple cast :-)
+            uint16_t voltage = rawVoltages[j] / 10;
 
-        int index = BMS_CELL_MAP[j];
-        if (index != -1) {
-          allVoltages[(BMS_BANK_CELL_COUNT * i) + index] = voltage;
-
-        //   printf("%d: V: %d\n", index, voltage);
+            int index = BMS_CELL_MAP[j];
+            if (index != -1) {
+                allVoltages[(BMS_BANK_CELL_COUNT * i) + index] = voltage;
+                // printf("%d: V: %d\n", index, voltage);
+            }
         }
-      }
     }
+      // MUX get temp from each cell
+
+      // for every cell in a segment, go through each segment
+      for (uint8_t j = 0; j < BMS_BANK_CELL_COUNT; j++) {
+          for (int i = 0; i < BMS_BANK_COUNT; i++) {
+              // set the GPIOs for the segment we are looking at to the cell # we are getting temperature for
+              LTC6811::Configuration &config = m_chips[i].getConfig();
+              config.gpio1 = (j & 0b001) ? LTC6811::GPIOOutputState::kHigh
+                                         : LTC6811::GPIOOutputState::kLow;
+              config.gpio2 = ((j & 0b010) >> 1) ? LTC6811::GPIOOutputState::kHigh
+                                                : LTC6811::GPIOOutputState::kLow;
+              config.gpio3 = ((j & 0b100) >> 2) ? LTC6811::GPIOOutputState::kHigh
+                                                : LTC6811::GPIOOutputState::kLow;
+              config.gpio4 = LTC6811::GPIOOutputState::kPassive;
+
+              m_chips[i].updateConfig();
+
+              // queue the read command
+              auto gpioADCcmd = StartGpioADC(AdcMode::k7k, GpioSelection::k4);
+              if (m_bus.SendCommand(LTC681xBus::BuildAddressedBusCommand(
+                      gpioADCcmd, i)) != LTC681xBus::LTC681xBusStatus::Ok) {
+                  printf("Things are not okay. StartGPIO ADC\n");
+                      }
+          }
+          ThisThread::sleep_for(5ms);
+
+          uint8_t rxbuf[8 * 2];
+          // now read back all the temperatures for the 6 segments for cell j
+          for (int i = 0; i < BMS_BANK_COUNT; i++) {
+              m_bus.SendReadCommand(
+                  LTC681xBus::BuildAddressedBusCommand(ReadAuxiliaryGroupA(), i),
+                  rxbuf);
+              m_bus.SendReadCommand(
+                  LTC681xBus::BuildAddressedBusCommand(ReadAuxiliaryGroupB(), i),
+                  rxbuf + 8);
+
+              uint16_t tempVoltage = ((uint16_t)rxbuf[8]) | ((uint16_t)rxbuf[9] << 8);
+
+              int8_t temp = convertTemp(tempVoltage / 10);
+              // printf("%d: T: %d\n", j, temp);
+              allTemps[(BMS_BANK_CELL_COUNT * i) + j] = temp;
+          }
+      }
+
     // printf("Fuck: ");
     uint16_t minVoltage = allVoltages[0];
     uint16_t maxVoltage = 0;
     for (int i = 0; i < BMS_BANK_COUNT * BMS_BANK_CELL_COUNT; i++) {
-        // if (allVoltages[i] > BMS_FAULT_VOLTAGE_THRESHOLD_HIGH) {
-        //     printf("%d, ", i);
-        // }
+        if (allVoltages[i] > BMS_FAULT_VOLTAGE_THRESHOLD_HIGH) {
+            printf("%d, ", i);
+        }
       if (allVoltages[i] < minVoltage) {
         minVoltage = allVoltages[i];
       } else if (allVoltages[i] > maxVoltage) {
@@ -258,8 +267,8 @@ void BMSThread::threadWorker() {
       }
     }
     avgTemp = tempSum / (BMS_BANK_COUNT * BMS_BANK_TEMP_COUNT);
-    // printf("0 Temps: %d, %d, %d, %d, %d, %d, %d\n", allTemps[0], allTemps[1], allTemps[2], allTemps[3], allTemps[4], allTemps[5], allTemps[6]);
-    // printf("1 Temps: %d, %d, %d, %d, %d, %d, %d\n", allTemps[7], allTemps[8], allTemps[9], allTemps[10], allTemps[11], allTemps[12], allTemps[13]);
+    // printf("0 Temps: %d, %d, %d, %d, %d, %d\n", allTemps[0], allTemps[1], allTemps[2], allTemps[3], allTemps[4], allTemps[5]);
+    // printf("0 Volts: %d, %d, %d, %d, %d, %d\n", allVoltages[0], allVoltages[1], allVoltages[2], allVoltages[3], all[4], allVoltages[5]);
     // printf("2 Temps: %d, %d, %d, %d, %d, %d, %d\n", allTemps[14], allTemps[15], allTemps[16], allTemps[17], allTemps[18], allTemps[19], allTemps[20]);
     // printf("3 Temps: %d, %d, %d, %d, %d, %d, %d\n\n", allTemps[21], allTemps[22], allTemps[23], allTemps[24], allTemps[25], allTemps[26], allTemps[27]);
     // printf("min temp: %d, max temp: %d\nmin volt: %d, max volt %d\n", minTemp, maxTemp, minVoltage, maxVoltage);
@@ -315,7 +324,7 @@ void BMSThread::threadWorker() {
           uint16_t cellVoltage = allVoltages[i * BMS_BANK_CELL_COUNT + cellNum];
           if (cellVoltage >= BMS_BALANCE_THRESHOLD &&
               cellVoltage >= minVoltage + BMS_DISCHARGE_THRESHOLD) {
-            // printf("Balancing cell %d\?n", cellNum);
+            printf("Balancing cell %d\?n", cellNum);
             dischargeValue |= (0x1 << j);
             isBalancing = true;
           }
@@ -342,22 +351,32 @@ void BMSThread::threadWorker() {
       m_chips[i].updateConfig();
     }
 
-    if (!bmsEventMailbox->full()) {
-        BmsEvent* msg = new BmsEvent();
-        for (int i = 0; i < BMS_BANK_COUNT*BMS_BANK_CELL_COUNT; i++) {
-            msg->voltageValues[i] = allVoltages[i];
-        }
-        for (int i = 0; i < BMS_BANK_COUNT*BMS_BANK_TEMP_COUNT; i++) {
-            msg->temperatureValues[i] = allTemps[i];
-        }
-        msg->bmsState = bmsState;
-        msg->isBalancing = isBalancing;
-        msg->minVolt = (uint8_t)(minVoltage*50/1000.0);
-        msg->maxVolt = (uint8_t)(maxVoltage*50/1000.0);
-        msg->minTemp = minTemp;
-        msg->maxTemp = maxTemp;
-        msg->avgTemp = avgTemp;
+    if (!bmsEventMailbox->full()) { // if the bmsEventMailbox is not full
+        BmsEvent* msg = new BmsEvent(); // create new BMSevent obj and assign it to pointer msg
+//        for (int i = 0; i < BMS_BANK_COUNT*BMS_BANK_CELL_COUNT; i++) { // loop through all bank cells
+//
+//            msg->voltageValues[i] = allVoltages[i]; //Assign each voltage value from allVoltages to the msg's voltageValues array
+//        }
+//        for (int i = 0; i < BMS_BANK_COUNT*BMS_BANK_TEMP_COUNT; i++) { // Loop through all bank temperatures
+//            msg->temperatureValues[i] = allTemps[i];// Assign each temperature value from allTemps to the msg's temperatureValues array
+//        }
+
+        // #### I ADDED THIS #### MAYBE COULD BE USED INSTEAD OF THE FOR LOOPS?
+        std::copy(allVoltages.begin(), allVoltages.end(), msg->voltageValues); // Copy all voltage values
+    	std::copy(allTemps.begin(), allTemps.end(), msg->temperatureValues); // Copy all temperature values
+        // #### IDK IF THIS IS BETTER THOUGH.... ####
+        msg->bmsState = bmsState; // Assign the current bmsState to the msg's bmsState
+        msg->isBalancing = isBalancing; // Assign the current balancing state to the msg's isBalancing
+        msg->minVolt = (uint8_t)(minVoltage*50/1000.0); // Calculate and assign the min voltage to msg's minVolt
+        msg->maxVolt = (uint8_t)(maxVoltage*50/1000.0);// Calculate and assign the max voltage to msg's maxVolt
+        msg->minTemp = minTemp;  // Assign the min temperature to msg's minTemp
+        msg->maxTemp = maxTemp; // Assign the max temperature to msg's minTemp
+        msg->avgTemp = avgTemp; // Assign the average temperature to msg's minTemp
         bmsEventMailbox->put((BmsEvent *)msg);
+
+
+        										//put() enqueues the newly allocated BmsEvent obj msg into the mailbox
+        // 										will later be processed
     }
     
 
