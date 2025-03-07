@@ -39,7 +39,7 @@ void canVoltTX1();
 void canVoltTX2();
 void canVoltTX3();
 void canVoltTX4();
-void canCurrentLimTX();
+// void canCurrentLimTX(); # moved to ETC
 
 void canLSS_SwitchStateGlobal();
 void canLSS_SetNodeIDGlobal();
@@ -67,14 +67,12 @@ DigitalIn imd_status_pin(ACC_IMD_STATUS);
 DigitalIn charge_state_pin(ACC_CHARGE_STATE);
 
 
-DigitalOut fan_control_pin(ACC_FAN_CONTROL);
-DigitalOut charge_enable_pin(ACC_CHARGE_ENABLE);
 DigitalOut bms_fault_pin(ACC_BMS_FAULT);
 DigitalOut precharge_control_pin(ACC_PRECHARGE_CONTROL);
 
 
-AnalogIn current_vref_pin(ACC_BUFFERED_C_VREF);
-AnalogIn current_sense_pin(ACC_BUFFERED_C_OUT);
+// AnalogIn current_vref_pin(ACC_BUFFERED_C_VREF);
+AnalogIn current_sense_pin(ACC_AMP_CURR_OUT);
 AnalogIn glv_voltage_pin(ACC_GLV_VOLTAGE);
 
 bool checkingPrechargeStatus = false;
@@ -165,7 +163,7 @@ int main() {
                 //     allTemps[i] = bmsEvent->temperatureValues[i]; // Assign temperature values from bmsEvent
                 //     // printf("%d, T: %d\n", i, allTemps[i]);
                 // }
-            // #### I CHANGED THIS #### REPLACED THE FOR LOOPS WITH ACCUMLATE AND COPY...
+            // #### I CHANGED THIS #### REPLACED THE FOR LOOPS WITH ACCUMULATE AND COPY...
             tsVoltagemV = std::accumulate(bmsEvent->voltageValues, bmsEvent->voltageValues + BMS_BANK_COUNT * BMS_BANK_CELL_COUNT, 0);
             // Sum of voltage values
             std::copy(bmsEvent->temperatureValues, bmsEvent->temperatureValues + BMS_BANK_COUNT * BMS_BANK_TEMP_COUNT, allTemps);
@@ -201,7 +199,7 @@ int main() {
 
         switch(id) {
           case 0x682: // temperature message from MC
-            dcBusVoltage = (data[2] | (data[3] << 8)); // TODO: check if this is correct
+            dcBusVoltage = (data[2] | (data[3] << 8));
             break;
           case 0x190: // charge status from charger, 180 + node ID (10)
             dcBusVoltage = (data[2] | (data[3] << 8) | (data[4] << 16) | (data[5] << 24)) / 100;
@@ -246,20 +244,20 @@ int main() {
     hasFansOn = prechargeDone || isCharging;
 
     chargeEnable = isCharging && !hasBmsFault && shutdown_measure_pin && prechargeDone;
-    charge_enable_pin = chargeEnable;
+    // charge_enable_pin = chargeEnable;
 
-    fan_control_pin = hasFansOn;
+    // fan_control_pin = hasFansOn;
 
     // printf("charge state: %x, hasBmsFault: %x, shutdown_measure: %x\n", isCharging, hasBmsFault, true && shutdown_measure_pin);
 
 
-    float cSense = (current_sense_pin) * 5; // x5 for 5 volts, pin is number from 0-1
-    float cVref = (current_vref_pin) * 5; // x5 for 5 volts, pin is number from 0-1
+    // Current sensor math, look at ACC board (AMP_Curr_Sensor) and datasheet
 
-    // divided by 0.625 for how the current sensor works :/
-    // times by 300 because that's the nominal current reading of the sensor (ie baseline)
-    // multiplied by 10 and cast to a uint16 for 1 decimal place
-    tsCurrent = (uint16_t)((cSense-cVref)*4800);
+    // divided by 0.625, according to datasheet
+    // multiplied by 300 because that's the nominal current reading of the sensor (ie baseline)
+    // divided by 4 (400k / 100k) because of the differential amplifier
+    // divided by 3/8 because of voltage divider
+    tsCurrent = (uint16_t)((current_sense_pin)*0.32);
 
 
     // printf("cSense: %d, cVref: %d, Ts current: %d\n", (uint32_t)(cSense*10000), (uint32_t)(cVref*10000), tsCurrent);
@@ -272,8 +270,8 @@ int main() {
 }
 
 void initIO() {
-    fan_control_pin = 0; // turn fans off at start
-    charge_enable_pin = 0; // charge not allowed at start
+    // fan_control_pin = 0; // turn fans off at start
+    // charge_enable_pin = 0; // charge not allowed at start
     bms_fault_pin = 0; // assume fault at start, low means fault
     precharge_control_pin = 0; // positive AIR open at start
 
@@ -288,7 +286,7 @@ void initIO() {
     ThisThread::sleep_for(1ms);
     isCharging = charge_state_pin;
     if (isCharging) {
-        initChargingCAN();
+        // initChargingCAN();
     } else {
         initDrivingCAN();
     }
@@ -298,7 +296,7 @@ void initIO() {
 
 void initDrivingCAN() {
     queue.call_every(100ms, &canBoardStateTX);
-    queue.call_every( 20ms, &canCurrentLimTX);
+    // queue.call_every( 20ms, &canCurrentLimTX); # moved to ETC
     queue.call_every(200ms, &canVoltTX0);
     queue.call_every(200ms, &canVoltTX1);
     queue.call_every(200ms, &canVoltTX2);
@@ -329,7 +327,7 @@ void initChargingCAN() {
 
 
     queue.call_every(100ms, &canBoardStateTX);
-    queue.call_every( 20ms, &canCurrentLimTX);
+    // queue.call_every( 20ms, &canCurrentLimTX); # moved to ETC
     queue.call_every(200ms, &canVoltTX0);
     queue.call_every(200ms, &canVoltTX1);
     queue.call_every(200ms, &canVoltTX2);
@@ -352,9 +350,9 @@ void initChargingCAN() {
 // }
 
 
-void canBootupTX() {
-    canBus->write(accBoardBootup());
-}
+// void canBootupTX() {
+//     canBus->write(accBoardBootup());
+// }
 
 void canBoardStateTX() {
     canBus->write(accBoardState(
@@ -383,7 +381,7 @@ void canTempTX(uint8_t segment) {
         allTemps[(segment * BMS_BANK_CELL_COUNT) + 3],
         allTemps[(segment * BMS_BANK_CELL_COUNT) + 4],
         allTemps[(segment * BMS_BANK_CELL_COUNT) + 5],
-};
+    };
     canBus->write(accBoardTemp(segment, temps));
     ThisThread::sleep_for(1ms);
 }
@@ -401,12 +399,12 @@ void canVoltTX(uint8_t segment) {
     ThisThread::sleep_for(1ms);
 }
 
-void canCurrentLimTX() {
-    uint16_t chargeCurrentLimit = 0x0000;
-    uint16_t dischargeCurrentLimit = (uint16_t)(((CAR_MAX_POWER/(tsVoltagemV/1000.0))*CAR_POWER_PERCENT < CAR_CURRENT_MAX) ? (CAR_MAX_POWER/(tsVoltagemV/1000.0)*CAR_POWER_PERCENT) : CAR_CURRENT_MAX);
-    canBus->write(motorControllerCurrentLim(chargeCurrentLimit, dischargeCurrentLimit));
-    ThisThread::sleep_for(1ms);
-}
+// void canCurrentLimTX() { # moved to ETC
+//     uint16_t chargeCurrentLimit = 0x0000;
+//     uint16_t dischargeCurrentLimit = (uint16_t)(((CAR_MAX_POWER/(tsVoltagemV/1000.0))*CAR_POWER_PERCENT < CAR_CURRENT_MAX) ? (CAR_MAX_POWER/(tsVoltagemV/1000.0)*CAR_POWER_PERCENT) : CAR_CURRENT_MAX);
+//     canBus->write(motorControllerCurrentLim(chargeCurrentLimit, dischargeCurrentLimit));
+//     ThisThread::sleep_for(1ms);
+// }
 
 void canVoltTX0() {
     canVoltTX(0);
@@ -448,25 +446,7 @@ void canTempTX4() {
     canTempTX(4);
 }
 
-void canLSS_SwitchStateGlobal() { // Switch state global protocol, switch to LSS configuration state
-    uint8_t data[8] = {0x04, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-    CANMessage msg(0x7E5, data);
-    canBus->write(msg);
-}
-
-void canLSS_SetNodeIDGlobal() { // Configure node ID protocol, set node ID to 0x10
-    uint8_t data[8] = {0x11, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-    CANMessage msg(0x7E5, data);
-    canBus->write(msg);
-}
-
-void can_ChargerSync() {
-    uint8_t data[0] = {};
-    CANMessage msg(0x80, data, 0);
-    canBus->write(msg);
-}
-
-void can_ChargerChargeControl() {
+void can_ChargerChargeControl() { // TODO: this likely changes with no enable pin
     canBus->write(chargerChargeControlRPDO(
         0x10, // destination node ID
         0x00000000, // pack voltage; doesn't matter as only for internal charger logging
@@ -476,14 +456,6 @@ void can_ChargerChargeControl() {
     ));
 }
 
-void can_ChargerMaxCurrentVoltage() {
-    canBus->write(chargerMaxAllowedVoltageCurrentRPDO(
-        0x10, // destination node ID
-        CHARGE_VOLTAGE*1000, // desired voltage, mV
-        CHARGE_DC_LIMIT, // charge current limit, mA
-        CHARGE_AC_LIMIT // input AC current, can change to 20 if plugged into nema 5-20, nema 5-15 is standard
-    ));
-}
 
 void checkPrechargeVoltage() {
     if (dcBusVoltage < 20000) {

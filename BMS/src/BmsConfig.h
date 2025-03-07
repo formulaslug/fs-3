@@ -160,43 +160,15 @@ const int BMS_CELL_MAP[12] = {0, 1, 2, 3, -1, -1, 4, 5, 6, -1, -1, -1};
 #endif
 
 
-// Acc board fan control
-//
-// To be set high or low to enable/disable fans
-#ifndef ACC_FAN_CONTROL
-
-#ifdef TARGET_NUCLEO_L432KC
-  #define ACC_FAN_CONTROL PA_7
-#else
-  #error "Unknown board for ACC_FAN_CONTROL"
-#endif
-
-#endif
-
-
-// Acc board current sensor vref read
-//
-// To measure the vref on the current sensor
-#ifndef ACC_BUFFERED_C_VREF
-
-#ifdef TARGET_NUCLEO_L432KC
-  #define ACC_BUFFERED_C_VREF PA_3
-#else
-  #error "Unknown board for ACC_BUFFERED_C_VREF"
-#endif
-
-#endif
-
-
 // Acc board current sensor output read
 //
 // To measure the output on the current sensor
-#ifndef ACC_BUFFERED_C_OUT
+#ifndef ACC_AMP_CURR_OUT
 
 #ifdef TARGET_NUCLEO_L432KC
-  #define ACC_BUFFERED_C_OUT PA_1
+  #define ACC_AMP_CURR_OUT PA_3
 #else
-  #error "Unknown board for ACC_BUFFERED_C_OUT"
+  #error "Unknown board for ACC_AMP_CURR_OUT"
 #endif
 
 #endif
@@ -211,20 +183,6 @@ const int BMS_CELL_MAP[12] = {0, 1, 2, 3, -1, -1, 4, 5, 6, -1, -1, -1};
   #define ACC_GLV_VOLTAGE PA_0
 #else
   #error "Unknown board for ACC_GLV_VOLTAGE"
-#endif
-
-#endif
-
-
-// Acc charge enable output
-//
-// To be set high when charging is allowed
-#ifndef ACC_CHARGE_ENABLE
-
-#ifdef TARGET_NUCLEO_L432KC
-  #define ACC_CHARGE_ENABLE PA_9
-#else
-  #error "Unknown board for ACC_CHARGE_ENABLE"
 #endif
 
 #endif

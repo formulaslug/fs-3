@@ -43,7 +43,7 @@ void canBoardStateTX(const CANMessage &BoardState) {
 
 //--------------------------------------------------------------------------------
 // Accumulator Temperatures
-CANMessage accBoardTemp(uint8_t segment, const uint8_t *temps) {
+CANMessage accBoardTemp(uint8_t segment, int8_t  *temps) {
   uint8_t data[BMS_BANK_CELL_COUNT];
   unsigned int id;
   switch (segment) {
@@ -70,8 +70,8 @@ CANMessage accBoardTemp(uint8_t segment, const uint8_t *temps) {
   return CANMessage{id, data};
 }
 
-void canTempTX(uint8_t segment, int8_t allTemps[]) {
-    uint8_t temps[BMS_BANK_COUNT * BMS_BANK_CELL_COUNT];
+void canTempTX(uint8_t segment, const int8_t allTemps[]) {
+    int8_t temps[BMS_BANK_COUNT * BMS_BANK_CELL_COUNT];
     for( uint8_t i = 0; i < BMS_BANK_COUNT; i++) {
         temps[i] = segment * BMS_BANK_CELL_COUNT + i;
     }
@@ -107,7 +107,7 @@ void canTempTX(uint8_t segment, int8_t allTemps[]) {
   return CANMessage(id, data);
 }
 
-void canVoltTX(uint8_t segment, uint16_t allVoltages[]) {
+void canVoltTX(uint8_t segment, const uint16_t allVoltages[]) {
     uint16_t volts[BMS_BANK_COUNT];
     for( uint8_t i = 0; i < BMS_BANK_COUNT; i++) {
         volts[i] = segment * BMS_BANK_CELL_COUNT + i;

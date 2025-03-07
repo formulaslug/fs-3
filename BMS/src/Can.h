@@ -41,7 +41,7 @@ CANMessage accBoardState(uint8_t glvVoltage, uint16_t tsVoltage, bool bmsFault,
                          uint8_t maxCellVoltage, int16_t tsCurrent);
 
 /* TPDO that sends all temperatures for one segment */
-CANMessage accBoardTemp(uint8_t segment, const int8_t *temps);
+CANMessage accBoardTemp(uint8_t segment, int8_t *temps);
 
 /* TPDO that sends all voltages for one segment */
 CANMessage accBoardVolt(uint8_t segment, uint16_t *voltages);
