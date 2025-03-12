@@ -14,8 +14,7 @@
 #include "BmsThread.h"
 #include "Can.h"
 
-
-#include "Can.h"
+#include "Event.h"
 
 CAN* canBus;
 
