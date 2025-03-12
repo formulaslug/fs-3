@@ -236,7 +236,7 @@ int main() {
 
 
 
-    isCharging = charge_state_pin;
+    // isCharging = charge_state_pin;
     // printf("charge state: %x\n", isCharging);
 
     precharge_control_pin = prechargeDone /*false*/;
@@ -284,7 +284,7 @@ void initIO() {
     queue.dispatch_once();
 
     ThisThread::sleep_for(1ms);
-    isCharging = charge_state_pin;
+    // isCharging = charge_state_pin;
     if (isCharging) {
         // initChargingCAN();
     } else {
