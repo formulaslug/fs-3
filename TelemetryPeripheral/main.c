@@ -5,8 +5,8 @@
  * @brief Main function 
  */
 
-#include "mcc_generated_files/mcc.h"
 #include <avr/io.h>
+#include "mcc_generated_files/mcc.h"
 
 int main(){
 
@@ -15,6 +15,9 @@ int main(){
 
     while (true) {
         DELAY_milliseconds(1000);
+        IO_PA6_SetHigh();
+        DELAY_milliseconds(1000);
+        IO_PA6_SetLow();
     }
 
     return 0;

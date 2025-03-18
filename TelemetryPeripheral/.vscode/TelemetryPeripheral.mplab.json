@@ -7,6 +7,7 @@
             "targetDevice": "ATtiny1616",
             "imageType": "application",
             "imagePath": "./out/TelemetryPeripheral/default.elf",
+            "platformTool": "default-tool-base",
             "packs": [
                 {
                     "name": "ATtiny_DFP",
@@ -30,6 +31,11 @@
             "name": "default-AVR-GCC",
             "type": "toolchain",
             "provider": "microchip.toolchains:avr-gcc@13.2.0",
+            "properties": {}
+        },
+        {
+            "name": "default-tool-base",
+            "type": "tool",
             "properties": {}
         }
     ],
