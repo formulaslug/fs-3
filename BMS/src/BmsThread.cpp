@@ -267,8 +267,8 @@ void BMSThread::threadWorker() {
       }
     }
     avgTemp = tempSum / (BMS_BANK_COUNT * BMS_BANK_TEMP_COUNT);
-    // printf("0 Temps: %d, %d, %d, %d, %d, %d\n", allTemps[0], allTemps[1], allTemps[2], allTemps[3], allTemps[4], allTemps[5]);
-    // printf("0 Volts: %d, %d, %d, %d, %d, %d\n", allVoltages[0], allVoltages[1], allVoltages[2], allVoltages[3], all[4], allVoltages[5]);
+    printf("0 Temps: %d, %d, %d, %d, %d, %d\n", allTemps[0], allTemps[1], allTemps[2], allTemps[3], allTemps[4], allTemps[5]);
+    printf("0 Volts: %d, %d, %d, %d, %d, %d\n", allVoltages[0], allVoltages[1], allVoltages[2], allVoltages[3], allVoltages[4], allVoltages[5]);
     // printf("2 Temps: %d, %d, %d, %d, %d, %d, %d\n", allTemps[14], allTemps[15], allTemps[16], allTemps[17], allTemps[18], allTemps[19], allTemps[20]);
     // printf("3 Temps: %d, %d, %d, %d, %d, %d, %d\n\n", allTemps[21], allTemps[22], allTemps[23], allTemps[24], allTemps[25], allTemps[26], allTemps[27]);
     // printf("min temp: %d, max temp: %d\nmin volt: %d, max volt %d\n", minTemp, maxTemp, minVoltage, maxVoltage);
@@ -392,5 +392,5 @@ void BMSThread::threadWorker() {
 }
 
 void BMSThread::throwBmsFault() {
-    bmsState = BMSThreadState::BMSFault;
+    // bmsState = BMSThreadState::BMSFault;
 }
