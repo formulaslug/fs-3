@@ -1,0 +1,47 @@
+#!/bin/sh
+set -e
+
+# Styling
+BOLD="\033[1m"
+GREEN="\033[0;32m"
+NC="\033[0m"
+
+# Header
+printf "${BOLD}${GREEN}\n"
+printf "=====================================\n"
+printf "      FS-3 Telemetry Code Checks     \n"
+printf "=====================================\n"
+printf "${NC}"
+
+# Get staged files
+FILES=$(git diff --cached --name-only --diff-filter=ACM)
+FORMATTABLE_FILES=$(printf "%s\n" "$FILES" | grep -E '\.(c|cpp|h|hpp|js|ts|jsx|tsx|html|css|json|md|yaml|yml)$' || true)
+TOTAL=$(printf "%s\n" "$FORMATTABLE_FILES" | wc -l | tr -d ' ')
+
+[ "$TOTAL" -eq 0 ] && {
+    echo "${GREEN}✅ No files to format. You're good to go!${NC}"
+    exit 0
+}
+
+# Format loop
+INDEX=1
+printf "%s\n" "$FORMATTABLE_FILES" | while IFS= read -r FILE; do
+    TOOL=""
+    case "$FILE" in
+        *.c|*.cpp|*.h|*.hpp)
+            TOOL="🔧 clang-format"
+            clang-format -i "$FILE" >/dev/null 2>&1
+            ;;
+        *.js|*.ts|*.jsx|*.tsx|*.html|*.css|*.json|*.md|*.yaml|*.yml)
+            TOOL="🎨 prettier"
+            npx prettier --write "$FILE" >/dev/null 2>&1
+            ;;
+    esac
+
+    git add "$FILE"
+    printf "[%d/%d] %s: %s\n" "$INDEX" "$TOTAL" "$TOOL" "$FILE"
+    INDEX=$((INDEX + 1))
+done
+
+# Final message
+echo "\n${BOLD}${GREEN}✅ All formatted! Pre-commit complete.\n"
