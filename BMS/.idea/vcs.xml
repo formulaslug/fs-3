@@ -2,7 +2,9 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/.." vcs="Git" />
     <mapping directory="$PROJECT_DIR$/lib-mbed-ltc681x" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/mbed-os" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/mbed-os/tools/doxygen-awesome-css" vcs="Git" />
   </component>
 </project>
