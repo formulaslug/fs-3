@@ -39,6 +39,7 @@ typedef struct spi0_descriptor_s {
 } spi0_descriptor_t;
 
 spi0_configuration_t spi0_configurations[] = {
+    { 0x25, 0x0 },
     { 0x23, 0x0 }
 };
 

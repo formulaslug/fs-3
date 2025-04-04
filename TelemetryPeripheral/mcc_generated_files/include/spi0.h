@@ -80,6 +80,7 @@ typedef enum spi0_transfer_status {
     SPI configuration such as polarity or SCK frequency.
 */
 typedef enum {
+    MASTER0_CONFIG,
     SPI0_DEFAULT
 } SPI0_configuration_name_t;
 

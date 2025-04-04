@@ -1,7 +1,8 @@
 /**
 \file
-\addtogroup doc_driver_delay_code
-\brief This file contains the functions to generate delays in the millisecond and microsecond ranges.
+\addtogroup doc_driver_spi_code
+\brief This file contains the functions that implement the SPI master driver functionalities.
+
 \copyright (c) 2020 Microchip Technology Inc. and its subsidiaries.
 \page License
     (c) 2020 Microchip Technology Inc. and its subsidiaries. You may use this
@@ -23,38 +24,44 @@
 
     MICROCHIP PROVIDES THIS SOFTWARE CONDITIONALLY UPON YOUR ACCEPTANCE OF THESE
     TERMS.
-**/
-
-
-#include "config/clock_config.h"
-#include <util/delay.h>
-#include <stdint.h>
+*/
 
 /**
-*  \ingroup doc_driver_delay_code
-*  Call this function to delay execution of the program for a certain number of milliseconds
-@param milliseconds - number of milliseconds to delay
-*/
-void DELAY_milliseconds(uint16_t milliseconds) {
-    while(milliseconds--){ 
-        _delay_ms(1); 
+  Section: Included Files
+ */
+
+#include "spi_master.h"
+
+bool MASTER0_open(void);
+
+const spi_master_functions_t spiMaster[] = {   
+    { SPI0_Close, MASTER0_open, SPI0_ExchangeByte, SPI0_ExchangeBlock, SPI0_WriteBlock, SPI0_ReadBlock, SPI0_WriteByte, SPI0_ReadByte, NULL, NULL }
+};
+
+bool MASTER0_open(void){
+    return SPI0_OpenConfiguration(MASTER0_CONFIG);
+}
+
+/**
+ *  \ingroup doc_driver_spi_code
+ *  \brief Open the SPI interface.
+ *
+ *  This function is to keep the backward compatibility with older API users
+ *  \param[in] configuration The configuration to use in the transfer
+ *
+ *  \return Initialization status.
+ *  \retval false The SPI open was unsuccessful
+ *  \retval true  The SPI open was successful
+ */
+bool spi_master_open(spi_master_configurations_t config){
+    switch(config){
+        case MASTER0:
+            return MASTER0_open();
+        default:
+            return 0;
     }
 }
 
 /**
-*  \ingroup doc_driver_delay_code
-*  Call this function to delay execution of the program for a certain number of microseconds
-@param microseconds - number of microseconds to delay
-*/
-void DELAY_microseconds(uint16_t microseconds) {
-    while( microseconds >= 32)
-    {
-        _delay_us(32);
-        microseconds -= 32;
-    }
-    
-    while(microseconds--)
-    {
-        _delay_us(1);
-    }
-}
+ End of File
+ */
