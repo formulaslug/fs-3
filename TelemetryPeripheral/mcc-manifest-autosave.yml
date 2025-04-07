@@ -2,7 +2,7 @@
 
 manifest_file_version: 1.0.0
 project: N/A
-creation_date: 2025-04-03T20:53:37.883-07:00[America/Los_Angeles]
+creation_date: 2025-04-06T13:39:01.343-07:00[America/Los_Angeles]
 operating_system: Linux
 mcc_mode: Standalone
 mcc_mode_version: 5.5.1
@@ -18,6 +18,6 @@ device_library: {library_class: com.microchip.mcc.mcu8.Mcu8AVRPeripheralLibrary,
     AVR MCUs, version: 2.9.1}
 packs: null
 modules:
-- {name: com.microchip.mcc.mcu8.Mcu8AVRPeripheralLibrary, type: CLASSIC, version: 2.9.1}
 - {name: com.microchip.mcc.foundationservices.library.FoundationServicesLibrary, type: CLASSIC,
   version: 0.2.3}
+- {name: com.microchip.mcc.mcu8.Mcu8AVRPeripheralLibrary, type: CLASSIC, version: 2.9.1}
