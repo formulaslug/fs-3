@@ -14,7 +14,6 @@
  */
 class CANWrapper : public Module {
     CAN* mainBus;   // to be initialized
-    CAN* motorBus;  // to be initialized
     EventFlags& Global_Events;
     ETCController& etc;
     Ticker throttleTicker;
@@ -25,8 +24,6 @@ class CANWrapper : public Module {
 
     constexpr static PinName MAIN_BUS_RD = PB_5;
     constexpr static PinName MAIN_BUS_TD = PB_6;
-    constexpr static PinName MOTOR_BUS_RD = PA_11;
-    constexpr static PinName MOTOR_BUS_TD = PA_12;
 
 public:
     const int32_t THROTTLE_FLAG = (1UL << 0);
@@ -41,8 +38,6 @@ public:
 
         // TODO add fail code for failed CAN instantiation
         mainBus = new CAN(MAIN_BUS_RD, MAIN_BUS_TD, CAN_FREQ);
-        motorBus = new CAN(MOTOR_BUS_RD, MOTOR_BUS_TD, CAN_FREQ);
-
         /* start regular ISR routine for sending*/
         throttleTicker.attach(callback([this]() {
                                   // NOTE that we do 1 sec interval for testing it should rly be
@@ -61,7 +56,6 @@ public:
 
         /* Set up CAN RX ISR */
         mainBus->attach(callback([this]() { Global_Events.set(RX_FLAG); }));
-        motorBus->attach(callback([this]() { Global_Events.set(RX_FLAG); }));
     }
 
     // TODO move definitions to .cpp file
@@ -89,7 +83,7 @@ public:
         throttleMessage.data[6] = 0x00;
         throttleMessage.data[7] = 0x00;
 
-        // motorBus->write(throttleMessage);
+        // mainBus->write(throttleMessage);
         printf("Sending Throttle...");
     }
 
