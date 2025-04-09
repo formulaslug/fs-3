@@ -82,7 +82,7 @@ void CANWrapper::sendState() {
     stateMessage.data[7] = 0x00;
 }
 
-void CANWrapper::pper::processCANRx() {
+void CANWrapper::processCANRx() {
     if (CANMessage rx; mainBus->read(rx)) {
     }
     if (CANMessage rx; motorBus->read(rx)) {
