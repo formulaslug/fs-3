@@ -85,6 +85,4 @@ void CANWrapper::sendState() {
 void CANWrapper::processCANRx() {
     if (CANMessage rx; mainBus->read(rx)) {
     }
-    if (CANMessage rx; motorBus->read(rx)) {
-    }
 }

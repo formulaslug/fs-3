@@ -57,7 +57,7 @@ class CANWrapper : public Module {
      * Reads off CAN msg and then composes ETCState struct to updateStateFromCAN(ETCState& state)
      * TODO: implement
      */
-    void CANWrapper::processCANRx();
+    void processCANRx();
 };
 
 #endif
