@@ -29,17 +29,21 @@ void ETCController::updateState() {
 
     /* convert sensor voltages into travel percentages*/
     // voltage - 0.25/ 2 * range (0.20) * 100.0 to turn to percentage
-    constexpr float he1_lowerbound = 0.344f;
-    constexpr float he1_upperbound = 3.094f;
-    constexpr float he2_lowerbound = 0.25f;
-    constexpr float he2_upperbound = 2.25f;
-    const float he1_travel_percent = ((he1_voltage - he1_lowerbound) / (he1_upperbound - he1_lowerbound));
-    const float he2_travel_percent = ((he2_voltage - he2_lowerbound) / (he2_upperbound - he2_lowerbound));
+    constexpr float he1_lowerbound = 1.7241f;
+    constexpr float he1_upperbound = 3.9714f;
+    constexpr float he2_lowerbound = 1.7956f;
+    constexpr float he2_upperbound = 3.1022f;
+    constexpr float he1_range = he1_upperbound - he1_lowerbound;
+    constexpr float he2_range = he2_upperbound - he2_lowerbound;
 
+    float he1_travel_percent = (he1_voltage - he1_lowerbound) / he1_range;
+    float he2_travel_percent = (he2_voltage - he2_lowerbound) / he2_range;
+
+    he1_travel_percent = clamp(he1_travel_percent, 0.0f, 1.0f);
+    he2_travel_percent = clamp(he2_travel_percent, 0.0f, 1.0f);
 
     /* Implausibility check here*/
     float abs_difference = fabs(he1_travel_percent - he2_travel_percent);
-
 
     /* calculate pedal travel using voltage divider ratio */
     if (abs_difference > 0.1f){
