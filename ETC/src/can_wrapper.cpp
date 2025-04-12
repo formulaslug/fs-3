@@ -47,8 +47,8 @@ void CANWrapper::sendThrottle() {
 
     throttleMessage.data[0] = torque_demand;
     throttleMessage.data[1] = torque_demand >> 8;
-    throttleMessage.data[2] = etc.getMaxSpeed();
-    throttleMessage.data[3] = etc.getMaxSpeed() >> 8;
+    throttleMessage.data[2] = ETCController::MAX_SPEED;
+    throttleMessage.data[3] = ETCController::MAX_SPEED >> 8;
     throttleMessage.data[4] = 0x00 | (0x01 & motor_forward) | ((0x01 & !motor_forward) << 1) |
         ((0x01 & motor_enabled) << 3);
     throttleMessage.data[5] = 0x00 | (0x0f & mbb_alive);
