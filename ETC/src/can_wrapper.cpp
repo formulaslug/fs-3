@@ -6,35 +6,32 @@
 
 #include "can_wrapper.h"
 #include "etc_controller.h"
+#include <cstdint>
 
-#include "module.h"
 
 CANWrapper::CANWrapper(ETCController& etcController, EventFlags& events)
     : Global_Events(events),
-    etc(etcController) {
-        /* Attempt CAN connections */
+    etc(etcController)
+{
+    /* Attempt CAN connections */
+    mainBus = new CAN(MAIN_BUS_RD, MAIN_BUS_TD, CAN_FREQ);
 
-        // TODO add fail code for failed CAN instantiation
-        mainBus = new CAN(MAIN_BUS_RD, MAIN_BUS_TD, CAN_FREQ);
-        /* start regular ISR routine for sending*/
-        throttleTicker.attach(callback([this]() {
-                    // NOTE that we do 1 sec interval for testing it should rly be
-                    // 100ms
-                    Global_Events.set(THROTTLE_FLAG);
-                    }),
-                1s);
-        //
-        // syncTicker.attach(callback([this]() {
-        //     Global_Events.set(THROTTLE_FLAG);
-        //     }), 100ms);
-        //
-        // stateTicker.attach(callback([this]() {
-        //     Global_Events.set(THROTTLE_FLAG);
-        //     }), 100ms);
+    /* Start regular ISR routine for sending*/
+    throttleTicker.attach(callback([this]() {
+        Global_Events.set(THROTTLE_FLAG);
+    }), 40ms);
 
-        /* Set up CAN RX ISR */
-        mainBus->attach(callback([this]() { Global_Events.set(RX_FLAG); }));
-    }
+    syncTicker.attach(callback([this]() {
+        Global_Events.set(SYNC_FLAG);
+    }), 100ms);
+
+    stateTicker.attach(callback([this]() {
+        Global_Events.set(STATE_FLAG);
+    }), 100ms);
+
+    /* Set up CAN RX ISR */
+    mainBus->attach(callback([this]() { Global_Events.set(RX_FLAG); }));
+}
 
 void CANWrapper::sendThrottle() {
     etc.updateMBBAlive();
@@ -47,22 +44,24 @@ void CANWrapper::sendThrottle() {
 
     throttleMessage.data[0] = torque_demand;
     throttleMessage.data[1] = torque_demand >> 8;
-    throttleMessage.data[2] = ETCController::MAX_SPEED;
-    throttleMessage.data[3] = ETCController::MAX_SPEED >> 8;
+    throttleMessage.data[2] = static_cast<uint8_t>(ETCController::MAX_SPEED);
+    throttleMessage.data[3] = static_cast<uint8_t>(ETCController::MAX_SPEED >> 8U);
     throttleMessage.data[4] = 0x00 | (0x01 & motor_forward) | ((0x01 & !motor_forward) << 1) |
         ((0x01 & motor_enabled) << 3);
     throttleMessage.data[5] = 0x00 | (0x0f & mbb_alive);
     throttleMessage.data[6] = 0x00;
     throttleMessage.data[7] = 0x00;
 
-    // mainBus->write(throttleMessage);
-    printf("Sending Throttle...");
+    int result = mainBus->write(throttleMessage);
+    //printf("Sending Throttle, result=%d...\n", result);
 }
 
 void CANWrapper::sendSync() {
     unsigned char data[0];
     CANMessage syncMessage(0x80, data, 0);
-    // send syncMessage
+
+    int result = mainBus->write(syncMessage);
+    //printf("Sending Sync, result=%d...\n", result);
 }
 
 void CANWrapper::sendState() {
@@ -80,6 +79,9 @@ void CANWrapper::sendState() {
     stateMessage.data[5] = static_cast<int8_t>(state.he2_travel * 100);
     stateMessage.data[6] = static_cast<int8_t>(state.pedal_travel * 100);
     stateMessage.data[7] = 0x00;
+
+    int result = mainBus->write(stateMessage);
+    //printf("Sending State, result=%d...\n", result);
 }
 
 void CANWrapper::processCANRx() {
