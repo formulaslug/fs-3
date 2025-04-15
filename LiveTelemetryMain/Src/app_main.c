@@ -1,4 +1,7 @@
+#include "stm32f446xx.h"
 #include "stm32f4xx_hal.h"
+#include "stm32f4xx_hal_gpio.h"
+#include <stdint.h>
 #include <stdio.h>
 #include <stdbool.h>
 
@@ -19,7 +22,16 @@ bool to_hex(char* dest, size_t dest_len, const uint8_t* values, size_t val_len) 
 int app_main(SPI_HandleTypeDef hspi1, UART_HandleTypeDef huart2) {
 
   while (1) {
-    // HAL_GPIO_WritePin(GPIOC, 8, 1);
+
+    int value = HAL_GPIO_ReadPin(GPIOB, 5);
+
+    if (value) {
+        HAL_UART_Transmit(&huart2, (uint8_t*)"yes\r\n", 5, 100);
+    } else {
+        HAL_UART_Transmit(&huart2, (uint8_t*)"no\r\n", 4, 100);
+    }
+    HAL_Delay(100);
+
     const uint8_t local_at_command[] = {
       0x7E, // Start delimeter
       0x00,  // LEN - MSB
@@ -57,16 +69,16 @@ int app_main(SPI_HandleTypeDef hspi1, UART_HandleTypeDef huart2) {
     // CHIP SELECT LOW
 
     // HAL_SPI_Transmit(&hspi1, frame, sizeof(frame), 100);
-    uint8_t resp_buf[1024] = {0};
-    HAL_SPI_TransmitReceive(&hspi1, local_at_command, resp_buf, sizeof(local_at_command), 100);
+    // uint8_t resp_buf[1024] = {0};
+    // HAL_SPI_TransmitReceive(&hspi1, local_at_command, resp_buf, sizeof(local_at_command), 100);
 
-    HAL_Delay(1000);
-    // uint8_t buf[] = "Hello World!\r\n";
-    // HAL_UART_Transmit(&huart2, buf, sizeof(buf), 100);
-    char str[1024] = {0};
-    // to_hex(str, sizeof(str), resp_buf, sizeof(resp_buf));
+    // HAL_Delay(1000);
+    // // uint8_t buf[] = "Hello World!\r\n";
+    // // HAL_UART_Transmit(&huart2, buf, sizeof(buf), 100);
+    // char str[1024] = {0};
+    // // to_hex(str, sizeof(str), resp_buf, sizeof(resp_buf));
 
-    HAL_UART_Transmit(&huart2, (uint8_t*)resp_buf, sizeof(resp_buf), 100);
-    HAL_UART_Transmit(&huart2, (uint8_t*)"\r\n", 2, 100);
+    // HAL_UART_Transmit(&huart2, (uint8_t*)resp_buf, sizeof(resp_buf), 100);
+    // HAL_UART_Transmit(&huart2, (uint8_t*)"\r\n", 2, 100);
   }
 }
