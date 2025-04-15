@@ -7,14 +7,15 @@
 
 #include "../mbed-os/mbed.h"
 #include "etc_controller.h"
-#include "module.h"
 
-class CANWrapper : public Module {
+
+class CANWrapper {
     CAN* mainBus;
     EventFlags& Global_Events;
     ETCController& etc;
     Ticker throttleTicker;
     Ticker syncTicker;
+    Ticker stateTicker;
 
     const int32_t CAN_FREQ = 500000;
 
