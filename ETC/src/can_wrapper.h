@@ -10,10 +10,11 @@
 #include "module.h"
 
 class CANWrapper : public Module {
-    CAN* mainBus;                       // to be initialized
+    CAN* mainBus;
     EventFlags& Global_Events;
     ETCController& etc;
     Ticker throttleTicker;
+    Ticker syncTicker;
 
     const int32_t CAN_FREQ = 500000;
 
@@ -28,7 +29,8 @@ class CANWrapper : public Module {
 
     /**
      * Class constructor for CANWrapper
-     * Holds motor and main CAN bus, composes and handles routine CAN message, handles CAN Rx as well
+     * Holds motor and main CAN bus, composes and handles routine CAN message, handles CAN Rx as
+     * well.
      *
      * @param etcController
      * @param events
@@ -49,9 +51,13 @@ class CANWrapper : public Module {
 
     /**
      * Sends ETC State via CAN
-     * Reference dbc for formatting (i think)
+     *
+     * TODO: Update based on DBC...
      */
     void sendState();
+
+
+    /** TODO: Add sendCurrentLimits function... */
 
     /**
      * Reads off CAN msg and then composes ETCState struct to updateStateFromCAN(ETCState& state)
