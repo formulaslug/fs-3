@@ -906,6 +906,7 @@ typedef struct
   __IO uint32_t HCDMA;            /*!< Host Channel DMA Address Register        514h */
   uint32_t Reserved[2];           /*!< Reserved                                      */
 } USB_OTG_HostChannelTypeDef;
+
 /**
   * @}
   */
