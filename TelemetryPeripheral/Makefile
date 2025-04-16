@@ -8,6 +8,14 @@
 OUT_DIRECTORY = out/TelemetryPeripheral
 BUILD_DIRECTORY = _build/TelemetryPeripheral/default
 
+# Require avrdude and the avr toolchain (avr-gcc) to be present in PATH
+ifeq (, $(shell which avrdude))
+$(error "No avrdude found in PATH!")
+endif
+ifeq (, $(shell which avr-gcc))
+$(error "No avr toolchain found in PATH! \(avr-gcc\)")
+endif
+
 .PHONY: *
 
 default: all
