@@ -38,6 +38,7 @@ BU_:
 
 BO_ 3221225472 VECTOR__INDEPENDENT_SIG_MSG: 0 Vector__XXX
  SG_ NewSignal_0001 : 0|8@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ NewSignal_0007 : 8|8@1+ (1,0) [0|0] "" Vector__XXX
 
 BO_ 128 Sync: 0 Vector__XXX
 
@@ -94,6 +95,11 @@ BO_ 1666 SME_TPDO_Temperature: 8 Vector__XXX
  SG_ SME_TEMP_BusCurrent : 48|16@1- (0.1,0) [-3276.8|3276.7] "A" Vector__XXX
 
 BO_ 400 ACC_TPDO_STATUS: 8 Vector__XXX
+ SG_ ACC_STATUS_BMS_FAULT : 0|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ ACC_STATUS_IMD_FAULT : 1|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ ACC_STATUS_SHUTDOWN_STATE : 2|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ ACC_STATUS_IRS_CLOSED : 3|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ ACC_STATUS_PRECHARING : 4|1@1+ (1,0) [0|0] "" Vector__XXX
 
 BO_ 656 ACC_TPDO_POWER: 8 Vector__XXX
  SG_ ACC_POWER_PACK_VOLTAGE : 0|16@1+ (0.01,0) [0|655.35] "V" Vector__XXX
@@ -194,6 +200,36 @@ BO_ 662 ACC_TPDO_SEG5_TEMPS: 6 Vector__XXX
  SG_ ACC_SEG5_TEMPS_CELL3 : 24|8@1- (1,0) [-128|127] "C" Vector__XXX
  SG_ ACC_SEG5_TEMPS_CELL4 : 32|8@1- (1,0) [-128|127] "C" Vector__XXX
  SG_ ACC_SEG5_TEMPS_CELL5 : 40|8@1- (1,0) [-128|127] "C" Vector__XXX
+
+BO_ 2148139008 VDM_GPS_LAT_LONG: 8 Vector__XXX
+ SG_ VDM_GPS_Latitude : 7|32@0- (1,0) [0|0] "deg" Vector__XXX
+ SG_ VDM_GPS_Longitude : 39|32@0- (1,0) [0|0] "deg" Vector__XXX
+
+BO_ 2148139009 VDM_GPS_DATA: 8 Vector__XXX
+ SG_ VDM_GPS_SPEED : 7|16@0+ (0.01,0) [0|0] "mph" Vector__XXX
+ SG_ VDM_GPS_ALTITUDE : 23|16@0- (1,0) [0|0] "ft" Vector__XXX
+ SG_ VDM_GPS_TRUE_COURSE : 39|16@0+ (0.01,0) [0|0] "deg" Vector__XXX
+ SG_ VDM_GPS_SATELLITES_IN_USE : 55|8@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ VDM_GPS_VALID1 : 63|8@0+ (1,0) [0|0] "" Vector__XXX
+
+BO_ 2148139010 VDM_DATE_TIME: 8 Vector__XXX
+ SG_ VDM_GPS_VALID2 : 7|8@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ VDM_UTC_DATE_YEAR : 15|8@0+ (1,0) [0|0] "years" Vector__XXX
+ SG_ VDM_UTC_DATE_MONTH : 23|8@0+ (1,0) [0|0] "months" Vector__XXX
+ SG_ VDM_UTC_DATE_DAY : 31|8@0+ (1,0) [0|0] "days" Vector__XXX
+ SG_ VDM_UTC_TIME_HOURS : 47|8@0+ (1,0) [0|0] "hours" Vector__XXX
+ SG_ VDM_UTC_TIME_MINUTES : 55|8@0+ (1,0) [0|0] "minutes" Vector__XXX
+ SG_ VDM_UTC_TIME_SECONDS : 63|8@0+ (1,0) [0|0] "seconds" Vector__XXX
+
+BO_ 2148139011 VDM_ACCELERATION: 8 Vector__XXX
+ SG_ VDM_X_AXIS_ACCELERATION : 7|16@0- (0.000244141,0) [0|0] "gs" Vector__XXX
+ SG_ VDM_Y_AXIS_ACCELERATION : 23|16@0- (0.000244141,0) [0|0] "gs" Vector__XXX
+ SG_ VDM_Z_AXIS_ACCELERATION : 39|16@0- (0.000244141,0) [0|0] "gs" Vector__XXX
+
+BO_ 2148139012 VDM_YAW_RATE: 8 Vector__XXX
+ SG_ VDM_X_AXIS_YAW_RATE : 7|16@0- (0.015258789,0) [0|0] "deg/s" Vector__XXX
+ SG_ VDM_Y_AXIS_YAW_RATE : 23|16@0- (0.015258789,0) [0|0] "deg/s" Vector__XXX
+ SG_ VDM_Z_AXIS_YAW_RATE : 39|16@0- (0.015258789,0) [0|0] "deg/s" Vector__XXX
 
 
 
