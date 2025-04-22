@@ -12,7 +12,7 @@ add_subdirectory(mbed-os)
 
 add_library(FATFileSystem STATIC FATFileSystem/FATDirHandle.cpp FATFileSystem/FATFileHandle.cpp FATFileSystem/FATFileSystem.cpp FATFileSystem/ChaN/ccsbcs.cpp FATFileSystem/ChaN/diskio.cpp FATFileSystem/ChaN/ff.cpp)
 target_include_directories(FATFileSystem
-        INTERFACE FATFileSystem
+        PUBLIC FATFileSystem
         PUBLIC FATFileSystem/ChaN
         )
 target_link_libraries(FATFileSystem PUBLIC mbed-core-flags) # This is needed so that the library can access Mbed includes
