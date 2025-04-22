@@ -12,7 +12,7 @@ int main() {
   printf("Hello World!\n");   
 
   fs::create_directory("/sd/dir2");
-  fs::path file("/sd/dir2/test.txt");
+  const fs::path file("/sd/dir2/test.txt");
 
   std::ofstream out_stream(file);
   out_stream << "asjdlkajsdklajs" << std::endl;
