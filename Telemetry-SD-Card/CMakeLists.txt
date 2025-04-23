@@ -9,7 +9,7 @@ project(MyMbedApp # here you can change your project name
         LANGUAGES C CXX ASM)
 include(mbed_project_setup)
 
-add_subdirectory(../mbed-os ../mbed-os)
+add_subdirectory(../mbed-os ../../mbed-os)
 
 add_library(FATFileSystem STATIC FATFileSystem/FATDirHandle.cpp FATFileSystem/FATFileHandle.cpp FATFileSystem/FATFileSystem.cpp FATFileSystem/ChaN/ccsbcs.cpp FATFileSystem/ChaN/diskio.cpp FATFileSystem/ChaN/ff.cpp)
 target_include_directories(FATFileSystem
