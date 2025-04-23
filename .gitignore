@@ -56,11 +56,5 @@ Doxygen
 ETC/.idea/misc.xml
 ETC/.idea/vcs.xml
 *.iml
-Telemetry-SD-Card/.idea/.name
-Telemetry-SD-Card/.idea/dictionaries/project.xml
-Telemetry-SD-Card/.idea/editor.xml
-Telemetry-SD-Card/.idea/inspectionProfiles/Project_Default.xml
-Telemetry-SD-Card/.idea/misc.xml
-Telemetry-SD-Card/.idea/modules.xml
-Telemetry-SD-Card/.idea/vcs.xml
-Telemetry-SD-Card/.idea/workspace.xml
+.idea/
+mbed-os-build/
