@@ -39,6 +39,8 @@ BU_:
 BO_ 3221225472 VECTOR__INDEPENDENT_SIG_MSG: 0 Vector__XXX
  SG_ NewSignal_0001 : 0|8@1+ (1,0) [0|0] "" Vector__XXX
  SG_ NewSignal_0007 : 8|8@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ ACC_STATUS_PRECARGE_DONE : 5|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ NewSignal_0011 : 0|8@1+ (1,0) [0|0] "" Vector__XXX
 
 BO_ 128 Sync: 0 Vector__XXX
 
@@ -98,12 +100,17 @@ BO_ 400 ACC_TPDO_STATUS: 8 Vector__XXX
  SG_ ACC_STATUS_BMS_FAULT : 0|1@1+ (1,0) [0|0] "" Vector__XXX
  SG_ ACC_STATUS_IMD_FAULT : 1|1@1+ (1,0) [0|0] "" Vector__XXX
  SG_ ACC_STATUS_SHUTDOWN_STATE : 2|1@1+ (1,0) [0|0] "" Vector__XXX
- SG_ ACC_STATUS_IRS_CLOSED : 3|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ ACC_STATUS_PRECHARGE_DONE : 3|1@1+ (1,0) [0|0] "" Vector__XXX
  SG_ ACC_STATUS_PRECHARING : 4|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ ACC_STATUS_CELL_TOO_LOW : 8|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ ACC_STATUS_CELL_TOO_HIGH : 9|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ ACC_STATUS_TEMP_TOO_LOW : 10|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ ACC_STATUS_TEMP_TOO_HIGH : 11|1@1+ (1,0) [0|0] "" Vector__XXX
 
 BO_ 656 ACC_TPDO_POWER: 8 Vector__XXX
  SG_ ACC_POWER_PACK_VOLTAGE : 0|16@1+ (0.01,0) [0|655.35] "V" Vector__XXX
  SG_ ACC_POWER_SOC : 16|8@1+ (1,0) [0|255] "Percentage" Vector__XXX
+ SG_ ACC_POWER_CURRENT : 24|16@1- (0.1,0) [-3276.8|3276.7] "A" Vector__XXX
 
 BO_ 401 ACC_TPDO_SEG0_VOLTS: 6 Vector__XXX
  SG_ ACC_SEG0_VOLTS_CELL0 : 0|8@1+ (0.01,2) [2|4.55] "V" Vector__XXX
@@ -230,6 +237,33 @@ BO_ 2148139012 VDM_YAW_RATE: 8 Vector__XXX
  SG_ VDM_X_AXIS_YAW_RATE : 7|16@0- (0.015258789,0) [0|0] "deg/s" Vector__XXX
  SG_ VDM_Y_AXIS_YAW_RATE : 23|16@0- (0.015258789,0) [0|0] "deg/s" Vector__XXX
  SG_ VDM_Z_AXIS_YAW_RATE : 39|16@0- (0.015258789,0) [0|0] "deg/s" Vector__XXX
+
+BO_ 393 ETC_TPDO_STATUS: 8 Vector__XXX
+ SG_ ETC_STATUS_PEDAL_TRAVEL : 0|8@1+ (1,0) [0|0] "Percent" Vector__XXX
+ SG_ ETC_STATUS_RTD : 8|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ ETC_STATUS_IMPLAUSIBILITY : 9|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ ETC_STATUS_THOTTLE : 16|8@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ ETC_STATUS_RTDS : 10|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ ETC_STATUS_FORWARD : 10|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ ETC_STATUS_BRAKE_SENSOR_VOLTAGE : 24|8@1+ (0.1,0) [0|25.5] "v" Vector__XXX
+ SG_ ETC_STATUS_OK : 10|1@1+ (1,0) [0|0] "" Vector__XXX
+
+BO_ 410 PDB_TPDO_POWER_A: 8 Vector__XXX
+ SG_ PDB_POWER_A_GLV_VOLTAGE : 0|16@1+ (1,0) [0|0] "mV" Vector__XXX
+ SG_ PDB_POWER_A_CURRENT_SHUTDOWN : 16|8@1+ (0.1,0) [0|25.5] "A" Vector__XXX
+ SG_ PDB_POWER_A_CURRENT_ACC : 24|8@1+ (0.1,0) [0|25.5] "A" Vector__XXX
+ SG_ PDB_POWER_A_CURRENT_ETC : 32|8@1+ (0.1,0) [0|25.5] "A" Vector__XXX
+ SG_ PDB_POWER_A_CURRENT_BPS : 40|8@1+ (0.1,0) [0|25.5] "A" Vector__XXX
+ SG_ PDB_POWER_A_CURRENT_TRACTIVE : 48|8@1+ (0.1,0) [0|25.5] "A" Vector__XXX
+ SG_ PDB_POWER_A_CURRENT_BSPD : 56|8@1+ (0.1,0) [0|25.5] "A" Vector__XXX
+
+BO_ 666 PDB_TPDO_POWER_B: 8 Vector__XXX
+ SG_ PDB_POWER_B_CURRENT_TELEMETRY : 0|8@1+ (0.1,0) [0|25.5] "A" Vector__XXX
+ SG_ PDB_POWER_B_CURRENT_PDB : 8|8@1+ (0.1,0) [0|25.5] "A" Vector__XXX
+ SG_ PDB_POWER_B_CURRENT_DASH : 16|8@1+ (0.1,0) [0|25.5] "A" Vector__XXX
+ SG_ PDB_POWER_B_CURRENT_RTML : 24|8@1+ (0.1,0) [0|25.5] "A" Vector__XXX
+ SG_ PDB_POWER_B_CURRENT_EXTRA_1 : 32|8@1+ (0.1,0) [0|25.5] "A" Vector__XXX
+ SG_ PDB_POWER_B_CURRENT_EXTRA_2 : 40|8@1+ (0.1,0) [0|25.5] "A" Vector__XXX
 
 
 
