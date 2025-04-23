@@ -14,3 +14,7 @@
 	path = Telemetry-SD-Card/mbed-os
 	url = https://github.com/mbed-ce/mbed-os.git
 	shallow = true
+[submodule "mbed-os"]
+	path = mbed-os
+	url = https://github.com/mbed-ce/mbed-os.git
+	shallow = true
