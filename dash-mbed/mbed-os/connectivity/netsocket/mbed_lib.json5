@@ -1,0 +1,120 @@
+{
+    "name": "nsapi",
+    "config": {
+        "present": 1,
+        "add-event-listener-return-change": {
+            "help": "Updates the add_event_listener to return a nsapi_error_t value which can indicate allocation failure. See documents for more details.",
+            "value": 0
+        },
+        "default-stack": {
+            "help" : "Default stack to be used, valid values: LWIP, NANOSTACK.",
+            "value" : "LWIP"
+        },
+        "default-wifi-ssid" : {
+            "help" : "Default Wi-Fi SSID.",
+            "value": null
+        },
+        "default-wifi-password" : {
+            "help" : "Password for the default Wi-Fi network.",
+            "value": null
+        },
+        "default-wifi-security" : {
+            "help" : "Wi-Fi security protocol, valid values are WEP, WPA, WPA2, WPA/WPA2.",
+            "value" : "NONE"
+        },
+        "default-cellular-plmn" : {
+            "help" : "Default Public Land Mobile Network for cellular connection.",
+            "value": null
+        },
+        "default-cellular-sim-pin" : {
+            "help" : "PIN for the default SIM card.",
+            "value": null
+        },
+        "default-cellular-apn" : {
+            "help" : "Default cellular Access Point Name.",
+            "value": null
+        },
+        "default-cellular-username" : {
+            "help" : "Username for the default cellular network.",
+            "value": null
+        },
+        "default-cellular-password" : {
+            "help" : "Password for the default cellular network.",
+            "value": null
+        },
+        "default-mesh-type": {
+            "help": "Configuration type for MeshInterface::get_default_instance(). [LOWPAN/THREAD/WISUN]",
+            "value": "THREAD"
+        },
+        "dns-response-wait-time": {
+            "help": "How long the DNS translator waits for a reply from a server in milliseconds",
+            "value": 10000
+        },
+        "dns-total-attempts": {
+            "help": "Number of total DNS query attempts that the DNS translator makes",
+            "value": 10
+        },
+        "dns-retries": {
+            "help": "Number of DNS query retries that the DNS translator makes per server, before moving on to the next server. Total retries/attempts is always limited by dns-total-attempts.",
+            "value": 1
+        },
+        "dns-cache-size": {
+            "help": "Number of cached host name resolutions",
+            "value": 3
+        },
+        "dns-addresses-limit": {
+            "help": "Max number IP addresses returned by  multiple DNS query",
+            "value": 10
+        },
+        "socket-stats-enabled": {
+            "help": "Enable network socket statistics",
+            "value": false
+        },
+        "socket-stats-max-count": {
+            "help": "Maximum number of socket statistics cached",
+            "value": 10
+        },
+        "offload-tlssocket" : {
+            "help": "Use external TLSSocket implementation. Used network stack must support external TLSSocket setsockopt values (see nsapi_types.h)",
+            "value": null
+        },
+        "emac-rx-pool-buf-size": {
+            "help": "Size of buffers in the EMAC receive pool. This determines the 'granularity' of allocations that are made for the Ethernet receive pool. Making this larger (up to the Ethernet MTU of 1536) will make receiving large packets more performant, but waste more buffer memory when receiving small packets.",
+            "value": 592 // LwIP default value (assuming default TCP MSS)
+        },
+        "emac-rx-pool-num-bufs": {
+            "help": "Number of buffers (of size netsocket.emac-rx-pool-buf-size) in the EMAC receive pool. This controls how much memory is preallocated for Ethernet reception. A larger number means that more Ethernet packets can be received per second without dropping any. Some EMACs need up to 4 extra buffers, so this should be set such that (this value minus 4) times the buffer size is at least 1514 (so we can receive one full Ethernet frame).",
+            "value": 7
+        },
+        "emac-tx-num-descs": {
+            "help": "Number of Tx descriptors in the Ethernet MAC DMA ring. This affects how much data can be queued for Tx at one time",
+            "value": 8
+        },
+        "emac-max-mcast-subscribes": {
+            "help" : "Maximum supported number of multicast addresses that the application can subscribe to. If this limit is reached, we give up and enable all mcast groups.",
+            "value" : 8
+        },
+        "emac-phy-model": {
+            "help": "Model of the Ethernet PHY on the board. Should correspond to a driver defined in PhyDrivers.cpp",
+            "value": null
+        },
+        "emac-phy-mdio-address": {
+            "help": "MDIO address of the phy chip. Usually set with strapping pins. NOTE: 0 is *supposed* to be reserved as the general call address but lots of phy chips use it anyway.",
+            "value": null
+        },
+        "emac-phy-poll-period": {
+            "help": "How often (in ms) to poll the Ethernet PHY and check for link status changes.",
+            "value": 100
+        }
+    },
+    "target_overrides": {
+        "TB_SENSE_12": {
+            "nsapi.default-mesh-type": "LOWPAN"
+        },
+        "MCU_STM32": {
+            // First-party STM32 boards generally use a LAN8742 PHY at MDIO address 0
+            "nsapi.emac-phy-model": "LAN8742",
+            "nsapi.emac-phy-mdio-address": 0
+        }
+    }
+}

@@ -4,7 +4,7 @@
 #define ALPHA_FUNC(func, ref)                                                  \
     ((0x09 << 24) + ((func << 8) & 0x700) + (ref & 0xFF))
 
-#define BEGIN(prim)            ((0x1F << 24) + (prim & 0xF))
+#define BEGIN(prim) ((0x1F << 24) + (prim & 0xF))
 
 #define BITMAP_EXT_FORMAT(fmt) ((0x2E << 24) + (format & 0xFFFF))
 
@@ -44,11 +44,11 @@
 
 #define BITMAP_TRANSFORM_F(f) ((0x1A << 24) + (f & 0xFFFFFF))
 
-#define BLEND_FUNC(src, dst)  ((0x0B << 24) + ((src << 3) & 0x38) + (dst & 0x7))
+#define BLEND_FUNC(src, dst) ((0x0B << 24) + ((src << 3) & 0x38) + (dst & 0x7))
 
-#define CALL(dst)             ((0x1D << 24) + (dst & 0xFFFF))
+#define CALL(dst) ((0x1D << 24) + (dst & 0xFFFF))
 
-#define CELL(cell)            ((0x06 << 24) + (cell & 0x7F))
+#define CELL(cell) ((0x06 << 24) + (cell & 0x7F))
 
 #define CLEAR(c, s, t)                                                         \
     ((0x26 << 24) + ((c << 2) & 0x4) + ((s << 1) & 0x2) + (t & 0x1))
@@ -60,9 +60,9 @@
 
 #define CLEAR_STENCIL(s) ((0x11 << 24) + (s & 0xFF))
 
-#define CLEAR_TAG(t)     ((0x12 << 24) + (t & 0xFF))
+#define CLEAR_TAG(t) ((0x12 << 24) + (t & 0xFF))
 
-#define COLOR_A(alpha)   ((0x10 << 24) + (alpha & 0xFF))
+#define COLOR_A(alpha) ((0x10 << 24) + (alpha & 0xFF))
 
 #define COLOR_MASK(r, g, b, a)                                                 \
     ((0x20 << 24) + ((r << 3) & 0x8) + ((g << 2) & 0x4) + ((b << 1) & 0x2) +   \
@@ -72,26 +72,26 @@
     ((0x04 << 24) + ((red << 16) & 0xFF0000) + ((blue << 8) & 0xFF00) +        \
      (green & 0xFF))
 
-#define DISPLAY()            (0x00000000)
+#define DISPLAY() (0x00000000)
 
-#define END()                (0x21 << 24)
+#define END() (0x21 << 24)
 
-#define JUMP(dest)           ((0x1E << 24) + (dest & 0xFFFF))
-#define LINE_WIDTH(width)    ((0x0E << 24) + (width & FFF))
+#define JUMP(dest)        ((0x1E << 24) + (dest & 0xFFFF))
+#define LINE_WIDTH(width) ((0x0E << 24) + (width & FFF))
 
-#define MACRO(m)             ((0x25 << 24) + (m & 0x1))
+#define MACRO(m) ((0x25 << 24) + (m & 0x1))
 
-#define NOP()                (0x2D << 24)
+#define NOP() (0x2D << 24)
 
 #define PALETTE_SOURCE(addr) ((0x2A << 24) + (addr & 0x3FFFFF))
 
-#define POINT_SIZE(size)     ((0x0D << 24) + (size & 0x1FFF))
+#define POINT_SIZE(size) ((0x0D << 24) + (size & 0x1FFF))
 
-#define RESTORE_CONTEXT()    (0x23 << 24)
+#define RESTORE_CONTEXT() (0x23 << 24)
 
-#define RETURN()             (0x24 << 24)
+#define RETURN() (0x24 << 24)
 
-#define SAVE_CONTEXT()       (0x22 << 24)
+#define SAVE_CONTEXT() (0x22 << 24)
 
 #define SCISSOR_SIZE(width, height)                                            \
     ((0x1C << 24) + ((width << 12) & 0xFFF000) + (height & 0xFFF))
@@ -107,7 +107,7 @@
 #define STENCIL_OP(sfail, spass)                                               \
     ((0x0C << 24) + ((sfail << 3) & 0x38) + (spass & 0x7))
 
-#define TAG(s)         ((0x03 << 24) + (s & 0xFF))
+#define TAG(s) ((0x03 << 24) + (s & 0xFF))
 
 #define TAG_MASK(mask) ((0x14 << 24) + (mask & 0x1))
 
@@ -115,13 +115,13 @@
     ((0x2 << 30) + ((x << 21) & 0x3FE00000) + ((y << 12) & 0x1FF000) +         \
      ((handle << 7) & 0xF80) + (cell & 0x7F))
 
-#define VERTEX2F(x, y)                 ((0x1 << 30) + ((x << 15) & 0x3FFF8000) + (y & 0x7FFF))
+#define VERTEX2F(x, y) ((0x1 << 30) + ((x << 15) & 0x3FFF8000) + (y & 0x7FFF))
 
-#define VERTEX_FORMAT(frac)            ((0x27 << 24) + (frac & 0x7))
+#define VERTEX_FORMAT(frac) ((0x27 << 24) + (frac & 0x7))
 
-#define VERTEX_TRANSLATE_X(x)          ((0x2B << 24) + (x & 0x1FFFF))
+#define VERTEX_TRANSLATE_X(x) ((0x2B << 24) + (x & 0x1FFFF))
 
-#define VERTEX_TRANSLATE_Y(y)          ((0x2C << 24) + (y & 0x1FFFF))
+#define VERTEX_TRANSLATE_Y(y) ((0x2C << 24) + (y & 0x1FFFF))
 
 #define ZERO                           0
 #define ONE                            1

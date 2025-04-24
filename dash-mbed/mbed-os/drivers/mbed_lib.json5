@@ -1,0 +1,125 @@
+{
+    "name": "drivers",
+    "config": {
+        // Note: These are called "uart-serial" because that was the old name
+        // of BufferedSerial before it was officially merged
+        "uart-serial-txbuf-size": {
+            "help": "Default TX buffer size for a BufferedSerial instance (unit Bytes))",
+            "value": 256
+        },
+        "uart-serial-rxbuf-size": {
+            "help": "Default RX buffer size for a BufferedSerial instance (unit Bytes))",
+            "value": 256
+        },
+        "crc-table-size": {
+            "macro_name": "MBED_CRC_TABLE_SIZE",
+            "help": "Number of entries in each of MbedCRC's pre-computed software tables. Higher values increase speed, but also increase image size. The value has no effect if the target performs the CRC in hardware. Permitted values are 0, 16 or 256.",
+            "value": 16
+        },
+        "spi_count_max": {
+            "help": "The maximum number of SPI peripherals used at the same time. Determines RAM allocated for SPI peripheral management. If null, limit determined by hardware.",
+            "value": null
+        },
+        "spi_transaction_queue_len": {
+            "help": "Size of the asynchronous transaction queue for each SPI peripheral on the processor. 0 means no queueing support.  Only takes effect if the mbed target supports async SPI.",
+            "value": 2
+        },
+        "qspi_io0": {
+            "help": "QSPI data I/O 0 pin",
+            "value": "QSPI_FLASH1_IO0"
+        },
+        "qspi_io1": {
+            "help": "QSPI data I/O 1 pin",
+            "value": "QSPI_FLASH1_IO1"
+        },
+        "qspi_io2": {
+            "help": "QSPI data I/O 2 pin",
+            "value": "QSPI_FLASH1_IO2"
+        },
+        "qspi_io3": {
+            "help": "QSPI data I/O 3 pin",
+            "value": "QSPI_FLASH1_IO3"
+        },
+        "qspi_sck": {
+            "help": "QSPI clock pin",
+            "value": "QSPI_FLASH1_SCK"
+        },
+        "qspi_csn": {
+            "help": "QSPI chip select pin",
+            "value": "QSPI_FLASH1_CSN"
+        },
+        "ospi_io0": {
+            "help": "OSPI data I/O 0 pin",
+            "value": "OSPI_FLASH1_IO0"
+        },
+        "ospi_io1": {
+            "help": "OSPI data I/O 1 pin",
+            "value": "OSPI_FLASH1_IO1"
+        },
+        "ospi_io2": {
+            "help": "OSPI data I/O 2 pin",
+            "value": "OSPI_FLASH1_IO2"
+        },
+        "ospi_io3": {
+            "help": "OSPI data I/O 3 pin",
+            "value": "OSPI_FLASH1_IO3"
+        },
+        "ospi_io4": {
+            "help": "OSPI data I/O 4 pin",
+            "value": "OSPI_FLASH1_IO4"
+        },
+        "ospi_io5": {
+            "help": "OSPI data I/O 5 pin",
+            "value": "OSPI_FLASH1_IO5"
+        },
+        "ospi_io6": {
+            "help": "OSPI data I/O 6 pin",
+            "value": "OSPI_FLASH1_IO6"
+        },
+        "ospi_io7": {
+            "help": "OSPI data I/O 7 pin",
+            "value": "OSPI_FLASH1_IO7"
+        },
+        "ospi_sck": {
+            "help": "OSPI clock pin",
+            "value": "OSPI_FLASH1_SCK"
+        },
+        "ospi_csn": {
+            "help": "OSPI chip select pin",
+            "value": "OSPI_FLASH1_CSN"
+        },
+        "ospi_dqs": {
+            "help": "OSPI dqs pin",
+            "value": "OSPI_FLASH1_DQS"
+        }
+    },
+    "target_overrides": {
+        "EFM32GG990F1024":{
+            "spi_transaction_queue_len": 4
+        },
+        "EFR32MG12P332F1024GL125":{
+            "spi_transaction_queue_len": 4
+        },
+        "EFM32GG11B820F2048GL192": {
+            "spi_transaction_queue_len": 4
+        },
+        "RZ_A1XX":{
+            "spi_transaction_queue_len": 16
+        },
+        "RZ_A2XX":{
+            "spi_transaction_queue_len": 16
+        },
+        "TMPM46B":{
+            "spi_transaction_queue_len": 4
+        },
+        "TMPM4G9":{
+            "spi_transaction_queue_len": 4
+        },
+        "TMPM4GR":{
+            "spi_transaction_queue_len": 4
+        },
+        "TMPM4NR":{
+            "spi_transaction_queue_len": 4
+        }
+    }
+}
