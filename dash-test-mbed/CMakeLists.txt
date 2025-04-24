@@ -10,6 +10,15 @@ include(mbed_project_setup)
 
 add_subdirectory(mbed-os)
 
-add_executable(${PROJECT_NAME} main.cpp)
+add_executable(${PROJECT_NAME} main.cpp Inc/User/main.h)
 target_link_libraries(${PROJECT_NAME} mbed-os) # Can also link to mbed-baremetal here
+target_sources(${PROJECT_NAME} PRIVATE
+        #user sources
+        Src/User/bt817/bt817_api.cpp
+        Src/User/bt817/bt817_init.cpp
+)
+target_include_directories(${PROJECT_NAME} PRIVATE
+    #user includes
+        Inc/User
+)
 mbed_set_post_build(${PROJECT_NAME})
