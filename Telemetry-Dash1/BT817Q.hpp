@@ -6,7 +6,6 @@
 #define BT817Q_HPP
 
 #include "mbed.h"
-using namespace chrono_literals;
 
 /**
  * @brief  Timing / geometry description for a specific TFT panel.
