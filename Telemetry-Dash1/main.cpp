@@ -3,6 +3,8 @@
 
 BT817Q eve(PC_12, PC_11, PC_10, PD_2, PB_7, PC_13);
 
+SPI spi(PC_12, PC_11, PC_10);
+
 int main() {
    eve.init(EvePresets::CFA800480E3);
    eve.setBacklight(true);
