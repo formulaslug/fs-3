@@ -134,6 +134,9 @@ private:
     static constexpr uint8_t  HCMD_STANDBY  = 0x41;
     static constexpr uint8_t  HCMD_SLEEP    = 0x42;
 
+    static constexpr uint8_t HCMD_CLKEXT = 0x44;
+    static constexpr uint8_t HCMD_CLKSEL = 0x61;
+
     // Co‑processor op‑codes
     static constexpr uint32_t CMD_DLSTART   = 0xFFFFFF00UL;
     static constexpr uint32_t CMD_SWAP      = 0xFFFFFF01UL;

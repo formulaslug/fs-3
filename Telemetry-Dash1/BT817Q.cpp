@@ -10,13 +10,17 @@ BT817Q::BT817Q(PinName mosi, PinName miso, PinName sck,
 void BT817Q::hostCmd(uint8_t cmd) {
     _cs = 0;
     _spi.write(cmd);
+    _spi.write(0x00);
+    _spi.write(0x00);
+    // const uint8_t buf[] = {cmd, 0x00, 0x00};
+    // _spi.transfer_and_wait(buf, sizeof(buf), nullptr, 0);
     _cs = 1;
-    ThisThread::sleep_for(20ms);
+    // ThisThread::sleep_for(20ms);
 }
 
 void BT817Q::write8(uint32_t addr, uint8_t data) {
     _cs = 0;
-    _spi.write(addr >> 16);            // MSB 0 = write
+    _spi.write(addr >> 16 | 0x80);            // MSB 1 = write
     _spi.write(addr >> 8);
     _spi.write(addr);
     _spi.write(data);
@@ -25,7 +29,7 @@ void BT817Q::write8(uint32_t addr, uint8_t data) {
 
 void BT817Q::write16(uint32_t addr, uint16_t data) {
     _cs = 0;
-    _spi.write(addr >> 16);            // MSB 0 = write
+    _spi.write(addr >> 16 | 0x80);            // MSB 1 = write
     _spi.write(addr >> 8);
     _spi.write(addr);
     _spi.write(data);
@@ -35,7 +39,7 @@ void BT817Q::write16(uint32_t addr, uint16_t data) {
 
 void BT817Q::write32(uint32_t addr, uint32_t data) {
     _cs = 0;
-    _spi.write(addr >> 16);            // MSB 0 = write
+    _spi.write(addr >> 16 | 0x80);            // MSB 1 = write
     _spi.write(addr >> 8);
     _spi.write(addr);
     _spi.write(data);
@@ -47,17 +51,35 @@ void BT817Q::write32(uint32_t addr, uint32_t data) {
 
 uint8_t BT817Q::read8(uint32_t addr) {
     _cs = 0;
-    _spi.write((addr >> 16) | 0x80);   // MSB 1 = read
-    _spi.write(addr >> 8);
-    _spi.write(addr);
-    uint32_t d = _spi.write(0);
+    // _spi.write();   // MSB 0 = read
+    // _spi.write(addr >> 8);
+    // _spi.write(addr);
+
+    const uint8_t txBuf[4] = {
+        (uint8_t)(addr >> 16),
+        (uint8_t)(addr >> 8),
+        (uint8_t)(addr),
+        0x00,
+        // 0x00,
+    }; 
+    uint8_t rxBuf[1] = {0};
+
+    _spi.write(txBuf, sizeof(txBuf), rxBuf, sizeof(rxBuf));
+    uint8_t d = _spi.write(0x00);
+    printf("%d\n", d);
+
+    // const uint8_t resp[1024] = {0};
+    // StaticCacheAlignedBuffer<uint8_t, 16> rxBuffer;
+    // const uint8_t cmd[] = {(uint8_t)(addr >> 16)};
+    // _spi.transfer_and_wait(cmd, sizeof(cmd), &rxBuffer, 4, 100);
     _cs = 1;
+    // return rxBuf[0];
     return d;
 }
 
 uint16_t BT817Q::read16(uint32_t addr) {
     _cs = 0;
-    _spi.write((addr >> 16) | 0x80);   // MSB 1 = read
+    _spi.write((addr >> 16));   // MSB 0 = read
     _spi.write(addr >> 8);
     _spi.write(addr);
     uint32_t d = _spi.write(0) |
@@ -68,7 +90,7 @@ uint16_t BT817Q::read16(uint32_t addr) {
 
 uint32_t BT817Q::read32(uint32_t addr) {
     _cs = 0;
-    _spi.write((addr >> 16) | 0x80);   // MSB 1 = read
+    _spi.write((addr >> 16));   // MSB 0 = read
     _spi.write(addr >> 8);
     _spi.write(addr);
     uint32_t d = _spi.write(0) |
@@ -98,12 +120,28 @@ void BT817Q::cmdWait() {
 
 void BT817Q::init(const EvePanel &p) {
     printf("Initializing EVE...\n");
+    ThisThread::sleep_for(1000ms);
+    
+    ThisThread::sleep_for(100ms);
+    _pdn = 0;
+    ThisThread::sleep_for(100ms);
+    _pdn = 1;
+    ThisThread::sleep_for(100ms);
+
     // SPI safe‑start (<= 11 MHz until PCLK up)
     _cs = 1;
-    _spi.format(8, 3);
+    _spi.format(8, 0);
     _spi.frequency(1000000);
+    // _spi.frequency(30030030);
     _cs = 0;
 
+    hostCmd(HCMD_CLKEXT);
+    // hostCmd(HCMD_CLKSEL);
+    _cs = 0;
+    _spi.write(HCMD_CLKSEL);
+    _spi.write(0x46);
+    _spi.write(0x00);
+    _cs = 1;
     hostCmd(HCMD_ACTIVE);
     ThisThread::sleep_for(300ms);
 
