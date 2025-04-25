@@ -12,5 +12,5 @@ int main() {
    eve.clear(0, 0, 0);                        // black background
    eve.drawText(400, 240, 31, "Hello World", BT817Q::OPT_CENTER);
    eve.endFrame();
-   while (true) { ThisThread::sleep_for(1000); }
+   while (true) { ThisThread::sleep_for(1s); }
 }

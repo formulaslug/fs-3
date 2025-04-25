@@ -11,7 +11,7 @@ void BT817Q::hostCmd(uint8_t cmd) {
     _cs = 0;
     _spi.write(cmd);
     _cs = 1;
-    ThisThread::sleep_for(20);
+    ThisThread::sleep_for(20ms);
 }
 
 void BT817Q::write8(uint32_t addr, uint8_t data) {
