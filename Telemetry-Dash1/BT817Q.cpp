@@ -147,7 +147,7 @@ void BT817Q::init(const EvePanel &p) {
     while (0x0 != read16(REG_CPURESET));
     printf("EVE CPU reset: 0x0\n");
 
-    printf("%x\n", read32(0x0C0000));
+    // printf("%x\n", read32(0x0C0000)); // This should print "11708".
 
     write32(REG_FREQUENCY, 72000000);
 
