@@ -82,6 +82,8 @@ private:
     // Low‑level helpers -------------------------------------------------------
     
     void hostCmd(uint8_t cmd);
+    void selectWriteAddress(uint32_t addr);
+    void selectReadAddress(uint32_t addr);
     void write8(uint32_t addr, uint8_t data);
     void write16(uint32_t addr, uint16_t data);
     void write32(uint32_t addr, uint32_t data);
@@ -128,6 +130,9 @@ private:
     static constexpr uint32_t REG_CPURESET  = 0x302020UL;
     static constexpr uint32_t REG_FREQUENCY = 0x30200CUL;
     static constexpr uint32_t REG_DLSWAP    = 0x302054UL;
+    static constexpr uint32_t REG_PWM_DUTY  = 0x3020D4UL;
+    static constexpr uint32_t REG_PWM_HZ    = 0x3020D0UL;
+    static constexpr uint32_t REG_GPIOX     = 0x30209CUL;
 
     // Host commands (BT817Q datasheet, Section 4.1.5)
     static constexpr uint8_t  HCMD_ACTIVE   = 0x00;
