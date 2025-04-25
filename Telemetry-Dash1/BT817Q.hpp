@@ -150,7 +150,7 @@ private:
     // Display‑list macros (see BT81x Programming Guide)
     static constexpr uint32_t DISPLAY       = 0x00000000UL;
     static constexpr uint32_t CLEAR_COLOR_RGB(uint8_t r, uint8_t g, uint8_t b) {
-        return 0x02000000UL | (uint32_t(r) << 16) | (uint32_t(b) << 8) | g;
+        return 0x02000000UL | (uint32_t(r) << 16) | (uint32_t(g) << 8) | b;
     }
     static constexpr uint32_t CLEAR(uint8_t c, uint8_t s, uint8_t t) {
         return 0x26000000UL | ((c & 1) << 2) | ((s & 1) << 1) | (t & 1);
