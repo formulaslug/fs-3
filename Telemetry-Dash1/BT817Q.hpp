@@ -10,8 +10,8 @@
 /**
  * @brief  Timing / geometry description for a specific TFT panel.
  *
- * Feed one of these structs to BT817Q::init().  All values map 1-to-1 onto
- * BT81x timing registers — see the datasheet if you need custom panels.
+ * Feed one of these structs to BT817Q's constructor.  All values map 1-to-1
+ * onto BT81x timing registers — see the datasheet if you need custom panels.
  */
 struct EvePanel {
     uint16_t width;      // active width  (pixels)
@@ -50,8 +50,6 @@ namespace EvePresets {
  */
 class BT817Q {
 public:
-    // Types -------------------------------------------------------------------
-
     /// Text‑rendering options (bit field matches BT8xx CMD_TEXT)
     enum TextOpt : uint16_t {
         OPT_CENTER       = 0x0000,    // horizontally & vertically centred
@@ -62,13 +60,11 @@ public:
         OPT_MEDIAFIFO    = 0x0800
     };
 
-    // Constructor -------------------------------------------------------------
-    
     BT817Q(PinName mosi, PinName miso, PinName sck,
-           PinName cs,   PinName pdn, PinName irq = NC);
+           PinName cs,   PinName pdn, PinName irq,
+           EvePanel panel);
 
-    // Top‑level API -----------------------------------------------------------
-    
+    // Public facing API
     void init(const EvePanel &panel);
     void startFrame();                           // CMD_DLSTART + CLEAR
     void clear(uint8_t r, uint8_t g, uint8_t b); // CLEAR_COLOR + CLEAR
@@ -79,9 +75,8 @@ public:
     void setBacklight(bool on);
 
 private:
-    // Low‑level helpers -------------------------------------------------------
-    
-    void hostCmd(uint8_t cmd);
+    // Low‑level internal helpers
+    void hostCmd(uint8_t cmd, uint8_t param);
     void selectWriteAddress(uint32_t addr);
     void selectReadAddress(uint32_t addr);
     void write8(uint32_t addr, uint8_t data);
@@ -94,17 +89,19 @@ private:
     void cmdString(const char *s);
     void cmdWait();
 
-    // Data --------------------------------------------------------------------
-   
+    // Internal data
     SPI _spi;
     DigitalOut _cs;
     DigitalOut _pdn;
     DigitalIn _irq;
-    uint16_t _cmd_wp = 0;                       // write‑pointer into RAM_CMD
-    
-    // Memory map
-    static constexpr uint32_t RAM_DL        = 0x300000UL;  // end is 0x301FFFUL
 
+    EvePanel _p;
+
+    // write‑pointer into RAM_CMD (address offset)
+    uint16_t _cmd_wp = 0;
+
+    // Display list RAM
+    static constexpr uint32_t RAM_DL        = 0x300000UL;  // end is 0x301FFFUL
     // Register base addresses (BT817Q datasheet, Table 5‑2)
     static constexpr uint32_t RAM_CMD       = 0x308000UL;  // end is 0x308FFFUL
     static constexpr uint32_t REG_CMD_READ  = 0x3020F8UL;
@@ -133,6 +130,10 @@ private:
     static constexpr uint32_t REG_PWM_DUTY  = 0x3020D4UL;
     static constexpr uint32_t REG_PWM_HZ    = 0x3020D0UL;
     static constexpr uint32_t REG_GPIOX     = 0x30209CUL;
+    // We aren't utilizing the audio_pwm pin on the ribbon cable
+    // static constexpr uint32_t REG_VOL_SOUND = 0x302084UL;
+    // static constexpr uint32_t REG_SOUND     = 0x302088UL;
+    // static constexpr uint32_t REG_PLAY      = 0x30208CUL;
 
     // Host commands (BT817Q datasheet, Section 4.1.5)
     static constexpr uint8_t  HCMD_ACTIVE   = 0x00;
@@ -146,6 +147,7 @@ private:
     static constexpr uint32_t CMD_DLSTART   = 0xFFFFFF00UL;
     static constexpr uint32_t CMD_SWAP      = 0xFFFFFF01UL;
     static constexpr uint32_t CMD_TEXT      = 0xFFFFFF0CUL;
+    static constexpr uint32_t CMD_LOGO      = 0xFFFFFF31UL;
 
     // Display‑list macros (see BT81x Programming Guide)
     static constexpr uint32_t DISPLAY       = 0x00000000UL;
@@ -155,6 +157,9 @@ private:
     static constexpr uint32_t CLEAR(uint8_t c, uint8_t s, uint8_t t) {
         return 0x26000000UL | ((c & 1) << 2) | ((s & 1) << 1) | (t & 1);
     }
+    // static constexpr uint32_t SCISSOR_SIZE(uint) {
+    //     return 
+    // }
 };
 
 #endif // BT817Q_HPP
