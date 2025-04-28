@@ -56,3 +56,4 @@ Doxygen
 # cmake build cache
 **/cmake_build
 
+/Telemetry-Dash1/.idea
