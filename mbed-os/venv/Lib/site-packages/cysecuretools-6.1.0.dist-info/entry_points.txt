@@ -1,0 +1,2 @@
+[console_scripts]
+cysecuretools = cysecuretools.__main__:main
