@@ -18,8 +18,14 @@ ETCController::ETCController()
     this->implausBoundsTimerRunning = false;
 
     // Add ISRs for cockpit and reverse switches
-    this->cockpitSwitchInterrupt.rise(callback([this]() { this->turnOffMotor(); }));
-    this->cockpitSwitchInterrupt.fall(callback([this]() { this->checkStartConditions(); }));
+    this->cockpitSwitchInterrupt.rise(callback([this]() {
+        this->turnOffMotor();
+        this->state.cockpit = false;
+    }));
+    this->cockpitSwitchInterrupt.fall(callback([this]() {
+        this->checkStartConditions();
+        this->state.cockpit = true;
+    }));
     this->reverseSwitchInterrupt.rise(callback([this]() { this->switchForwardMotor(); }));
     this->reverseSwitchInterrupt.fall(callback([this]() { this->switchReverseMotor(); }));
 }
@@ -70,7 +76,7 @@ void ETCController::updateState() {
             this->implausBoundsTimer.start();
             this->implausBoundsTimerRunning = true;
         }
-        else if (this->implausBoundsTimer.elapsed_time() > 100ms){
+        else if (this->implausBoundsTimer.elapsed_time() > 100ms) {
             this->implausBoundsTimer.stop();
             this->implausBoundsTimer.reset();
             this->implausBoundsTimerRunning = false;

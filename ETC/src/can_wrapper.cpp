@@ -72,11 +72,11 @@ void CANWrapper::sendState() {
         ((0x01 & state.motor_enabled) << 1) |
         ((0x01 & state.cockpit << 4));
     stateMessage.data[1] = static_cast<int8_t>(state.brakes_read * 100);
-    stateMessage.data[2] = static_cast<int8_t>(state.he1_read * 100);
-    stateMessage.data[3] = static_cast<int8_t>(state.he2_read * 100);
-    stateMessage.data[4] = static_cast<int8_t>(state.he1_travel * 100);
-    stateMessage.data[5] = static_cast<int8_t>(state.he2_travel * 100);
-    stateMessage.data[6] = static_cast<int8_t>(state.pedal_travel * 100);
+    stateMessage.data[2] = static_cast<int8_t>(state.he1_travel * 100);
+    stateMessage.data[3] = static_cast<int8_t>(state.he2_travel * 100);
+    stateMessage.data[4] = static_cast<int8_t>(state.pedal_travel * 100);
+    stateMessage.data[5] = 0x00;
+    stateMessage.data[6] = 0x00;
     stateMessage.data[7] = 0x00;
 
     this->bus->write(stateMessage);

@@ -108,9 +108,6 @@ public:
     /** The difference between the maximum and minimum voltages (100% and 0% travel) for HE2. */
     static constexpr float HE2_RANGE =
         ETCController::HE2_HIGH_VOLTAGE - ETCController::HE2_LOW_VOLTAGE;
-    
-    /** MARK:WHAT IS THIS. */
-    static constexpr float PEDAL_RANGE = 20;
 
 
     /**
