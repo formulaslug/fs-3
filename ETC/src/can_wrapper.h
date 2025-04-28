@@ -34,9 +34,9 @@ public:
     /** The frequency of messages on the CAN bus, in Hz. */
     static constexpr int32_t CAN_FREQUENCY = 500000;
     /** The microcontroller pin to read messages on. */
-    static constexpr PinName CAN_RX_PIN = PB_5;
+    static constexpr PinName CAN_RX_PIN = PA_11;
     /** The microcontroller pin to write messages on. */
-    static constexpr PinName CAN_TX_PIN = PB_6;
+    static constexpr PinName CAN_TX_PIN = PA_12;
 
     /** The flag bit indicating a throttle message needs to be sent. */
     static constexpr int32_t THROTTLE_FLAG = (1UL << 0);
