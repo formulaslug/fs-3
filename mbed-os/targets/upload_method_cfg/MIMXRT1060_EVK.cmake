@@ -1,0 +1,35 @@
+# Mbed OS upload method configuration file for target MIMXRT1060_EVK.
+# To change any of these parameters from their default values, set them in your build script between where you
+# include app.cmake and where you add mbed os as a subdirectory.
+#
+# Notes:
+# 1. Using the JLINK upload method requires either converting the board's LPC-Link into a J-Link, or
+#      connecting an external J-Link probe.  See here for conversion instructions: https://www.segger.com/products/debug-probes/j-link/models/other-j-links/lpc-link-2/
+#      Also, a relatively new version of the J-Link software is needed (7.82 confirmed working), so try updating
+#      it if you get any errors.
+# 2. Most debuggers cannot connect to this CPU after it does an NVIC system reset.  See Mbed CE bug #83.
+#      However, a workaround has been implemented for PyOCD.
+#
+
+# General config parameters
+# -------------------------------------------------------------
+set(UPLOAD_METHOD_DEFAULT PYOCD)
+
+# Config options for JLINK
+# -------------------------------------------------------------
+set(JLINK_UPLOAD_ENABLED TRUE)
+set(JLINK_CPU_NAME MIMXRT1062xxx5B?BankAddr=0x60000000&Loader=QSPI) # Extra parameters needed to select correct flash loader
+set(JLINK_UPLOAD_INTERFACE SWD)
+set(JLINK_CLOCK_SPEED 4000)
+
+# Config options for PYOCD
+# -------------------------------------------------------------
+set(PYOCD_UPLOAD_ENABLED TRUE)
+set(PYOCD_TARGET_NAME mimxrt1060) # Note: This seems to use QSPI.  There does not seem to be a pyocd equivalent for hyperflash.
+set(PYOCD_CLOCK_SPEED 4000k)
+set(PYOCD_EXTRA_OPTIONS -Oconnect_mode=pre-reset)
+
+# Config options for LINKSERVER
+# -------------------------------------------------------------
+set(LINKSERVER_UPLOAD_ENABLED TRUE)
+set(LINKSERVER_DEVICE MIMXRT1062xxxxx:MIMXRT1060-EVKB)
