@@ -44,7 +44,9 @@ build/
 Doxygen
 
 # mbed-os
-**/mbed-os
+**/mbed-os/
+**/mbed-os-build/
+**/mbed-os-build
 
 # Python virtual environment (for using mbed-cli)
 .venv/
@@ -55,4 +57,6 @@ Doxygen
 
 # cmake build cache
 **/cmake_build
+
+**/.idea
 
