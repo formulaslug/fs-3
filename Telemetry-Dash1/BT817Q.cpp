@@ -12,8 +12,8 @@ BT817Q::BT817Q(PinName mosi, PinName miso, PinName sck,
 
 void BT817Q::init(const EvePanel &p) {
     printf("Initializing EVE...\n");
-    ThisThread::sleep_for(1000ms);
-    
+    // ThisThread::sleep_for(1000ms);
+
     ThisThread::sleep_for(100ms);
     _pdn = 0;
     ThisThread::sleep_for(100ms);
@@ -59,14 +59,12 @@ void BT817Q::init(const EvePanel &p) {
     write8(REG_SWIZZLE, 0);
     write8(REG_PCLK_POL, 1);
 
-    write16(REG_GPIOX, read16(REG_GPIOX) & ~0x1000);
-
     write8(REG_CSPREAD, 0);
     write8(REG_DITHER, 0);
     write8(REG_DITHER, 0);
 
     // Write first display list
-    write32(RAM_DL + 0, CLEAR_COLOR_RGB(100, 100, 100));
+    write32(RAM_DL + 0, CLEAR_COLOR_RGB(0, 0, 0));
     write32(RAM_DL + 4, CLEAR(1, 1, 1));
     write32(RAM_DL + 8, DISPLAY);
 
