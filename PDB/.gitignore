@@ -33,6 +33,7 @@ build/
 
 # Python stuff
 *.pyc
+.idea/
 
 # Mac stuff
 .DS_Store
