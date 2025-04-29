@@ -10,11 +10,3 @@
 	path = BMS/lib-mbed-ltc681x
 	url = https://github.com/formulaslug/lib-mbed-ltc681x.git
 	shallow = true
-[submodule "Telemetry-SD-Card/mbed-os"]
-	path = Telemetry-SD-Card/mbed-os
-	url = https://github.com/mbed-ce/mbed-os.git
-	shallow = true
-[submodule "mbed-os"]
-	path = mbed-os
-	url = https://github.com/mbed-ce/mbed-os.git
-	shallow = true
