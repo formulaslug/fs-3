@@ -1,0 +1,254 @@
+# This workflow performs the checks like license check,
+# doxygen, unit tests etc.
+name: Basic Checks
+
+on:
+  pull_request:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+
+jobs:
+  license-check:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/armmbed/mbed-os-env:master-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          
+
+      - 
+        name: install dependencies
+        shell: bash
+        # TODO scancode 32.0 introduced significant breaking changes to the license
+        # detection output format: https://github.com/nexB/scancode-toolkit/releases/tag/v32.0.0
+        # Need to update Mbed's scripts for the new format.
+        run: |
+          pip install -U "scancode-toolkit<32.0" "click>=7,<8"
+
+      - 
+        name: license check 
+        run: |
+          set -x
+          mkdir -p SCANCODE
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git diff --name-only --diff-filter=d origin/${GITHUB_BASE_REF} \
+            | ( grep '.\(c\|cpp\|h\|hpp\|py\)$' || true )
+          echo $?
+          git diff --name-only --diff-filter=d origin/${GITHUB_BASE_REF} \
+            | ( grep '.\(c\|cpp\|h\|hpp\|py\)$' || true ) \
+            | ( grep -v '^tools/test/toolchains/api_test.py' || true ) \
+            | while read file; do cp --parents "${file}" SCANCODE; done
+          ls SCANCODE
+          scancode -l --json-pp scancode.json SCANCODE
+          cd tools/python
+          
+          # Run the evaluation script, which may fail, and save its exit code.
+          EVALUATE_EXITCODE=0
+          python -m scancode_evaluate.scancode_evaluate ../../scancode.json || EVALUATE_EXITCODE=$?
+          
+          cat scancode_evaluate.log
+          if [ "$EVALUATE_EXITCODE" = 0 ]; then
+            echo "License check OK";
+            true;
+          else
+            echo "License check failed, please review license issues found in files";
+            false;
+          fi
+
+  include-check:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/armmbed/mbed-os-env:master-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - 
+        name: include check
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          # checks mbed.h is not included in MbedOS files except in tests
+          ! git grep '^#include\s["'"']mbed.h['"'"]$' -- '*.c' '*.h' '*.cpp' '*.hpp' \
+              ':!*platform_mbed.h' ':!*TESTS/*' ':!TEST_APPS/' ':!UNITTESTS/' \
+              ':!*tests/*' ':!*targets/*' ':!*TARGET_*' ':!*unsupported/*' \
+              ':!*events/tests/*' ':!*drivers/tests/*'
+
+  style-check:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/armmbed/mbed-os-env:master-latest
+
+    steps:
+
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+    
+      - 
+        name: UTF-8 Check
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          # Make sure we're not introducing any text which is not UTF-8 encoded
+          git diff origin/${GITHUB_BASE_REF} -U0 | ( grep -a '^+' || true ) | ( ! grep -axv '.*' )
+          
+
+      - 
+        name: astyle checks
+        run: |
+          set -x
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git diff --name-only --diff-filter=d origin/${GITHUB_BASE_REF} \
+            | ( grep '.*\.\(c\|cpp\|h\|hpp\)$' || true ) \
+            | ( grep -v -f .codecheckignore || true ) \
+            | while read file; do astyle -n --options=.astylerc "${file}"; done
+          git diff --exit-code --diff-filter=d --color
+
+      - name: Spell Checks
+        run: |
+          set -x
+          ./tools/test/ci/doxy-spellchecker/spell.sh drivers .codecheckignore
+          ./tools/test/ci/doxy-spellchecker/spell.sh platform .codecheckignore
+          ./tools/test/ci/doxy-spellchecker/spell.sh events .codecheckignore
+          ./tools/test/ci/doxy-spellchecker/spell.sh rtos .codecheckignore
+          ./tools/test/ci/doxy-spellchecker/spell.sh connectivity/netsocket .codecheckignore
+
+      - name: File Naming Checks
+        run: |
+          set -x
+          # Assert that all binary libraries are named correctly
+          # The strange command below asserts that there are exactly 0 libraries
+          # that do not start with lib
+          find "(" -name "*.a" -or -name "*.ar" ")" -and -not -name "lib*" |
+          tee BUILD/badlibs |
+          sed -e "s/^/Bad library name found: /" && [ ! -s BUILD/badlibs ]
+          # Assert that all assembler files are named correctly
+          # The strange command below asserts that there are exactly 0 libraries
+          # that do end with .s
+          find  -name "*.s" | tee BUILD/badasm |
+          sed -e "s/^/Bad Assembler file name found: /" && [ ! -s BUILD/badasm ]
+
+  docs-check:
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: recursive
+
+      - name: Create BUILD folder
+        run: |
+          mkdir -p ${{ github.workspace }}/BUILD
+
+      - name: Doxygen Action
+        uses: mattnotmitt/doxygen-action@v1.9.5
+        with:
+          doxyfile-path: ./doxyfile_options
+
+  python-tests:
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Checkout repo
+        uses: actions/checkout@v4
+        
+      - name: Install python3-venv
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3-venv
+
+      -
+        name: install dependencies
+        run: |
+          python3 -m venv venv
+          source venv/bin/activate
+          pip install -r tools/requirements.txt
+          pip install -r tools/python/python_tests/requirements.txt
+
+      -
+        name: Python Tests
+        run: |
+          source venv/bin/activate
+          cd tools/python
+          ./run_python_tests.sh
+
+  check-cmsis-mcu-descriptions-matches-target-list:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Install python3-venv
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3-venv
+
+      - name: install dependencies
+        run: |
+          python3 -m venv venv
+          source venv/bin/activate
+          pip install -r tools/requirements.txt
+
+      - name: Verify that cmsis_mcu_descriptions.json5 is in sync with targets.json5
+        run: |
+          source venv/bin/activate
+          cd tools/python
+          python -m mbed_tools.cli.main cmsis-mcu-descr find-unused
+          python -m mbed_tools.cli.main cmsis-mcu-descr check-missing
+
+
+  pin-validation:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/armmbed/mbed-os-env:master-latest
+    steps:
+      -
+        name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      -
+        name: validate pins
+        run: |
+          set -x
+          python3 -m pip install json5
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git diff --name-only --diff-filter=d origin/${GITHUB_BASE_REF} \
+            | ( grep '.*[\\|\/]PinNames.h$' || true ) \
+            | while read file; do python ./hal/tests/pinvalidate/pinvalidate.py -vvvfp "${file}"; done
+          git diff --exit-code --diff-filter=d --color
+
+  cmake-native-unit-tests:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/armmbed/mbed-os-env:master-latest
+    steps:
+      -
+        name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Install python3-venv
+        run: |
+          apt-get update
+          apt-get install -y python3-venv
+
+      -
+        name: Build and run unit tests
+        run: |
+          set -x     
+          ctest --build-and-test . build --build-generator Ninja --build-options -DMBED_ENABLE_TESTING=ON -DCMAKE_BUILD_TYPE=Debug -DCOVERAGE=ON --test-command ctest        
+          gcovr --gcov-executable gcov -r . ./build -s -e ".*\.h" --exclude-directories=${GITHUB_WORKSPACE}/build/UNITTESTS --exclude-directories=${GITHUB_WORKSPACE}/build/_deps
+          ccache -s
