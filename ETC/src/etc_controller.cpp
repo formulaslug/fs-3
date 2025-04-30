@@ -1,105 +1,108 @@
 #include "etc_controller.h"
+#include <cmath>
+#include <cstdint>
 
 
 ETCController::ETCController()
-    : HE1(PA_0),
-      HE2(PB_0),
-      Brakes(PC_0),
-      Cockpit(PH_1),
-      Reverse(PC_15),
-      RTDS(PC_13),
-      BrakeLight(PB_6)
+    : he1Input(PA_7),
+      he2Input(PA_6),
+      brakePedalInput(PA_5),
+      cockpitSwitchInterrupt(PB_0),
+      reverseSwitchInterrupt(PB_1),
+      rtdsOutput(PB_7),
+      brakeLightOutput(PB_6)
 {
     // Initialize state variables to their default conditions
     this->resetState();
-    this->voltage_timer_running = false;
-    this->out_of_range_timer_running = false;
+    this->implausTravelTimerRunning = false;
+    this->implausBoundsTimerRunning = false;
 
     // Add ISRs for cockpit and reverse switches
-    Cockpit.rise(callback([this]() { this->turnOffMotor(); }));
-    Cockpit.fall(callback([this]() { this->checkStartConditions(); }));
-    Reverse.rise(callback([this]() { this->switchForwardMotor(); }));
-    Reverse.fall(callback([this]() { this->switchReverseMotor(); }));
+    this->cockpitSwitchInterrupt.rise(callback([this]() {
+        this->turnOffMotor();
+        this->state.cockpit = false;
+    }));
+    this->cockpitSwitchInterrupt.fall(callback([this]() {
+        this->checkStartConditions();
+        this->state.cockpit = true;
+    }));
+    this->reverseSwitchInterrupt.rise(callback([this]() { this->switchForwardMotor(); }));
+    this->reverseSwitchInterrupt.fall(callback([this]() { this->switchReverseMotor(); }));
 }
 
 
 void ETCController::updateState() {
-   float he1_voltage = (this->HE1.read() * ETCController::MAX_V) / ETCController::VOLT_SCALE_he1;
-   float he2_voltage = (this->HE2.read() * ETCController::MAX_V) / ETCController::VOLT_SCALE_he2;
+    float he1Voltage =
+        (this->he1Input.read() * ETCController::MAX_VOLTAGE) / ETCController::HE1_SCALE;
+    float he2Voltage =
+        (this->he1Input.read() * ETCController::MAX_VOLTAGE) / ETCController::HE2_SCALE;
 
-    /* convert sensor voltages into travel percentages*/
-    // voltage - 0.25/ 2 * range (0.20) * 100.0 to turn to percentage
-    constexpr float he1_lowerbound = 1.7241f;
-    constexpr float he1_upperbound = 3.9714f;
-    constexpr float he2_lowerbound = 1.7956f;
-    constexpr float he2_upperbound = 3.1022f;
-    constexpr float he1_range = he1_upperbound - he1_lowerbound;
-    constexpr float he2_range = he2_upperbound - he2_lowerbound;
+    float he1Travel = (he1Voltage - ETCController::HE1_LOW_VOLTAGE) / ETCController::HE1_RANGE;
+    float he2Travel = (he2Voltage - ETCController::HE2_LOW_VOLTAGE) / ETCController::HE2_RANGE;
+    he1Travel = clamp(he1Travel, 0.0f, 1.0f);
+    he2Travel = clamp(he2Travel, 0.0f, 1.0f);
 
-    float he1_travel_percent = (he1_voltage - he1_lowerbound) / he1_range;
-    float he2_travel_percent = (he2_voltage - he2_lowerbound) / he2_range;
+    // Check for implausibility conditions: either the travel percent difference between the
+    // two sensors differs by too much, or the voltages of either sensor is out of range (less
+    // than 0% or more than 100% pedal travel).
 
-    he1_travel_percent = clamp(he1_travel_percent, 0.0f, 1.0f);
-    he2_travel_percent = clamp(he2_travel_percent, 0.0f, 1.0f);
-
-    /* Implausibility check here*/
-    float abs_difference = fabs(he1_travel_percent - he2_travel_percent);
-
-    /* calculate pedal travel using voltage divider ratio */
-    if (abs_difference > 0.1f){
-        if (!this->voltage_timer_running) {
+    float travelDifference = std::fabs(he1Travel - he2Travel);
+    if (travelDifference > 0.1f) {
+        if (!this->implausTravelTimerRunning) {
             // we now start our timer, if it's not already running
-            this->VoltageTimer.start();
-            this->voltage_timer_running = true;
+            this->implausTravelTimer.start();
+            this->implausTravelTimerRunning = true;
         }
-        else if (this->VoltageTimer.elapsed_time() > 100ms) {
-            this->VoltageTimer.stop();
-            this->VoltageTimer.reset();
-            this->voltage_timer_running = false;
-            this->state.motor_enabled = false;
+        else if (this->implausTravelTimer.elapsed_time() > 100ms) {
+            this->implausTravelTimer.stop();
+            this->implausTravelTimer.reset();
+            this->implausTravelTimerRunning = false;
+            this->turnOffMotor();
             return;
         }
         else {
             // if everything is good and timer is running, we reset
-            this->VoltageTimer.stop();
-            this->VoltageTimer.reset();
-            this->voltage_timer_running = false;
+            this->implausTravelTimer.stop();
+            this->implausTravelTimer.reset();
+            this->implausTravelTimerRunning = false;
         }
     }
 
-    if (he1_voltage <= 0.0f || he1_voltage >= 3.3f ||
-        he2_voltage <= 0.0f || he2_voltage >= 3.3f) {
-        if (!this->out_of_range_timer_running){
+    if (he1Voltage <= 0.0f || he1Voltage >= ETCController::MAX_VOLTAGE ||
+        he2Voltage <= 0.0f || he2Voltage >= ETCController::MAX_VOLTAGE)
+    {
+        if (!this->implausBoundsTimerRunning) {
             // we now start our timer, if it's not already running
-            this->OutOfRangeTimer.start();
-            this->out_of_range_timer_running = true;
+            this->implausBoundsTimer.start();
+            this->implausBoundsTimerRunning = true;
         }
-        else if (this->OutOfRangeTimer.elapsed_time() > 100ms){
-            this->OutOfRangeTimer.stop();
-            this->OutOfRangeTimer.reset();
-            this->out_of_range_timer_running = false;
-            this->state.motor_enabled = false;
+        else if (this->implausBoundsTimer.elapsed_time() > 100ms) {
+            this->implausBoundsTimer.stop();
+            this->implausBoundsTimer.reset();
+            this->implausBoundsTimerRunning = false;
+            this->turnOffMotor();
             return;
         }
-        else if (this->voltage_timer_running) {
-            this->OutOfRangeTimer.stop();
-            this->OutOfRangeTimer.reset();
-            this->out_of_range_timer_running = false;
+        else {
+            this->implausBoundsTimer.stop();
+            this->implausBoundsTimer.reset();
+            this->implausBoundsTimerRunning = false;
         }
     }
 
+    // At this point, we have passed all the implausibility checks for the current loop. We
+    // can then update the state information related to pedal travel.
 
-   /* update relevant values */
-   float pedal_travel = (he1_travel_percent + he2_travel_percent) / 2.0f;
+    float pedalTravel = (he1Travel + he2Travel) / 2.0f;
 
-   this->state.he1_read = this->HE1.read() * ETCController::MAX_V;
-   this->state.he2_read = this->HE2.read() * ETCController::MAX_V;
-   this->state.he1_travel = he1_travel_percent;
-   this->state.he2_travel = he2_travel_percent;
-   this->state.pedal_travel = pedal_travel;
-   this->state.torque_demand = static_cast<int16_t>(pedal_travel * ETCController::MAX_TORQUE);
-   /** TODO: ask about brake sensor voltage output */
-   this->state.brakes_read = this->Brakes.read() * ETCController::MAX_V; 
+    this->state.he1_read = this->he1Input.read() * ETCController::MAX_VOLTAGE;
+    this->state.he2_read = this->he2Input.read() * ETCController::MAX_VOLTAGE;
+    this->state.he1_travel = he1Travel;
+    this->state.he2_travel = he2Travel;
+    this->state.pedal_travel = pedalTravel;
+    this->state.torque_demand = static_cast<int16_t>(pedalTravel * ETCController::MAX_TORQUE);
+    /** TODO: ask about brake sensor voltage output */
+    this->state.brakes_read = this->brakePedalInput.read() * ETCController::MAX_VOLTAGE;
 }
 
 
@@ -118,21 +121,21 @@ void ETCController::checkStartConditions() {
     // If the brake is pressed past the tolerance threshold and the tractive system is ready
     // then the motor can be enabled. The last condition for motor start is the cockpit switch
     // being set to the ON position, which is what calls this method.
-    if(this->state.ts_ready && this->state.brakes_read >= ETCController::BRAKE_TOL) {
+    if(this->state.ts_ready && this->state.brakes_read >= ETCController::BRAKE_TOLERANCE) {
         this->state.motor_enabled = true;
     }
 }
 
 
 void ETCController::runRTDS() {
-    this->RTDS.write(true);
-    this->RTDS_Ticker.attach(callback([this] {this->stopRTDS();}), 1s);
+    this->rtdsOutput.write(true);
+    this->rtdsTicker.attach(callback([this] {this->stopRTDS();}), 1s);
 }
 
 
 void ETCController::stopRTDS() {
-    this->RTDS.write(false);
-    this->RTDS_Ticker.detach();
+    this->rtdsOutput.write(false);
+    this->rtdsTicker.detach();
 }
 
 
@@ -207,12 +210,12 @@ bool ETCController::isMotorEnabled() const {
 }
 
 
-bool ETCController::isTSReady() const {
+bool ETCController::isTractiveSystemReady() const {
     return this->state.ts_ready;
 }
 
 
-bool ETCController::isCockpit() const {
+bool ETCController::isCockpitSwitchSet() const {
     return this->state.cockpit;
 }
 
