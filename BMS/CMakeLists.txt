@@ -44,5 +44,3 @@ target_link_libraries(BMS
         lib-mbed-ltc681x
 ) # Can also link to mbed-baremetal here
 mbed_set_post_build(BMS) # Must call this for each target to set up bin file creation, code upload, etc
-
-mbed_finalize_build() # Make sure this is the last line of the top-level buildscript
