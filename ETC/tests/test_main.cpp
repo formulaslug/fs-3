@@ -15,11 +15,16 @@
 
 
 // Include other test files here. Remember to add test cases to the "run_all_tests" function!
+#include "test_update_brake_signal.h"
 
 // Standard headers begin here
+#include "test_main.h"
 #include "mbed.h"
 #include "unity.h"
 #include <iostream>
+
+
+ETCController *etcController;
 
 
 /**
@@ -27,6 +32,8 @@
  */
 void run_all_tests() {
     // Use the RUN_TEST(<function_name>) macro here
+    RUN_TEST(test_brake_pin_full_voltage_range);
+    RUN_TEST(test_brake_range_boundary);
 }
 
 
@@ -36,7 +43,7 @@ void run_all_tests() {
  * DO NOT MODIFY! If you are just adding new tests, read the header comment in this file.
  */
 void setUp() {
-    // Do nothing
+    etcController = new ETCController();
 }
 
 
@@ -46,7 +53,7 @@ void setUp() {
  * DO NOT MODIFY! If you are just adding new tests, read the header comment in this file.
  */
 void tearDown() {
-    // Do nothing
+    delete etcController;
 }
 
 

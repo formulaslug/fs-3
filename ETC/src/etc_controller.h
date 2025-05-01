@@ -30,18 +30,21 @@ class ETCController {
     AnalogIn Brakes;
     InterruptIn Cockpit;
     InterruptIn Reverse;
+    DigitalOut BrakesOut;
     DigitalOut RTDS;
 
+    // State Variables
+    ETCState state{0};
+
+    Ticker brakeSignalTicker;
+
+public:
     // Constants
     const int16_t MAX_SPEED = 7500;
     const int16_t MAX_TORQUE = 30000;
     const float MAX_V = 3.3;
     const float BRAKE_TOL = 0.1;
 
-    // State Variables
-    ETCState state{0};
-
-public:
     // Constructor
     ETCController()
         : HE1(PA_0),
@@ -49,8 +52,14 @@ public:
           Brakes(PC_0),
           Cockpit(PH_1),
           Reverse(PC_15),
+          BrakesOut(PC_14),
           RTDS(PC_13) {
         resetState();
+
+        // Update the status of the brake light periodically.
+        this->brakeSignalTicker.attach(callback([this]() {
+            this->updateBrakeSignal();
+        }), 100ms);
 
         /* ADD ISR for Cockpit and Reverse */
         Cockpit.rise(callback([this]() { turnOffMotor(); }));
@@ -77,6 +86,11 @@ public:
      * @param new_state
      */
     void updateStateFromCAN(const ETCState& new_state);
+
+    /**
+     * Updates the digital output signal on the brake light pin based on the current ETC state.
+     */
+    void updateBrakeSignal();
 
     /**
      * Reset state to default values
