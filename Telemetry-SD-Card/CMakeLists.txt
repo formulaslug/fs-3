@@ -6,7 +6,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 
 
 include(../mbed-os/tools/cmake/mbed_toolchain_setup.cmake)
-project(MyMbedApp # here you can change your project name
+project(SDCard # here you can change your project name
         LANGUAGES C CXX ASM)
 include(../mbed-os/tools/cmake/mbed_project_setup.cmake)
 
