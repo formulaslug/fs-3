@@ -8,10 +8,8 @@
  * Reads off CAN msg and then composes ETCState struct to updateStateFromCAN(ETCState& state)
  */
 void CANWrapper::processCANRx() {
-    if(CANMessage rx; mainBus->read(rx)) {
-
+    if (CANMessage rx; mainBus->read(rx)) {
     }
-    if(CANMessage rx; motorBus->read(rx)) {
-
+    if (CANMessage rx; motorBus->read(rx)) {
     }
 }

@@ -1,0 +1,14 @@
+# Copyright (c) 2020 ARM Limited. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+if("COMPONENT_TELIT_HE910=1" IN_LIST MBED_TARGET_DEFINITIONS)
+	add_subdirectory(COMPONENT_TELIT_HE910)
+endif()
+
+if("COMPONENT_TELIT_ME310=1" IN_LIST MBED_TARGET_DEFINITIONS)
+	add_subdirectory(COMPONENT_TELIT_ME310)
+endif()
+
+if("COMPONENT_TELIT_ME910=1" IN_LIST MBED_TARGET_DEFINITIONS)
+	add_subdirectory(COMPONENT_TELIT_ME910)
+endif()
