@@ -14,7 +14,7 @@ int main() {
   // Add your code here and press Ctrl + Shift + B to build
   SYSTEM_Initialize();
 
-  DELAY_milliseconds(100j);
+  DELAY_milliseconds(100);
 
   SPI0_OpenConfiguration(MASTER0_CONFIG);
 

@@ -1,11 +1,13 @@
 {
-    "version": "1.4",
+    "version": "1.3",
     "configurations": [
         {
             "name": "default",
             "id": "",
+            "targetDevice": "ATtiny1616",
             "imageType": "application",
             "imagePath": "./out/TelemetryPeripheral/default.elf",
+            "platformTool": "default-tool-base",
             "packs": [
                 {
                     "name": "ATtiny_DFP",
@@ -14,9 +16,7 @@
                 }
             ],
             "fileSet": "default",
-            "toolchain": "toolchain AVR-GCC 7.3.0",
-            "toolProperties": "default-tool-base",
-            "device": "ATtiny1616"
+            "toolchain": "toolchain AVR-GCC 7.3.0"
         }
     ],
     "propertyGroups": [
