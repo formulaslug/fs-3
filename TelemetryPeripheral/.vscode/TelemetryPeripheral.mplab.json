@@ -4,8 +4,10 @@
         {
             "name": "default",
             "id": "",
+            "device": "ATtiny1616",
             "imageType": "application",
             "imagePath": "./out/TelemetryPeripheral/default.elf",
+            "toolProperties": "default-tool-base",
             "packs": [
                 {
                     "name": "ATtiny_DFP",
@@ -14,9 +16,7 @@
                 }
             ],
             "fileSet": "default",
-            "toolchain": "toolchain AVR-GCC 7.3.0",
-            "toolProperties": "default-tool-base",
-            "device": "ATtiny1616"
+            "toolchain": "toolchain AVR-GCC 7.3.0"
         }
     ],
     "propertyGroups": [
@@ -24,13 +24,17 @@
             "name": "toolchain AVR-GCC 7.3.0",
             "extend": "",
             "type": "toolchain",
-            "provider": "microchip.toolchains:avr-gcc@7.3.0",
-            "properties": {}
+            "provider": "microchip.toolchains:xc8@3.00",
+            "properties": {
+                "compiler++.preprocessor-macros": [
+                    "__ATtiny1616__=\"hi!\""
+                ]
+            }
         },
         {
             "name": "default-AVR-GCC",
             "type": "toolchain",
-            "provider": "microchip.toolchains:avr-gcc@13.2.0",
+            "provider": "microchip.toolchains:avr-gcc@7.3.0",
             "properties": {}
         },
         {
