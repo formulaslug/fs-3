@@ -7,7 +7,6 @@
             "imageType": "application",
             "targetDevice": "ATtiny1616",
             "imagePath": "./out/TelemetryPeripheral/default.elf",
-            "toolProperties": "default-tool-base",
             "packs": [
                 {
                     "name": "ATtiny_DFP",
