@@ -1,11 +1,11 @@
 {
-    "version": "1.4",
+    "version": "1.3",
     "configurations": [
         {
             "name": "default",
             "id": "conf1",
-            "imageType": "application",
             "targetDevice": "ATtiny1616",
+            "imageType": "application",
             "imagePath": "./out/TelemetryPeripheral/default.elf",
             "toolProperties": "default-tool-base",
             "packs": [
