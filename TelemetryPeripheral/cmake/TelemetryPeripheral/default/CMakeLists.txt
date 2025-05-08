@@ -14,7 +14,7 @@ endif()
 cmake_minimum_required(VERSION 3.24.0)
 set(CMAKE_SYSTEM_NAME "Generic")
 
-project(TelemetryPeripheral_default_project LANGUAGES C ASM)
+project(TelemetryPeripheral_default_project LANGUAGES C CXX ASM)
 
 include("${CMAKE_CURRENT_LIST_DIR}/.generated/main.cmake")
 
