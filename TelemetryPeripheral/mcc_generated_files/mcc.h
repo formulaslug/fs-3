@@ -41,9 +41,11 @@ extern "C" {
 #include "utils/compiler.h"
 #include "include/pin_manager.h"
 #include "delay.h"
-#include "include/cpuint.h"
+#include "include/adc0.h"
+#include "include/adc1.h"
 #include "drivers/spi_master.h"
 #include "include/spi0.h"
+#include "include/cpuint.h"
 #include "config/clock_config.h"
 
 /**

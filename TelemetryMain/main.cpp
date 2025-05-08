@@ -11,7 +11,8 @@ int main() {
   //   printf("hi\n");
   // }
   printf("v1.0\n");
-  can = new CAN(PB_8, PB_9, 500000);
+  // can = new CAN(PB_8, PB_9, 500000);
+  can = new CAN(PA_11, PA_12, 500000);
   CANMessage msg;
   while (true) {
     if (can->read(msg)) {
