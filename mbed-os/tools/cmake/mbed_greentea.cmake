@@ -1,0 +1,170 @@
+# Copyright (c) 2020-2021 ARM Limited. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+set(MBED_HTRUN_ARGUMENTS "" CACHE STRING "Argument list to forward to htrun.")
+set(MBED_GREENTEA_SERIAL_PORT "" CACHE STRING "Serial port name to talk to the Mbed device on.  Should look like 'COM3' on Windows or '/dev/ttyACM1' on Linux.")
+
+# CMake Macro for generalizing CMake configuration across the greentea test suite with configurable parameters
+# Macro args:
+# TEST_NAME - Test suite name (will have "test-" prepended to it)
+# TEST_INCLUDE_DIRS - Test suite include directories for the test
+# TEST_SOURCES - Test suite sources
+# TEST_REQUIRED_LIBS - Test suite required libraries
+# HOST_TESTS_DIR - Path to the "host_tests" directory.  If a relative path is provided, it will be
+#    interpreted relative to the source directory.
+# TEST_SKIPPED - Reason if suite is skipped
+#
+# calling the macro:
+# if(some_condition)
+#     set(skip_reason "some condition not satisfied")
+# endif()
+# mbed_greentea_add_test(
+#     TEST_NAME
+#         mbed-platform-system-reset
+#     TEST_INCLUDE_DIRS
+#         mbed_store
+#     TEST_SOURCES
+#         foo.cpp
+#         bar.cpp
+#     TEST_REQUIRED_LIBS
+#         mbed-kvstore
+#         mbed-xyz
+#     HOST_TESTS_DIR
+#         ${CMAKE_CURRENT_LIST_DIR}/host_tests
+#     TEST_SKIPPED
+#         ${skip_reason}
+# )
+
+function(mbed_greentea_add_test)
+    set(options)
+    set(singleValueArgs
+        TEST_NAME
+        TEST_SKIPPED
+    )
+    set(multipleValueArgs
+        TEST_INCLUDE_DIRS
+        TEST_SOURCES
+        TEST_REQUIRED_LIBS
+        HOST_TESTS_DIR
+    )
+    cmake_parse_arguments(MBED_GREENTEA
+        "${options}"
+        "${singleValueArgs}"
+        "${multipleValueArgs}"
+        ${ARGN}
+    )
+
+    if("${MBED_GREENTEA_SERIAL_PORT}" STREQUAL "")
+        message(FATAL_ERROR "Will not be able to run greentea tests without MBED_GREENTEA_SERIAL_PORT defined!")
+    endif()
+
+    # Add a "test-" prefix to help distinguish test targets in the target list
+    set(MBED_GREENTEA_TEST_NAME "test-${MBED_GREENTEA_TEST_NAME}")
+
+    if(NOT "${MBED_GREENTEA_TEST_SKIPPED}" STREQUAL "")
+        add_test(
+            NAME
+                ${MBED_GREENTEA_TEST_NAME}
+            COMMAND
+                ${CMAKE_COMMAND} -E echo
+                "Skipping ${MBED_GREENTEA_TEST_NAME}:"
+                "${MBED_GREENTEA_TEST_SKIPPED}"
+        )
+        set_tests_properties(${MBED_GREENTEA_TEST_NAME}
+            PROPERTIES
+                SKIP_REGULAR_EXPRESSION "."
+        )
+        return()
+    endif()
+
+    add_executable(${MBED_GREENTEA_TEST_NAME})
+
+    target_include_directories(${MBED_GREENTEA_TEST_NAME}
+        PRIVATE
+            .
+            ${MBED_GREENTEA_TEST_INCLUDE_DIRS}
+    )
+
+    target_sources(${MBED_GREENTEA_TEST_NAME}
+        PRIVATE
+            ${MBED_GREENTEA_TEST_SOURCES}
+    )
+
+    # Resolve link library based on target.application-profile setting
+    get_target_property(MBED_CORE_FLAGS_TARGET_LINK_LIBRARIES mbed-core-flags INTERFACE_LINK_LIBRARIES)
+    if(NOT "mbed-rtos-flags" IN_LIST MBED_CORE_FLAGS_TARGET_LINK_LIBRARIES)
+        list(APPEND MBED_GREENTEA_TEST_REQUIRED_LIBS mbed-baremetal)
+    else()
+        list(APPEND MBED_GREENTEA_TEST_REQUIRED_LIBS mbed-os)
+    endif()
+
+    list(APPEND MBED_GREENTEA_TEST_REQUIRED_LIBS greentea::client_userio mbed-greentea-io mbed-unity mbed-utest)
+
+    target_link_libraries(${MBED_GREENTEA_TEST_NAME}
+        PRIVATE
+            ${MBED_GREENTEA_TEST_REQUIRED_LIBS}
+    )
+
+    mbed_set_post_build(${MBED_GREENTEA_TEST_NAME})
+
+    # User can set this cache variable to supply extra arguments to greentea.
+    # such as: -d to set the drive path
+    list(APPEND MBED_HTRUN_ARGUMENTS -p ${MBED_GREENTEA_SERIAL_PORT})
+
+    # All of the upload methods already reset the chip after uploading so we don't need to reset via
+    # the serial port.  Doing that type of reset also seems to give the Pitaya-Link probe trouble.
+    # However, for targets which support semihosting (currently just LPC1768), we do need the reset as otherwise
+    # semihosting stuff like localfilesystem won't work.
+    if(NOT "MBED_CONF_TARGET_SEMIHOSTING_ENABLED=1" IN_LIST MBED_CONFIG_DEFINITIONS)
+        list(APPEND MBED_HTRUN_ARGUMENTS --skip-reset)
+    endif()
+
+    if(DEFINED MBED_GREENTEA_EXTRA_HTRUN_ARGUMENTS)
+        list(APPEND MBED_HTRUN_ARGUMENTS ${MBED_GREENTEA_EXTRA_HTRUN_ARGUMENTS})
+    endif()
+
+    if(DEFINED MBED_GREENTEA_HOST_TESTS_DIR)
+
+        # Convert relative path into absolute if given
+        get_filename_component(MBED_GREENTEA_HOST_TESTS_DIR ${MBED_GREENTEA_HOST_TESTS_DIR} ABSOLUTE BASE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+
+        list(APPEND MBED_HTRUN_ARGUMENTS "-e;${MBED_GREENTEA_HOST_TESTS_DIR}")
+    endif()
+
+    if(DEFINED MBED_TARGET)
+        list(APPEND MBED_HTRUN_ARGUMENTS "-m;${MBED_TARGET}")
+    endif()
+
+    if(NOT "${MBED_GREENTEA_TEST_RESET_TIMEOUT}" STREQUAL "")
+        list(APPEND MBED_HTRUN_ARGUMENTS "-R;${MBED_GREENTEA_TEST_RESET_TIMEOUT}")
+    endif()
+
+    # Greentea tests will run at whatever baudrate the stdio baudrate is set to.
+    # We need to find that information from MBED_CONFIG_DEFINITIONS.
+    set(MBED_STDIO_BAUD_CONFIG_DEFINITIONS ${MBED_CONFIG_DEFINITIONS})
+    list(FILTER MBED_STDIO_BAUD_CONFIG_DEFINITIONS INCLUDE REGEX "MBED_CONF_PLATFORM_STDIO_BAUD_RATE")
+    if(NOT "${MBED_STDIO_BAUD_CONFIG_DEFINITIONS}" STREQUAL "")
+        string(REGEX REPLACE "MBED_CONF_PLATFORM_STDIO_BAUD_RATE=([0-9]+)" "\\1" MBED_STDIO_BAUD ${MBED_STDIO_BAUD_CONFIG_DEFINITIONS})
+        list(APPEND MBED_HTRUN_ARGUMENTS "--baud-rate=${MBED_STDIO_BAUD}")
+    endif()
+
+
+    # Configure the CMake script which runs the test.
+    # We have to use a helper script in order to run both the flashing and htrun in one test
+    configure_file(
+        ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/mbed-run-greentea-test.in.cmake
+        ${CMAKE_CURRENT_BINARY_DIR}/mbed-run-greentea-${MBED_GREENTEA_TEST_NAME}.cmake
+        @ONLY)
+
+    # Make sure the cmake script gets removed later
+    set_property(DIRECTORY APPEND PROPERTY ADDITIONAL_CLEAN_FILES ${CMAKE_CURRENT_BINARY_DIR}/mbed-run-greentea-${MBED_GREENTEA_TEST_NAME}.cmake)
+
+    add_test(
+        NAME ${MBED_GREENTEA_TEST_NAME}
+        COMMAND
+            ${CMAKE_COMMAND} -P mbed-run-greentea-${MBED_GREENTEA_TEST_NAME}.cmake
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+    )
+
+
+endfunction()
