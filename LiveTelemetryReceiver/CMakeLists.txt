@@ -1,27 +1,16 @@
-# Copyright (c) 2025 ARM Limited. All rights reserved.
-# SPDX-License-Identifier: Apache-2.0
+cmake_minimum_required(VERSION 3.19)
+cmake_policy(VERSION 3.19...3.22)
 
-cmake_minimum_required(VERSION 3.19.0)
+set(MBED_APP_JSON_PATH mbed_app.json5)
+set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 
-set(MBED_PATH ${CMAKE_CURRENT_SOURCE_DIR}/mbed-os CACHE INTERNAL "")
-set(MBED_CONFIG_PATH ${CMAKE_CURRENT_BINARY_DIR} CACHE INTERNAL "")
-set(APP_TARGET LiveTelemetryReceiver)
+include(../mbed-os/tools/cmake/mbed_toolchain_setup.cmake)
+project(LiveTelemetryMain # here you can change your project name
+    LANGUAGES C CXX ASM) 
+include(mbed_project_setup)
 
-include(${MBED_PATH}/tools/cmake/app.cmake)
+add_subdirectory(../mbed-os ../mbed-os-build)
 
-project(${APP_TARGET})
-
-add_subdirectory(${MBED_PATH})
-
-add_executable(${APP_TARGET}
-    main.cpp
-)
-
-target_link_libraries(${APP_TARGET} mbed-os)
-
-mbed_set_post_build(${APP_TARGET})
-
-option(VERBOSE_BUILD "Have a verbose build process")
-if(VERBOSE_BUILD)
-    set(CMAKE_VERBOSE_MAKEFILE ON)
-endif()
+add_executable(${PROJECT_NAME} main.cpp)
+target_link_libraries(${PROJECT_NAME} mbed-os) # Can also link to mbed-baremetal here
+mbed_set_post_build(${PROJECT_NAME})
