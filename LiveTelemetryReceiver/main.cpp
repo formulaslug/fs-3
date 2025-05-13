@@ -8,7 +8,7 @@ DigitalIn spi_attn(PB_1);
 // PB_6 is shorted to PA_6 in the default SB configuration of L432KC
 // PB 7 is shorted to PA_5 in the default SB configuration of L432KC
 DigitalOut cs(PB_0);
-SPI spi(PA_7, PA_6, PA_5); // mosi, miso, sclk[, ss]
+SPI spi(PB_5, PB_4, PB_3); // mosi, miso, sclk[, ss]
 
 int main() {
   printf("Main()");
