@@ -4,7 +4,9 @@ cmake_policy(VERSION 3.19)
 # Define the MBed app configuration. This must be before the `project()` call.
 set(MBED_APP_JSON_PATH mbed_app.json5)
 
-include(mbed-os/tools/cmake/app.cmake)
+include(../mbed-os/tools/cmake/mbed_toolchain_setup.cmake)
+project(ETC)
+include(mbed_project_setup)
 
 # Configure upload method for ST-LINK
 set(UPLOAD_METHOD_DEFAULT STLINK)
@@ -12,10 +14,7 @@ set(STLINK_UPLOAD_ENABLED TRUE)
 set(STLINK_LOAD_ADDRESS 0x8000000)
 set(STLINK_ARGS --connect-under-reset)
 
-add_subdirectory(mbed-os)  # Must be the first subdirectory added
-
-project(ETC)
-
+add_subdirectory(../mbed-os ../mbed-os-build)
 
 # Main ETC executable target
 set(SRC_CPP_FILES src/can_wrapper.cpp src/etc_controller.cpp)
@@ -44,6 +43,3 @@ target_include_directories(ETC-unittests PRIVATE
 target_link_libraries(ETC-unittests mbed-os unity)
 mbed_set_post_build(ETC-unittests)
 
-
-# Finalize MBed support. This must be the last line in this CMake script.
-mbed_finalize_build()
