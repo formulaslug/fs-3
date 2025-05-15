@@ -11,6 +11,6 @@ include(mbed_project_setup)
 
 add_subdirectory(../mbed-os ../mbed-os-build)
 
-add_executable(${PROJECT_NAME} main.cpp)
+add_executable(${PROJECT_NAME} main.cpp radio.cpp)
 target_link_libraries(${PROJECT_NAME} mbed-os) # Can also link to mbed-baremetal here
 mbed_set_post_build(${PROJECT_NAME})
