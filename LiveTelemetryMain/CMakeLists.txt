@@ -5,7 +5,7 @@ set(MBED_APP_JSON_PATH mbed_app.json5)
 set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 
 include(../mbed-os/tools/cmake/mbed_toolchain_setup.cmake)
-project(LiveTelemetryMain # here you can change your project name
+project(LiveTelemetryMain
     LANGUAGES C CXX ASM) 
 include(mbed_project_setup)
 
