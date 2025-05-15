@@ -1,0 +1,167 @@
+//
+// Created by Nova Mondal on 5/12/25.
+//
+
+#include "layouts.h"
+
+Layouts::Layouts(PinName mosi,
+                 PinName miso,
+                 PinName sck,
+                 PinName cs,
+                 PinName pdn,
+                 PinName irq,
+                 EvePanel panel)
+    : BT817Q(mosi, miso, sck, cs, pdn, irq, panel) {}
+
+void Layouts::drawTestLayout(int var) {
+  uint8_t alpha = std::floor(double(var) / 800.0 * 255);
+
+  startFrame();
+  clear(255, 255, 255);
+  uint8_t alpha2 = 255 - alpha;
+  drawRect(Point{400, 200}, Point{600, 350}, Color{0, 255, 255, alpha2}, 64);
+  setMainColor(Color{0, 0, 255});
+  drawPoint(64 * 16, 200, 100);
+  drawPoint(32 * 16, 500, 200, Color{0, 0, 255, alpha});
+  setMainColor(Color{255, 0, 0});
+  drawFormattedText(600, 300, "current value: %d", 30, BT817Q::OPT_CENTER, var);
+  uint8_t tall = 195 + alpha;
+  drawLine(Point{300, 0}, Point{300, tall}, Color{255, 0, 128}, 32);
+  drawNumber(
+      150, 200, (var - 250), 31, 9, BT817Q::OPT_CENTER | BT817Q::OPT_SIGNED);
+
+  // eve.drawGauge(Point{650, 100}, 100, transform, 800);
+
+  drawGauge(Point{650, 100},
+            100,
+            var,
+            800,
+            Color{64, 64, 90},
+            Color{0, 255, 0},
+            Color{255, 0, 0},
+            Color{0, 0, 255});
+  drawProgressBar(
+      Point{50, 380}, 100, 10, var, 800, Color{128, 0, 0}, Color{0, 0, 0});
+
+  endFrame(); // automatically waits for cmd queue to clear out
+}
+
+void Layouts::drawStandardLayout(Faults faults,
+                                 uint8_t speed,
+                                 uint8_t soc,
+                                 uint8_t acc_temp,
+                                 uint8_t ctrl_tmp,
+                                 uint8_t mtr_tmp,
+                                 float mtr_volt,
+                                 float glv,
+                                 float brake_balance,
+                                 float throttle_demand,
+                                 float brake_demand,
+                                 std::chrono::milliseconds time,
+                                 double delta_time_seconds) {
+  startFrame();
+  clear(0, 0, 0); // black background for frame
+  setMainColor(white);
+  drawProgressBar(Point{220, 10},
+                  340,
+                  35,
+                  speed,
+                  110,
+                  mid_gray,
+                  orange);       // mph progress bar
+  for (int i = 0; i < 16; i++) { // to section off the progress bar
+    uint16_t base_x = 220 + (20 * (i + 1));
+    drawLine(Point{base_x, 0}, Point{base_x, 50}, black, 16 * 5);
+  }
+  drawRect(Point{200, 10}, Point{220, 45}, black);
+  drawRect(Point{560, 10}, Point{580, 45}, black);
+  drawProgressBar(Point{220, 180},
+                  340,
+                  30,
+                  soc,
+                  100,
+                  mid_gray,
+                  Color{0, 200, 36}); // soc progress bar
+  drawRect(Point{200, 180}, Point{220, 210}, black);
+  drawRect(Point{560, 180}, Point{580, 210}, black);
+  for (int i = 0; i < 16; i++) { // to section off the progress bar
+    uint16_t base_x = 220 + (20 * (i + 1));
+    drawLine(Point{base_x, 175}, Point{base_x, 210}, black, 16 * 5);
+  }
+
+  drawText(75, 25, "FS-3", 31);
+  Color fan_color = faults.fans ? red : green;
+  Color precharge_color = faults.precharge ? red : green;
+  Color shutdown_color = faults.shutdown ? red : green;
+  drawText(600, 30, "F", fan_color, 24);
+  drawText(675, 30, "PC", precharge_color, 24);
+  drawText(750, 30, "SD", shutdown_color, 24);
+  drawRect(Point{0, 60}, Point{190, 210}, white);    // outline box for clock
+  drawRect(Point{2, 62}, Point{188, 208}, black);    // bg for clock box
+  drawRect(Point{580, 60}, Point{800, 170}, white);  // outline box for temps
+  drawRect(Point{582, 62}, Point{798, 168}, black);  // bg for temps box
+  drawRect(Point{580, 175}, Point{800, 265}, white); // outline box for voltages
+  drawRect(Point{582, 177}, Point{798, 263}, black); // black bg
+  drawRect(Point{0, 220}, Point{190, 300}, white); // outline for brake balance
+  drawRect(Point{2, 222}, Point{188, 298}, black); // black bg
+  using namespace chrono;
+  auto time_s = duration_cast<seconds>(time);
+  auto time_ms = time - duration_cast<milliseconds>(time_s);
+  auto time_min = duration_cast<minutes>(time_s);
+  time_s -= duration_cast<seconds>(time_min);
+  drawFormattedText(100,
+                    100,
+                    "%02d:%02d:%02d",
+                    24,
+                    OPT_CENTER,
+                    time_min.count(),
+                    time_s.count(),
+                    time_ms.count()); // lap time formatted in mm:ss::ms
+  char sign_char = (delta_time_seconds > 0) ? '+' : ' ';
+  Color delta_color = (delta_time_seconds > 0) ? red : green;
+  drawFormattedText(100,
+                    150,
+                    "%c %00.2f s  ",
+                    delta_color,
+                    24,
+                    OPT_CENTER,
+                    sign_char,
+                    delta_time_seconds); // delta time formatted in ± s.ms
+  drawFormattedText(
+      400, 120, "%d MPH", 31, OPT_CENTER, speed); // speed display text
+  drawFormattedText(400, 160, "SOC: %d", 24, OPT_CENTER, soc);
+  drawFormattedText(100,
+                    260,
+                    "BB: %02.1f %%  ",
+                    24,
+                    OPT_CENTER,
+                    brake_balance * 100.0f); // brake balance display
+  drawFormattedText(680, 80, "ACC: %03d C", 24, OPT_CENTER, acc_temp); // temps
+  drawFormattedText(680, 120, "CTRL: %03d C", 24, OPT_CENTER, ctrl_tmp);
+  drawFormattedText(680, 150, "MTR: %03d C", 24, OPT_CENTER, mtr_tmp);
+  drawFormattedText(
+      680, 205, "MC: %03.1f V  ", 24, OPT_CENTER, mtr_volt); // voltages
+  drawFormattedText(680, 235, "GLV: %03.1f V  ", 24, OPT_CENTER, glv);
+
+  // drawProgressBar(Point{700, 300},
+  //                 32,
+  //                 160,
+  //                 (100 - uint16_t(throttle_demand * 100)),
+  //                 100,
+  //                 green,
+  //                 mid_gray); // throttle demand bar
+  drawRect(Point{700, 300}, Point{732, 480}, mid_gray);
+  uint16_t throttle_bar_h = (480 - floor(160 * throttle_demand));
+  drawRect(Point{700, throttle_bar_h}, Point{732, 480}, green);
+  // drawProgressBar(Point{750, 300},
+  //                 32,
+  //                 160,
+  //                 (100 - uint16_t(brake_demand * 100)),
+  //                 100,
+  //                 red,
+  //                 mid_gray); // brake demand bar
+  drawRect(Point{750, 300}, Point{782, 480}, mid_gray);
+  uint16_t brake_bar_h = (480 - floor(160 * brake_demand));
+  drawRect(Point{750, brake_bar_h}, Point{782, 480}, red);
+  endFrame();
+}

@@ -15,7 +15,9 @@ include(../mbed-os/tools/cmake/mbed_project_setup.cmake)
 add_subdirectory(../mbed-os ../mbed-os-build)
 
 add_library(BT817Q STATIC BT817Q.cpp
-        ui.h)
+        ui.h
+        layouts.cpp
+        layouts.h)
 target_link_libraries(BT817Q mbed-os)
 
 add_executable(${PROJECT_NAME} main.cpp)

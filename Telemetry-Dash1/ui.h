@@ -12,7 +12,17 @@ struct Color {
   uint8_t alpha = 255;
 };
 
-inline Color WHITE{255, 255, 255, 255};
+inline Color white{255, 255, 255, 255};
+
+inline Color orange{241, 89, 41};
+
+inline Color mid_gray{101, 101, 101};
+
+inline Color black{0, 0, 0};
+
+inline Color green{0, 186, 81};
+
+inline Color red{255, 0, 0};
 
 struct Point {
   uint16_t x;

@@ -263,8 +263,10 @@ void BT817Q::drawText(int16_t x,
                       Color color,
                       uint8_t font,
                       uint16_t options) {
+  cmd(SAVE_CONTEXT());
   setMainColor(color);
   drawText(x, y, s, font, options);
+  cmd(RESTORE_CONTEXT());
 }
 
 void BT817Q::drawNumber(int16_t x,
@@ -308,6 +310,7 @@ void BT817Q::drawFormattedText(int16_t x,
                                uint8_t font,
                                uint16_t options,
                                ...) {
+  cmd(SAVE_CONTEXT());
   setMainColor(color);
   size_t len = snprintf(nullptr, 0, s);
   char buffer[len];
@@ -316,6 +319,7 @@ void BT817Q::drawFormattedText(int16_t x,
   vsnprintf(buffer, len, s, args);
   va_end(args);
   drawText(x, y, buffer, font, options);
+  cmd(RESTORE_CONTEXT());
 }
 
 void BT817Q::setBacklight(bool on) {

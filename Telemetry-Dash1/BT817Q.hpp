@@ -290,7 +290,7 @@ public:
                        uint16_t val,
                        uint16_t range,
                        Color bg,
-                       Color bar = WHITE,
+                       Color bar = white,
                        bool flat = true);
 
   void endFrame(); // DISPLAY + CMD_SWAP
