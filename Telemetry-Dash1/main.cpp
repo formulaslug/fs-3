@@ -4,8 +4,6 @@
 
 Layouts eve(PC_12, PC_11, PC_10, PD_2, PB_7, PC_13, EvePresets::CFA800480E3);
 
-
-
 int main() {
   printf("v1.07\n");
   eve.init(EvePresets::CFA800480E3);
@@ -18,7 +16,7 @@ int main() {
   // eve.endFrame();
 
   Layouts::StandardLayoutParams p{
-    .faults = Faults{0, 0, 1},
+      .faults = Faults{0, 0, 1},
   };
   ThisThread::sleep_for(10ms);
   eve.startFrame();
