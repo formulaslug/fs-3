@@ -37,6 +37,8 @@ public:
     float brake_demand;
     std::chrono::milliseconds time;
     double delta_time_seconds;
+    bool rtds;
+    uint16_t rpm;
   };
 
   void drawStandardLayout(Faults faults,
@@ -51,7 +53,8 @@ public:
                           float throttle_demand,
                           float brake_demand,
                           std::chrono::milliseconds time,
-                          double delta_time_seconds);
+                          double delta_time_seconds
+                          );
 
   void drawStandardLayout(const StandardLayoutParams &params) {
     drawStandardLayout(params.faults,
@@ -67,6 +70,40 @@ public:
                        params.brake_demand,
                        params.time,
                        params.delta_time_seconds);
+  }
+  void drawStandardLayout2(Faults faults,
+                          uint8_t speed,
+                          uint8_t soc,
+                          uint8_t acc_temp,
+                          uint8_t ctrl_tmp,
+                          uint8_t mtr_tmp,
+                          float mtr_volt,
+                          float glv,
+                          float brake_balance,
+                          float throttle_demand,
+                          float brake_demand,
+                          std::chrono::milliseconds time,
+                          double delta_time_seconds,
+                          bool rtds,
+                          uint16_t rpm
+                          );
+
+  void drawStandardLayout2(const StandardLayoutParams &params) {
+    drawStandardLayout2(params.faults,
+                       params.speed,
+                       params.soc,
+                       params.acc_temp,
+                       params.ctrl_tmp,
+                       params.mtr_tmp,
+                       params.mtr_volt,
+                       params.glv,
+                       params.brake_balance,
+                       params.throttle_demand,
+                       params.brake_demand,
+                       params.time,
+                       params.delta_time_seconds,
+                       params.rtds,
+                       params.rpm);
   }
 
   void drawTestLayout(int var);

@@ -84,6 +84,8 @@ void BT817Q::init(const EvePanel &p) {
   // explicitly set vertex format for vertex2F
   cmd(VERTEX_FORMAT(4));
   cmdLoadRomFonts(1, 34);
+  cmdLoadRomFonts(2, 33);
+  cmdLoadRomFonts(3, 32);
 
   // I dont think we need this?
   // Reset command FIFO

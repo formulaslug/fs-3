@@ -14,7 +14,7 @@ struct Color {
 
 inline Color white{255, 255, 255, 255};
 
-inline Color orange{241, 89, 41};
+inline Color orange{200, 89, 41};
 
 inline Color mid_gray{101, 101, 101};
 

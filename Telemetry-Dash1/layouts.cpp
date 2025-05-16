@@ -165,3 +165,107 @@ void Layouts::drawStandardLayout(Faults faults,
   drawRect(Point{750, brake_bar_h}, Point{782, 480}, red);
   endFrame();
 }
+void Layouts::drawStandardLayout2(Faults faults,
+                                 uint8_t speed,
+                                 uint8_t soc,
+                                 uint8_t acc_temp,
+                                 uint8_t ctrl_tmp,
+                                 uint8_t mtr_tmp,
+                                 float mtr_volt,
+                                 float glv,
+                                 float brake_balance,
+                                 float throttle_demand,
+                                 float brake_demand,
+                                 std::chrono::milliseconds time,
+                                 double delta_time_seconds,
+                                 bool rtds,
+                                 uint16_t rpm) {
+  startFrame();
+  clear(255, 255, 255); // black background for frame
+  setMainColor(black);
+  drawProgressBar(Point{220, 10},
+                  340,
+                  35,
+                  speed,
+                  110,
+                  mid_gray,
+                  orange);       // mph progress bar
+  for (int i = 0; i < 16; i++) { // to section off the progress bar
+    uint16_t base_x = 220 + (20 * (i + 1));
+    drawLine(Point{base_x, 0}, Point{base_x, 50}, white, 16 * 5);
+  }
+  drawRect(Point{200, 10}, Point{220, 45}, white);
+  drawRect(Point{560, 10}, Point{580, 45}, white);
+  drawProgressBar(Point{220, 180},
+                  340,
+                  30,
+                  soc,
+                  100,
+                  mid_gray,
+                  Color{0, 200, 36}); // soc progress bar
+  drawRect(Point{200, 180}, Point{220, 210}, white);
+  drawRect(Point{560, 180}, Point{580, 210}, white);
+  for (int i = 0; i < 16; i++) { // to section off the progress bar
+    uint16_t base_x = 220 + (20 * (i + 1));
+    drawLine(Point{base_x, 175}, Point{base_x, 210}, white, 16 * 5);
+    clear(0, 0, 0); // black background for frame
+    setMainColor(white);
+
+    drawFormattedText(400, 100, "%03d", 1, OPT_CENTER, speed);
+
+    drawText(185, 235, "TACH", 21);
+    uint16_t tachPos = 211 + 426*(rpm/7500);
+    drawRect(Point{211, 207}, Point{589, 260}, mid_gray);
+    drawRect(Point{211, 207}, Point{tachPos, 260}, green);
+    drawText(406, 270,"0        1        2        3        4        5        6        7        ", 23);
+
+    drawText(638, 30, "SOC", 24);
+    drawFormattedText(637, 79, "%02d", 2, OPT_CENTER, soc);
+
+    for (int i = 1; i <= 25; i++) {
+      // segmented soc
+      uint16_t segTopLeftY = 490 - i*19;
+      uint16_t segBotRightY = segTopLeftY - 10;
+      if (soc > i*4) {
+        drawRect(Point{700, segTopLeftY}, Point{795, segBotRightY}, orange);
+      }
+      else if (soc > (i-1)*4) {
+        drawRect(Point{700, segTopLeftY}, Point{795, segBotRightY}, red);
+      }
+      else {
+        drawRect(Point{700, segTopLeftY}, Point{795, segBotRightY}, mid_gray);
+      }
+    }
+
+    Color fan_color = faults.fans ? red : green;
+    Color precharge_color = faults.precharge ? red : green;
+    Color shutdown_color = faults.shutdown ? red : green;
+    Color rtds_color = rtds ? green : red;
+
+    drawRect(Point{1, 1}, Point{73, 73}, fan_color);
+    drawRect(Point{75, 1}, Point{147, 73}, precharge_color);
+    drawRect(Point{1, 75}, Point{73, 147}, shutdown_color);
+    drawRect(Point{75, 75}, Point{147, 147}, rtds_color);
+
+    drawText(36, 36, "FANS", 23);
+    drawText(110, 36, "PCHG", 23);
+    drawText(36, 110, "SHTD", 23);
+    drawText(110, 110, "RTDS", 23);
+
+    drawFormattedText(70, 180, "FAN       %03d", 24, OPT_CENTER, acc_temp);
+    drawFormattedText(70, 210, "ACC    %03dC", 24, OPT_CENTER, acc_temp);
+    drawFormattedText(70, 240, "CTRL  %03dC", 24, OPT_CENTER, ctrl_tmp);
+    drawFormattedText(70, 270, "MTR    %03dC", 24, OPT_CENTER, mtr_tmp);
+    drawFormattedText(70, 300, "MC       %03.1fV  ", 24, OPT_CENTER, mtr_volt); // voltages
+    drawFormattedText(70, 330, "GLV     %03.1fV  ", 24, OPT_CENTER, glv);
+
+    drawRect(Point{614, 127}, Point{637, 310}, mid_gray);
+    uint16_t throttle_bar_h = (310 - floor(183 * throttle_demand));
+    drawRect(Point{614, throttle_bar_h}, Point{637, 310}, green);
+
+    drawRect(Point{643, 127}, Point{666, 310}, mid_gray);
+    uint16_t brake_bar_h = (310 - floor(183 * brake_demand));
+    drawRect(Point{643, brake_bar_h}, Point{666, 310}, red);
+    endFrame();
+  }
+}
