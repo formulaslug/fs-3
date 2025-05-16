@@ -15,9 +15,7 @@ int main() {
   // eve.drawText(400, 240, 31, "Hello World", BT817Q::OPT_CENTER);
   // eve.endFrame();
 
-  Layouts::StandardLayoutParams p{
-      .faults = Faults{0, 0, 1},
-  };
+  Layouts::StandardLayoutParams p{.faults = Faults{0, 0, 1}, .acc_temp = 80};
   ThisThread::sleep_for(10ms);
   eve.startFrame();
   eve.clear(0, 255, 0);

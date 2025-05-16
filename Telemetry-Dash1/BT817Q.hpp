@@ -310,6 +310,7 @@ private:
   void cmd(uint32_t word);
   void cmdString(const char *s);
   void cmdWait();
+  void cmdLoadRomFonts(uint8_t handle, uint8_t font);
 
   // Internal data
   SPI _spi;
@@ -376,6 +377,7 @@ private:
   static constexpr uint32_t CMD_FGCOLOR = 0xFFFFFF0A;
   static constexpr uint32_t CMD_BGCOLOR = 0xFFFFFF09;
   static constexpr uint32_t CMD_GAUGE = 0xFFFFFF13;
+  static constexpr uint32_t CMD_ROMFONT = 0xFFFFFF3F;
 
   static constexpr uint32_t CMD_PROGRESS = 0xFFFFFF0F;
 

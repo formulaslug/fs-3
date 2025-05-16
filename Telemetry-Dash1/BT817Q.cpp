@@ -83,6 +83,7 @@ void BT817Q::init(const EvePanel &p) {
 
   // explicitly set vertex format for vertex2F
   cmd(VERTEX_FORMAT(4));
+  cmdLoadRomFonts(1, 34);
 
   // I dont think we need this?
   // Reset command FIFO
@@ -497,4 +498,10 @@ void BT817Q::drawProgressBar(Point pos,
   setMainColor(bar);
   drawProgressBar(pos, w, h, val, range, flat);
   cmd(RESTORE_CONTEXT());
+}
+
+void BT817Q::cmdLoadRomFonts(uint8_t handle, uint8_t font) {
+  cmd(CMD_ROMFONT);
+  cmd(uint32_t(handle));
+  cmd(uint32_t(font));
 }

@@ -60,8 +60,8 @@ void Layouts::drawStandardLayout(Faults faults,
                                  std::chrono::milliseconds time,
                                  double delta_time_seconds) {
   startFrame();
-  clear(0, 0, 0); // black background for frame
-  setMainColor(white);
+  clear(255, 255, 255); // black background for frame
+  setMainColor(black);
   drawProgressBar(Point{220, 10},
                   340,
                   35,
@@ -71,10 +71,10 @@ void Layouts::drawStandardLayout(Faults faults,
                   orange);       // mph progress bar
   for (int i = 0; i < 16; i++) { // to section off the progress bar
     uint16_t base_x = 220 + (20 * (i + 1));
-    drawLine(Point{base_x, 0}, Point{base_x, 50}, black, 16 * 5);
+    drawLine(Point{base_x, 0}, Point{base_x, 50}, white, 16 * 5);
   }
-  drawRect(Point{200, 10}, Point{220, 45}, black);
-  drawRect(Point{560, 10}, Point{580, 45}, black);
+  drawRect(Point{200, 10}, Point{220, 45}, white);
+  drawRect(Point{560, 10}, Point{580, 45}, white);
   drawProgressBar(Point{220, 180},
                   340,
                   30,
@@ -82,11 +82,11 @@ void Layouts::drawStandardLayout(Faults faults,
                   100,
                   mid_gray,
                   Color{0, 200, 36}); // soc progress bar
-  drawRect(Point{200, 180}, Point{220, 210}, black);
-  drawRect(Point{560, 180}, Point{580, 210}, black);
+  drawRect(Point{200, 180}, Point{220, 210}, white);
+  drawRect(Point{560, 180}, Point{580, 210}, white);
   for (int i = 0; i < 16; i++) { // to section off the progress bar
     uint16_t base_x = 220 + (20 * (i + 1));
-    drawLine(Point{base_x, 175}, Point{base_x, 210}, black, 16 * 5);
+    drawLine(Point{base_x, 175}, Point{base_x, 210}, white, 16 * 5);
   }
 
   drawText(75, 25, "FS-3", 31);
@@ -96,14 +96,14 @@ void Layouts::drawStandardLayout(Faults faults,
   drawText(600, 30, "F", fan_color, 24);
   drawText(675, 30, "PC", precharge_color, 24);
   drawText(750, 30, "SD", shutdown_color, 24);
-  drawRect(Point{0, 60}, Point{190, 210}, white);    // outline box for clock
-  drawRect(Point{2, 62}, Point{188, 208}, black);    // bg for clock box
-  drawRect(Point{580, 60}, Point{800, 170}, white);  // outline box for temps
-  drawRect(Point{582, 62}, Point{798, 168}, black);  // bg for temps box
-  drawRect(Point{580, 175}, Point{800, 265}, white); // outline box for voltages
-  drawRect(Point{582, 177}, Point{798, 263}, black); // black bg
-  drawRect(Point{0, 220}, Point{190, 300}, white); // outline for brake balance
-  drawRect(Point{2, 222}, Point{188, 298}, black); // black bg
+  drawRect(Point{0, 60}, Point{190, 210}, black);    // outline box for clock
+  drawRect(Point{2, 62}, Point{188, 208}, white);    // bg for clock box
+  drawRect(Point{580, 60}, Point{800, 170}, black);  // outline box for temps
+  drawRect(Point{582, 62}, Point{798, 168}, white);  // bg for temps box
+  drawRect(Point{580, 175}, Point{800, 265}, black); // outline box for voltages
+  drawRect(Point{582, 177}, Point{798, 263}, white); // black bg
+  drawRect(Point{0, 220}, Point{190, 300}, black); // outline for brake balance
+  drawRect(Point{2, 222}, Point{188, 298}, white); // black bg
   using namespace chrono;
   auto time_s = duration_cast<seconds>(time);
   auto time_ms = time - duration_cast<milliseconds>(time_s);
@@ -128,7 +128,7 @@ void Layouts::drawStandardLayout(Faults faults,
                     sign_char,
                     delta_time_seconds); // delta time formatted in ± s.ms
   drawFormattedText(
-      400, 120, "%d MPH", 31, OPT_CENTER, speed); // speed display text
+      400, 110, "%d MPH", 1, OPT_CENTER, speed); // speed display text
   drawFormattedText(400, 160, "SOC: %d", 24, OPT_CENTER, soc);
   drawFormattedText(100,
                     260,
@@ -137,7 +137,7 @@ void Layouts::drawStandardLayout(Faults faults,
                     OPT_CENTER,
                     brake_balance * 100.0f); // brake balance display
   drawFormattedText(680, 80, "ACC: %03d C", 24, OPT_CENTER, acc_temp); // temps
-  drawFormattedText(680, 120, "CTRL: %03d C", 24, OPT_CENTER, ctrl_tmp);
+  drawFormattedText(680, 115, "CTRL: %03d C", 24, OPT_CENTER, ctrl_tmp);
   drawFormattedText(680, 150, "MTR: %03d C", 24, OPT_CENTER, mtr_tmp);
   drawFormattedText(
       680, 205, "MC: %03.1f V  ", 24, OPT_CENTER, mtr_volt); // voltages
