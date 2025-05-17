@@ -9,6 +9,17 @@ void sendCAN();
 
 CAN* can;
 
+uint32_t max_voltage_mV = 0;
+uint16_t max_dc_current_mA = 0;
+uint8_t max_ac_current_A = 0;
+
+bool enable = false;
+
+
+AnalogIn control_pilot(PIN_CONTROL_PILOT);
+AnalogIn proximity_pilot(PIN_PROXIMITY_PILOT);
+
+
 int main()
 {
 
@@ -25,6 +36,10 @@ int main()
                break;
          }
       }
+
+
+      // if proximity pilot is about
+
 
    }
 
@@ -47,16 +62,16 @@ void initChargerCAN() {
    this_thread::sleep_for(100ms);
 
    // Switch state global protocal, switch to LSS configuration state
-   uint8_t data[8] = {0x04, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-   CANMessage msg(0x7E5, data);
-   can->write(msg);
+   uint8_t lss0_data[8] = {0x04, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+   CANMessage lss0_msg(0x7E5, lss0_data);
+   can->write(lss0_msg);
 
    this_thread::sleep_for(5ms);
 
    // Configurate node ID protocal, set node ID to 0x10
-   uint8_t data[8] = {0x11, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-   CANMessage msg(0x7E5, data);
-   can->write(msg);
+   uint8_t lss1_data[8] = {0x11, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+   CANMessage lss1_msg(0x7E5, lss1_data);
+   can->write(lss1_msg);
 
    this_thread::sleep_for(5ms);
 
@@ -65,21 +80,33 @@ void initChargerCAN() {
 
 void sendCAN() {
    // send charge limits
-   can->write(chargerMaxAllowedVoltageCurrentRPDO(
-       0x10, // destination node ID
-       CHARGE_VOLTAGE*1000, // desired voltage, mV
-       CHARGE_DC_LIMIT, // charge current limit, mA
-       CHARGE_AC_LIMIT // input AC current, can change to 20 if plugged into nema 5-20, nema 5-15 is standard
-   ));
+   uint8_t charge_limits_data[8] = {
+      0x10,
+      static_cast<uint8_t>(max_voltage_mV),
+      static_cast<uint8_t>(max_voltage_mV >> 8),
+      static_cast<uint8_t>(max_voltage_mV >> 16),
+      static_cast<uint8_t>(max_voltage_mV >> 24),
+      static_cast<uint8_t>(max_dc_current_mA),
+      static_cast<uint8_t>(max_dc_current_mA >> 8),
+      max_ac_current_A
+   };
+   CANMessage charge_limits_msg(0x306,  charge_limits_data);
+   can->write(charge_limits_msg);
+
    this_thread::sleep_for(1ms);
 
    // send charge control
-   can->write(chargerChargeControlRPDO(
-       0x10, // destination node ID
-       0x00000000, // pack voltage; doesn't matter as only for internal charger logging
-       true, // evse override, tells the charger to respect the max AC input current sent in the other message
-       false, // current x10 multipler, only used for certain zero chargers
-       chargeEnable // enable
-   ));
+   uint8_t charge_control_data[8] = {
+      0x10,
+      static_cast<uint8_t>(enable << 1 + 0b00100000),
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00
+   };
+   CANMessage charge_control_msg(0x206,  charge_control_data);
+   can->write(charge_control_msg);
    this_thread::sleep_for(1ms);
 }
