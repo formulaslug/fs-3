@@ -18,7 +18,6 @@ set(STLINK_LOAD_ADDRESS 0x8000000)
 set(STLINK_ARGS --connect-under-reset)
 
 include(../mbed-os/tools/cmake/mbed_toolchain_setup.cmake)
-
 project(BMS) # TODO: change this to your project name
 include(mbed_project_setup)
 
@@ -37,6 +36,7 @@ add_executable(BMS src/main.cpp
         src/Event.h
         src/LTC6811.h
         src/LTC6811.cpp
+        src/StateOfCharge.cpp
 
 )
 target_link_libraries(BMS

@@ -71,7 +71,7 @@ extern DigitalOut* chargerControl;
 //
 // Units: millivolts
 #ifndef BMS_DISCHARGE_THRESHOLD
-#define BMS_DISCHARGE_THRESHOLD 15
+#define BMS_DISCHARGE_THRESHOLD 5
 #endif
 
 
@@ -114,6 +114,26 @@ extern DigitalOut* chargerControl;
 // Charge current, in mA
 #ifndef CHARGE_DC_LIMIT
 #define CHARGE_DC_LIMIT 15000
+#endif
+
+// Current threshold for lookuptable, in mA
+#ifndef CURR_SOC_LIMIT
+#define CURR_SOC_LIMIT 20000
+#endif
+
+// Temperature limit for lookup, in C
+#ifndef TEMP_SOC_LIMIT
+#define TEMP_SOC_LIMIT 35
+#endif
+
+// state of charge time threshold - still dont know what it is (maybe in millisec?)
+#ifndef SOC_TIME_THRESHOLD
+#define SOC_TIME_THRESHOLD 2000 // just put this val here for now, still need a val for this
+#endif
+
+// cell capacity rated
+#ifndef CELL_CAPACITY_RATED
+#define CELL_CAPACITY_RATED 2500 // in mAh
 #endif
 
 
@@ -243,6 +263,19 @@ const int BMS_CELL_MAP[12] = {0, 1, 2, -1, -1, -1, 3, 4, 5, -1, -1, -1};
 
 #endif
 
+
+// Acc Fans On
+//
+// To be set high when precharging is done to allow the positive AIR to close
+#ifndef ACC_FANS_ON
+
+#ifdef TARGET_NUCLEO_L432KC
+#define ACC_FANS_ON PA_8
+#else
+#error "Unknown board for ACC_FANS_ON"
+#endif
+
+#endif
 
 //
 // SPI Configuration

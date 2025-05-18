@@ -12,7 +12,8 @@
 
 #include "LTC681xParallelBus.h"
 #include "BmsThread.h"
-// #include "Can.h"
+#include "Can.h"
+#include "StateOfCharge.h"
 
 #include "Event.h"
 
@@ -20,41 +21,37 @@
 
 void initIO();
 
-// void initDrivingCAN();
-// void initChargingCAN();
+void initDrivingCAN();
+int linearFans_percent(int temp);
 
-// void canRX();
+struct status_msg {
+    bool bmsFault;
+    bool imdFault;
+    bool shutdownState;
+    bool prechargeDone;
+    bool precharging;
+    bool charging;
+    bool isBalancing;
+    bool cell_too_low;
+    bool cell_too_high;
+    bool temp_too_low;
+    bool temp_too_high;
+    bool temp_too_high_charging;
+    uint16_t glv_voltage;
+    uint32_t cell_fault_index;
+};
 
-// void canBootupTX();
-// void canBoardStateTX();
-// void canTempTX(uint8_t seg);
-// void canTempTX0();
-// void canTempTX1();
-// void canTempTX2();
-// void canTempTX3();
-// void canTempTX4();
-// void canVoltTX(uint8_t seg);
-// void canVoltTX0();
-// void canVoltTX1();
-// void canVoltTX2();
-// void canVoltTX3();
-// void canVoltTX4();
+struct power_msg
+{
+    uint16_t packVoltage;
+    uint8_t state_of_charge;
+    int16_t current;
+};
 
-// void canLSS_SwitchStateGlobal();
-// void canLSS_SetNodeIDGlobal();
-
-// void checkPrechargeVoltage();
-// void checkShutdownStatus();
-
-// void can_ChargerSync();
-// void can_ChargerChargeControl();
-// void can_ChargerMaxCurrentVoltage();
-
-
-// EventQueue queue(32*EVENTS_EVENT_SIZE);// creates an eventqueue which is thread and ISR safe. EVENTS_EVENT_SIZE is the size of the buffer allocated
+EventQueue queue(32*EVENTS_EVENT_SIZE);// creates an eventqueue which is thread and ISR safe. EVENTS_EVENT_SIZE is the size of the buffer allocated
 
 
-// CircularBuffer<CANMessage, 32> canqueue;
+CircularBuffer<CANMessage, 32> canqueue;
 
 // uint8_t canCount;
 
@@ -63,14 +60,15 @@ void initIO();
 // DigitalIn imd_status_pin(ACC_IMD_STATUS);
 // DigitalIn charge_state_pin(ACC_CHARGE_STATE);
 
-
 DigitalOut bms_fault_pin(ACC_BMS_FAULT);
 DigitalOut precharge_control_pin(ACC_PRECHARGE_CONTROL);
-
 
 // AnalogIn current_vref_pin(ACC_BUFFERED_C_VREF);
 AnalogIn current_sense_pin(ACC_AMP_CURR_OUT);
 AnalogIn glv_voltage_pin(ACC_GLV_VOLTAGE);
+
+PwmOut fan_pwm(ACC_FANS_ON);
+uint8_t fan_percent;
 
 bool checkingPrechargeStatus = false;
 bool checkingShutdownStatus = false;
@@ -84,7 +82,7 @@ bool isBalancing = false;
 // bool chargeEnable = false;
 
 uint16_t dcBusVoltage; // in tenths of volts
-uint32_t tsVoltagemV;
+uint32_t packVoltagemV;
 //uint16_t tsVoltage;
 uint8_t glvVoltage;
 float rawTsCurrent;
@@ -96,6 +94,7 @@ int8_t allTemps[BMS_BANK_COUNT * BMS_BANK_TEMP_COUNT];
 int8_t avgCellTemp; // in c
 int8_t maxCellTemp; // in c
 
+int8_t state_of_charge;
 
 vector<uint16_t> lastCurrentReadings;
 
@@ -125,7 +124,10 @@ int main() {
     printf("BMS thread started\n");
 
     Timer t; // create timer obj
+    Timer volt_timer;
+    Timer soc_timer;
     t.start(); // start timer
+    soc_timer.start();
     while (1) {
         // infinite loop
         // glvVoltage = (uint8_t)(glv_voltage_pin * 185.3); // Read voltage from glv_voltage_pin and convert it to mV
@@ -158,12 +160,12 @@ int main() {
                     avgCellTemp = bmsEvent->avgTemp; // Assign the avgTemp from bmsEvent
                     isBalancing = bmsEvent->isBalancing; // Assign the isBalancing value from bmsEvent
 
-                    tsVoltagemV = 0;
+                    packVoltagemV = 0;
 
                     for (int i = 0; i < BMS_BANK_COUNT * BMS_BANK_CELL_COUNT; i++) {
                         // Loop through all bank cells
                         allVoltages[i] = bmsEvent->voltageValues[i]; // Assign voltage values from bmsEvent
-                        tsVoltagemV += allVoltages[i]; // Sum of voltage values
+                        packVoltagemV += allVoltages[i]; // Sum of voltage values
                         //printf("%d, V: %d\n", i, allVoltages[i]);
                     }
                     for (int i = 0; i < BMS_BANK_COUNT * BMS_BANK_TEMP_COUNT; i++) {
@@ -172,7 +174,7 @@ int main() {
                         // printf("%d, T: %d\n", i, allTemps[i]);
                     }
                 // #### I CHANGED THIS #### REPLACED THE FOR LOOPS WITH ACCUMULATE AND COPY...
-                    tsVoltagemV = std::accumulate(bmsEvent->voltageValues,
+                    packVoltagemV = std::accumulate(bmsEvent->voltageValues,
                                                   bmsEvent->voltageValues + BMS_BANK_COUNT * BMS_BANK_CELL_COUNT, 0);
                 // Sum of voltage values
                     std::copy(bmsEvent->temperatureValues,
@@ -230,20 +232,19 @@ int main() {
         }
 
 
-        // if (!shutdown_measure_pin && !checkingShutdownStatus) {
-        //     checkingShutdownStatus = false;
-        //     queue.call_in(100ms, &checkShutdownStatus);
-        // }
+        if (!shutdown_measure_pin && !checkingShutdownStatus) {
+            checkingShutdownStatus = false;
+            queue.call_in(100ms, &checkShutdownStatus);
+        }
         //
-        // if (dcBusVoltage >= (uint16_t)(tsVoltagemV/100.0) * PRECHARGE_PERCENT && tsVoltagemV >= 60000) {
-        //     prechargeDone = true;
-        // } else if (dcBusVoltage < 20000 && !checkingPrechargeStatus) {
-        //     checkingPrechargeStatus = true;
-        //     queue.call_in(500ms, &checkPrechargeVoltage);
-        //
-        //     prechargeDone = false;
-        //
-        // }
+        if (dcBusVoltage >= (uint16_t)(packVoltagemV/100.0) * PRECHARGE_PERCENT && packVoltagemV >= 60000) {
+            prechargeDone = true;
+        } else if (dcBusVoltage < 20000 && !checkingPrechargeStatus) {
+            checkingPrechargeStatus = true;
+            queue.call_in(500ms, &checkPrechargeVoltage);
+                    prechargeDone = false;
+
+        }
 
         bms_fault_pin = !hasBmsFault;
 
@@ -254,6 +255,17 @@ int main() {
         precharge_control_pin = prechargeDone /*false*/;
 
         hasFansOn = prechargeDone || isCharging;
+        // TODO: FIX FOR THE FANS
+        if (prechargeDone) {
+            fan_percent = 0.2;
+            fan_pwm.write(fan_percent);
+        }
+
+        if (hasFansOn)
+        {
+            fan_percent = linearFans_percent(maxCellTemp) / 100;
+            fan_pwm.write(fan_percent);
+        }
 
         // chargeEnable = isCharging && !hasBmsFault && shutdown_measure_pin && prechargeDone;
         // charge_enable_pin = chargeEnable;
@@ -286,6 +298,27 @@ int main() {
         avgCurrent = avgCurrent / (uint16_t) lastCurrentReadings.size();
         printf("Avg Current: %d\n", avgCurrent);
 
+        if (filteredTsCurrent < CURR_SOC_LIMIT && avgCellTemp < TEMP_SOC_LIMIT) {
+            if (volt_timer.read_ms() == 0) {
+                volt_timer.start();
+            } else if (volt_timer.read_ms() > SOC_TIME_THRESHOLD) {
+                // LOOKUP table
+                int16_t capacity = convertLowVoltage(glvVoltage);
+                state_of_charge = state_of_charge + (capacity / CELL_CAPACITY_RATED) * 100;
+
+            }
+        } else {
+            volt_timer.reset();
+            soc_timer.stop();
+            if (lastCurrentReadings.size() >= 2) {
+                state_of_charge = currStateOfCharge(state_of_charge, soc_timer.read_ms(),
+                    lastCurrentReadings[-1], lastCurrentReadings[-2]);
+                soc_timer.reset();
+                soc_timer.start();
+            }
+        }
+
+
 
         // printf("cSense: %d, cVref: %d, Ts current: %d\n", (uint32_t)(cSense*10000), (uint32_t)(cVref*10000), tsCurrent);
         //
@@ -295,12 +328,16 @@ int main() {
         ThisThread::sleep_for(5 - (t.read_ms() % 5));
     }
 }
-
+// todo: manage the fan percent; when precharge is still going-> 0; as soon as precharge is done->20; then (linearly) scale to highest temp cell
+// todo: when temp is 50, fan percent is 100
 void initIO() {
-    // fan_control_pin = 0; // turn fans off at start
+    fan_pwm.period_us(40);
+    fan_pwm.write(0);// TODO: range is 0-1, use write to change the fan percent
+    fan_percent = 0;
     // charge_enable_pin = 0; // charge not allowed at start
     bms_fault_pin = 0; // assume fault at start, low means fault
     precharge_control_pin = 0; // positive AIR open at start
+    state_of_charge = 100; // TODO: CHANGE TO ACCOUNT FOR POSSIBLE DISCHARGE
 
     // canBus = new CAN(BMS_PIN_CAN_RX, BMS_PIN_CAN_TX, BMS_CAN_FREQUENCY);
     // canBus->frequency(BMS_CAN_FREQUENCY);
@@ -319,168 +356,23 @@ void initIO() {
     }
 }
 
-// void initDrivingCAN() {
-//     queue.call_every(100ms, &canBoardStateTX);
-//     // queue.call_every( 20ms, &canCurrentLimTX); # moved to ETC
-//     queue.call_every(200ms, &canVoltTX0);
-//     queue.call_every(200ms, &canVoltTX1);
-//     queue.call_every(200ms, &canVoltTX2);
-//     queue.call_every(200ms, &canVoltTX3);
-//     queue.call_every(200ms, &canVoltTX4);
-//     queue.call_every(200ms, &canTempTX0);
-//     queue.call_every(200ms, &canTempTX1);
-//     queue.call_every(200ms, &canTempTX2);
-//     queue.call_every(200ms, &canTempTX3);
-//     queue.call_every(200ms, &canTempTX4);
-// }
-//
-// void initChargingCAN() {
-//     ThisThread::sleep_for(100ms);
-//     queue.call(&canLSS_SwitchStateGlobal);
-//     queue.dispatch_once();
-//     ThisThread::sleep_for(5ms);
-//     queue.call(&canLSS_SetNodeIDGlobal);
-//     queue.dispatch_once();
-//     ThisThread::sleep_for(5ms);
-//     queue.call(&can_ChargerSync);
-//     queue.call(&can_ChargerMaxCurrentVoltage);
-//     queue.call(&can_ChargerChargeControl);
-//     queue.dispatch_once();
-//     queue.call_every(100ms, &can_ChargerSync);
-//     queue.call_every(100ms, &can_ChargerMaxCurrentVoltage);
-//     queue.call_every(100ms, &can_ChargerChargeControl);
-//
-//
-//     queue.call_every(100ms, &canBoardStateTX);
-//     // queue.call_every( 20ms, &canCurrentLimTX); # moved to ETC
-//     queue.call_every(200ms, &canVoltTX0);
-//     queue.call_every(200ms, &canVoltTX1);
-//     queue.call_every(200ms, &canVoltTX2);
-//     queue.call_every(200ms, &canVoltTX3);
-//     queue.call_every(200ms, &canVoltTX4);
-//     queue.call_every(200ms, &canTempTX0);
-//     queue.call_every(200ms, &canTempTX1);
-//     queue.call_every(200ms, &canTempTX2);
-//     queue.call_every(200ms, &canTempTX3);
-//     queue.call_every(200ms, &canTempTX4);
-// }
 
 
-// void canRX() {
-//     CANMessage msg;
-//
-//     if (canBus->read(msg)) {
-//         canqueue.push(msg);
-//     }
-// }
 
+// move to main!!!
+void canSendmain() {
+    CANMessage boardstate = ACC_TPDO_STATUS(hasBmsFault, checkingShutdownStatus, prechargeDone, checkingPrechargeStatus, isCharging, isBalancing,
+                                            /* cell low, cell high, temp low, temp high, temp high charging*/, glvVoltage, /*cell fault index*/);
+    canSend(&boardstate, packVoltagemV, state_of_charge, filteredTsCurrent, allVoltages, allTemps);
+}
 
-// void canBootupTX() {
-//     canBus->write(accBoardBootup());
-// }
-//
-// void canBoardStateTX() {
-//     canBus->write(accBoardState(
-//         glvVoltage,
-//         (uint16_t)(tsVoltagemV/100.0),
-//         hasBmsFault,
-//         isBalancing,
-//         prechargeDone,
-//         isCharging,
-//         hasFansOn,
-//         shutdown_measure_pin,
-//         false,
-//         false,
-//         maxCellTemp,
-//         avgCellTemp,
-//         tsCurrent
-//     ));
-//     ThisThread::sleep_for(1ms);
-// }
+// move to main!!!
+void initDrivingCAN() {
+    // const CANMessage &boardstate, uint16_t packVolt, uint8_t soc, int16_t curr, uint16_t (&allVoltages)[BMS_BANK_COUNT * BMS_BANK_CELL_COUNT],
+    // int8_t(&allTemps)[BMS_BANK_COUNT * BMS_BANK_CELL_COUNT]
+    queue.call_every(100ms, &canSendmain);
+}
 
-// void canTempTX(uint8_t segment) {
-//     int8_t temps[6] = {
-//         allTemps[(segment * BMS_BANK_CELL_COUNT)],
-//         allTemps[(segment * BMS_BANK_CELL_COUNT) + 1],
-//         allTemps[(segment * BMS_BANK_CELL_COUNT) + 2],
-//         allTemps[(segment * BMS_BANK_CELL_COUNT) + 3],
-//         allTemps[(segment * BMS_BANK_CELL_COUNT) + 4],
-//         allTemps[(segment * BMS_BANK_CELL_COUNT) + 5],
-//     };
-//     canBus->write(accBoardTemp(segment, temps));
-//     ThisThread::sleep_for(1ms);
-// }
-//
-// void canVoltTX(uint8_t segment) {
-//     uint16_t volts[6] = {
-//         allVoltages[(segment * BMS_BANK_CELL_COUNT)],
-//         allVoltages[(segment * BMS_BANK_CELL_COUNT) + 1],
-//         allVoltages[(segment * BMS_BANK_CELL_COUNT) + 2],
-//         allVoltages[(segment * BMS_BANK_CELL_COUNT) + 3],
-//         allVoltages[(segment * BMS_BANK_CELL_COUNT) + 4],
-//         allVoltages[(segment * BMS_BANK_CELL_COUNT) + 5],
-// };
-//     canBus->write(accBoardVolt(segment, volts));
-//     ThisThread::sleep_for(1ms);
-// }
-
-// void canCurrentLimTX() { # moved to ETC
-//     uint16_t chargeCurrentLimit = 0x0000;
-//     uint16_t dischargeCurrentLimit = (uint16_t)(((CAR_MAX_POWER/(tsVoltagemV/1000.0))*CAR_POWER_PERCENT < CAR_CURRENT_MAX) ? (CAR_MAX_POWER/(tsVoltagemV/1000.0)*CAR_POWER_PERCENT) : CAR_CURRENT_MAX);
-//     canBus->write(motorControllerCurrentLim(chargeCurrentLimit, dischargeCurrentLimit));
-//     ThisThread::sleep_for(1ms);
-// }
-
-// void canVoltTX0() {
-//     canVoltTX(0);
-// }
-//
-// void canVoltTX1() {
-//     canVoltTX(1);
-// }
-//
-// void canVoltTX2() {
-//     canVoltTX(2);
-// }
-//
-// void canVoltTX3() {
-//     canVoltTX(3);
-// }
-//
-// void canVoltTX4() {
-//     canVoltTX(4);
-// }
-//
-// void canTempTX0() {
-//     canTempTX(0);
-// }
-//
-// void canTempTX1() {
-//     canTempTX(1);
-// }
-//
-// void canTempTX2() {
-//     canTempTX(2);
-// }
-//
-// void canTempTX3() {
-//     canTempTX(3);
-// }
-//
-// void canTempTX4() {
-//     canTempTX(4);
-// }
-//
-// void can_ChargerChargeControl() { // TODO: this likely changes with no enable pin
-//     canBus->write(chargerChargeControlRPDO(
-//         0x10, // destination node ID
-//         0x00000000, // pack voltage; doesn't matter as only for internal charger logging
-//         true, // evse override, tells the charger to respect the max AC input current sent in the other message
-//         false, // current x10 multipler, only used for certain zero chargers
-//         chargeEnable // enable
-//     ));
-// }
-//
 //
 // void checkPrechargeVoltage() {
 //     if (dcBusVoltage < 20000) {
@@ -495,3 +387,9 @@ void initIO() {
 //     }
 //     checkingShutdownStatus = false;
 // }
+
+int linearFans_percent(int temp)
+{
+    int tmp = ((8/3) * temp) + (100/3);
+    return tmp;
+}

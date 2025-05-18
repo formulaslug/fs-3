@@ -9,20 +9,21 @@
 #include "mbed.h"
 #include "BmsConfig.h" //I added this inclusion
 
-// SIDs From Accumulator
-constexpr uint32_t kTPDO_ACC_BOARD_State = 0x183;
+// SIDs From Accumulator TODO: DOUBLE CHECK THESE
+constexpr uint32_t kACC_TPDO_STATUS = 0x188;
+constexpr uint32_t kACC_TPDO_POWER = 0x288;
 
-constexpr uint32_t kTPDO_ACC_BOARD_Temp_0 = 0x189;
-constexpr uint32_t kTPDO_ACC_BOARD_Temp_1 = 0x289;
-constexpr uint32_t kTPDO_ACC_BOARD_Temp_2 = 0x389;
-constexpr uint32_t kTPDO_ACC_BOARD_Temp_3 = 0x489;
-constexpr uint32_t kTPDO_ACC_BOARD_Temp_4 = 0x589;
+constexpr uint32_t kACC_TPDO_SEG0_TEMPS = 0x291;
+constexpr uint32_t kACC_TPDO_SEG1_TEMPS = 0x292;
+constexpr uint32_t kACC_TPDO_SEG2_TEMPS = 0x293;
+constexpr uint32_t kACC_TPDO_SEG3_TEMPS = 0x294;
+constexpr uint32_t kACC_TPDO_SEG4_TEMPS = 0x295;
 
-constexpr uint32_t kTPDO_ACC_BOARD_Volt_0 = 0x188;
-constexpr uint32_t kTPDO_ACC_BOARD_Volt_1 = 0x288;
-constexpr uint32_t kTPDO_ACC_BOARD_Volt_2 = 0x388;
-constexpr uint32_t kTPDO_ACC_BOARD_Volt_3 = 0x488;
-constexpr uint32_t kTPDO_ACC_BOARD_Volt_4 = 0x588;
+constexpr uint32_t kACC_TPDO_SEG0_VOLTS = 0x191;
+constexpr uint32_t kACC_TPDO_SEG1_VOLTS = 0x192;
+constexpr uint32_t kACC_TPDO_SEG2_VOLTS = 0x193;
+constexpr uint32_t kACC_TPDO_SEG3_VOLTS = 0x194;
+constexpr uint32_t kACC_TPDO_SEG4_VOLTS = 0x195;
 
 constexpr uint32_t kNMT_ACC_HEARTBEAT = 0x703;
 constexpr uint32_t kRPDO_MAX_CURRENTS = 0x286;
@@ -30,34 +31,40 @@ constexpr uint32_t kRPDO_MAX_CURRENTS = 0x286;
 constexpr uint32_t kRPDO_ChargeControl = 0x206;
 constexpr uint32_t kRPDO_ChargeLimits = 0x306;
 
-/* Bootup message */
-CANMessage accBoardBootup();
+CANMessage ACC_TPDO_STATUS(bool bmsFault, bool imdFault, bool shutdownState, bool prechargeDone,
+                         bool precharging, bool charging, bool isBalancing, bool cell_too_low, bool cell_too_high, bool temp_too_low,
+                         bool temp_too_high, bool temp_too_high_charging, uint16_t glv_voltage, uint32_t cell_fault_index);
 
-/* TPDO that sends various states and information about the accumulator */
-CANMessage accBoardState(uint8_t glvVoltage, uint16_t tsVoltage, bool bmsFault,
-                         bool bmsBalancing, bool prechargeDone, bool charging,
-                         bool fansOn, bool shutdownClosed, bool unused_A,
-                         bool unused_B, uint8_t minCellVoltage,
-                         uint8_t maxCellVoltage, int16_t tsCurrent);
+//--------------------------------------------------------------------------------
+// Accumulator Temperatures
 
-/* TPDO that sends all temperatures for one segment */
-CANMessage accBoardTemp(uint8_t segment, int8_t *temps);
+CANMessage ACC_TPDO_SEG0_TEMPS(int8_t *temps);
 
-/* TPDO that sends all voltages for one segment */
-CANMessage accBoardVolt(uint8_t segment, uint16_t *voltages);
+CANMessage ACC_TPDO_SEG1_TEMPS(int8_t *temps);
 
-/* RPDO for limiting the current to the Motor Controller (AC-X1) */
-CANMessage motorControllerCurrentLim(uint16_t chargeCurLim,
-                                     uint16_t dischargeCurLim);
+CANMessage ACC_TPDO_SEG2_TEMPS(int8_t *temps);
 
-CANMessage chargerChargeControlRPDO(uint8_t destinationNodeID,
-                                    uint32_t packVoltage, bool evseOverride,
-                                    bool current10xMultiplier, bool enable);
+CANMessage ACC_TPDO_SEG3_TEMPS(int8_t *temps);
 
-CANMessage chargerMaxAllowedVoltageCurrentRPDO(uint8_t destinationNodeID,
-                                    uint32_t maxAllowedChargeVoltage,
-                                    uint16_t maxAllowedChargeCurrent,
-                                    uint8_t maxAllowedInputCurrentEVSEoverride);
+CANMessage ACC_TPDO_SEG4_TEMPS(int8_t *temps);
+
+//--------------------------------------------------------------------------------
+// Accumulator Voltages
+
+CANMessage ACC_TPDO_SEG0_VOLTS(uint16_t *volts);
+
+CANMessage ACC_TPDO_SEG1_VOLTS(uint16_t *volts);
+
+CANMessage ACC_TPDO_SEG2_VOLTS(uint16_t *volts);
+
+CANMessage ACC_TPDO_SEG3_VOLTS(uint16_t *volts);
+
+CANMessage ACC_TPDO_SEG4_VOLTS(uint16_t *volts);
+//--------------------------------------------------------------------------------
+// ACC Power
+
+CANMessage ACC_TPDO_POWER(uint16_t packVoltage, uint8_t state_of_charge, int16_t current);
+}
 
 void initDrivingCAN(const EventQueue &queue, const CANMessage &msg,
                     const uint32_t &tsVoltage, uint16_t (&allVoltages)[BMS_BANK_COUNT * BMS_BANK_CELL_COUNT],
@@ -71,9 +78,8 @@ void canBootupTX();
 
 void canBoardStateTX();
 
-void canTempTX(uint8_t segment, int8_t allTemps[]);
-
-void canVoltTX(uint8_t segment, uint16_t allVoltages[]);
+void canSend(const CANMessage &boardstate, uint16_t packVolt, uint8_t soc, int16_t curr, uint16_t (&allVoltages)[BMS_BANK_COUNT * BMS_BANK_CELL_COUNT],
+            int8_t (&allTemps)[BMS_BANK_COUNT * BMS_BANK_CELL_COUNT] );
 
 void canCurrentLimTX();
 

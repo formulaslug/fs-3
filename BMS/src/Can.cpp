@@ -1,372 +1,172 @@
- #include "Can.h"
+#include "Can.h"
 #include "BmsConfig.h"
 #include <cstdint>
 #include <cstdio>
 
-//-------------------------------------------------------------------------------
-// Bootup CAN Messages
-
-CANMessage accBoardBootup() {
-  uint8_t startupMessage[8];
-  return CANMessage{kNMT_ACC_HEARTBEAT, startupMessage};
-}
-
-void canBootupTX() {
-    canBus->write(accBoardBootup());
-}
-
 //--------------------------------------------------------------------------------
 //General Data Showing State Of Accumulator
-CANMessage accBoardState(uint8_t glvVoltage, uint16_t tsVoltage, bool bmsFault,
-                         bool bmsBalancing, bool prechargeDone, bool charging,
-                         bool fansOn, bool shutdownClosed, bool unused_A,
-                         bool unused_B, uint8_t maxCellTemp,
-                         uint8_t avgCellTemp, int16_t tsCurrent) {
+// TODO: add the proper casts to uint8_t for everything that is not that
+CANMessage ACC_TPDO_STATUS(bool bmsFault, bool imdFault, bool shutdownState, bool prechargeDone,
+                         bool precharging, bool charging, bool isBalancing, bool cell_too_low, bool cell_too_high, bool temp_too_low,
+                         bool temp_too_high, bool temp_too_high_charging, uint16_t glv_voltage, uint32_t cell_fault_index) {
   uint8_t data[8];
-  data[0] = glvVoltage;
-  data[1] = tsVoltage;
-  data[2] = tsVoltage >> 8;
-  data[3] = bmsFault + (bmsBalancing << 1) + (prechargeDone << 2) +
-            (charging << 3) + (fansOn << 4) + (shutdownClosed << 5) +
-            (unused_A << 6) + (unused_B << 7);
-  data[4] = maxCellTemp;
-  data[5] = avgCellTemp;
-  data[6] = tsCurrent;
-  data[7] = tsCurrent >> 8;
-  return CANMessage{kTPDO_ACC_BOARD_State, data};
-}
-
-void canBoardStateTX(const CANMessage &BoardState) {
-    canBus->write(BoardState);
-    ThisThread::sleep_for(1ms);
+  data[0] = bmsFault + (imdFault << 1) + (shutdownState << 2) +
+            (prechargeDone << 3) + (precharging << 4) + (charging << 5) ;
+  data[1] = cell_too_low + (cell_too_high << 1) + (temp_too_low << 2) + (temp_too_high << 3) + (temp_too_high_charging << 4) + (isBalancing << 5);
+  data[2] = (uint8_t)glv_voltage;
+  data[3] = (uint8_t)glv_voltage >> 8;
+  data[4] = (uint8_t)cell_fault_index;
+  data[5] = (uint8_t)(cell_fault_index >> 8);
+  data[6] = (uint8_t)cell_fault_index >> 16;
+  data[7] = (uint8_t)cell_fault_index >> 24;
+  return CANMessage{kACC_TPDO_STATUS, data};
 }
 
 //--------------------------------------------------------------------------------
 // Accumulator Temperatures
-CANMessage accBoardTemp(uint8_t segment, int8_t  *temps) {
-  uint8_t data[BMS_BANK_CELL_COUNT];
-  unsigned int id;
-  switch (segment) {
-      case 0:
-          id = kTPDO_ACC_BOARD_Temp_0;
-        break;
-      case 1:
-          id = kTPDO_ACC_BOARD_Temp_1;
-        break;
-      case 2:
-          id = kTPDO_ACC_BOARD_Temp_2;
-        break;
-      case 3:
-          id = kTPDO_ACC_BOARD_Temp_3;
-        break;
-      case 4:
-          id = kTPDO_ACC_BOARD_Temp_4;
-        break;
-  }
-  for (int i = 0; i < BMS_BANK_CELL_COUNT; i++) {
-    data[i] = static_cast<uint8_t>(temps[i]);
-  }
 
-  return CANMessage{id, data};
-}
-
-void canTempTX(uint8_t segment, const int8_t allTemps[]) {
-    int8_t temps[BMS_BANK_COUNT * BMS_BANK_CELL_COUNT];
-    for( uint8_t i = 0; i < BMS_BANK_COUNT; i++) {
-        temps[i] = segment * BMS_BANK_CELL_COUNT + i;
+CANMessage ACC_TPDO_SEG0_TEMPS(int8_t *temps) {
+    int8_t data[BMS_BANK_CELL_COUNT];
+    for (int i = 0; i < BMS_BANK_CELL_COUNT; i++) {
+        data[i] = temps[i]
     }
-    canBus->write(accBoardTemp(segment, temps));
-    ThisThread::sleep_for(1ms);
+
+    return CANMessage{kACC_TPDO_SEG0_TEMPS, data};
 }
+
+CANMessage ACC_TPDO_SEG1_TEMPS(int8_t *temps) {
+    int8_t data[BMS_BANK_CELL_COUNT];
+    for (int i = 0; i < BMS_BANK_CELL_COUNT; i++) {
+        data[i] = temps[i]
+    }
+
+    return CANMessage{kACC_TPDO_SEG1_TEMPS, data};
+}
+
+CANMessage ACC_TPDO_SEG2_TEMPS(int8_t *temps) {
+    int8_t data[BMS_BANK_CELL_COUNT];
+    for (int i = 0; i < BMS_BANK_CELL_COUNT; i++) {
+        data[i] = temps[i]
+    }
+
+    return CANMessage{kACC_TPDO_SEG2_TEMPS, data};
+}
+
+CANMessage ACC_TPDO_SEG3_TEMPS(int8_t *temps) {
+    int8_t data[BMS_BANK_CELL_COUNT];
+    for (int i = 0; i < BMS_BANK_CELL_COUNT; i++) {
+        data[i] = temps[i]
+    }
+
+    return CANMessage{kACC_TPDO_SEG3_TEMPS, data};
+}
+
+CANMessage ACC_TPDO_SEG4_TEMPS(int8_t *temps) {
+    int8_t data[BMS_BANK_CELL_COUNT];
+    for (int i = 0; i < BMS_BANK_CELL_COUNT; i++) {
+        data[i] = temps[i]
+    }
+
+    return CANMessage{kACC_TPDO_SEG4_TEMPS, data};
+}
+
 
 //--------------------------------------------------------------------------------
 // Accumulator Voltages
-  CANMessage accBoardVolt(uint8_t segment, uint16_t *volts) {
-  uint8_t data[BMS_BANK_CELL_COUNT];
-  uint32_t id;
-  switch (segment) {
-  case 0:
-    id = kTPDO_ACC_BOARD_Volt_0;
-    break;
-  case 1:
-    id = kTPDO_ACC_BOARD_Volt_1;
-    break;
-  case 2:
-    id = kTPDO_ACC_BOARD_Volt_2;
-    break;
-  case 3:
-    id = kTPDO_ACC_BOARD_Volt_3;
-    break;
-  case 4:
-    id = kTPDO_ACC_BOARD_Volt_4;
-    break;
-  }
-  for (int i = 0; i < BMS_BANK_CELL_COUNT; i++) {
-    data[i] = (uint8_t)(50.0 * volts[i] / 1000.0);
-  }
-  return CANMessage(id, data);
-}
 
-void canVoltTX(uint8_t segment, const uint16_t allVoltages[]) {
-    uint16_t volts[BMS_BANK_COUNT];
-    for( uint8_t i = 0; i < BMS_BANK_COUNT; i++) {
-        volts[i] = segment * BMS_BANK_CELL_COUNT + i;
+CANMessage ACC_TPDO_SEG0_VOLTS(uint16_t *volts) {
+    uint8_t data[BMS_BANK_CELL_COUNT];
+    for (int i = 0; i < BMS_BANK_CELL_COUNT; i++) {
+        data[i] = (uint8_t)(volts[i] / 10) - 200;
     }
-    canBus->write(accBoardVolt(segment, volts));
+
+    return CANMessage{kACC_TPDO_SEG0_VOLTS, data};
+}
+
+// TODO: make sure that 200 is within the cast
+CANMessage ACC_TPDO_SEG1_VOLTS(uint16_t *volts) {
+    uint8_t data[BMS_BANK_CELL_COUNT];
+    for (int i = 0; i < BMS_BANK_CELL_COUNT; i++) {
+        data[i] = (uint8_t)(volts[BMS_BANK_CELL_COUNT + i] / 10 - 200);
+    }
+
+    return CANMessage{kACC_TPDO_SEG1_VOLTS, data};
+}
+
+CANMessage ACC_TPDO_SEG2_VOLTS(uint16_t *volts) {
+    uint8_t data[BMS_BANK_CELL_COUNT];
+    for (int i = 0; i < BMS_BANK_CELL_COUNT; i++) {
+        data[i] = (uint8_t)(volts[(2 * BMS_BANK_CELL_COUNT) + i] / 10) - 200;
+    }
+
+    return CANMessage{kACC_TPDO_SEG2_VOLTS, data};
+}
+
+CANMessage ACC_TPDO_SEG3_VOLTS(uint16_t *volts) {
+    uint8_t data[BMS_BANK_CELL_COUNT];
+    for (int i = 0; i < BMS_BANK_CELL_COUNT; i++) {
+        data[i] = (uint8_t)(volts[(3 * BMS_BANK_CELL_COUNT) + i] / 10) - 2;
+    }
+
+    return CANMessage{kACC_TPDO_SEG3_VOLTS, data};
+}
+
+CANMessage ACC_TPDO_SEG4_VOLTS(uint16_t *volts) {
+    uint8_t data[BMS_BANK_CELL_COUNT];
+    for (int i = 0; i < BMS_BANK_CELL_COUNT; i++) {
+        data[i] = (uint8_t)(volts[(4 * BMS_BANK_CELL_COUNT) + i] / 10) - 2;
+    }
+
+    return CANMessage{kACC_TPDO_SEG4_VOLTS, data};
+}
+//--------------------------------------------------------------------------------
+// ACC Power
+
+// TODO: CAST THESE PROPERLY!! cast the signed stuff to char ... this is so cooked
+CANMessage ACC_TPDO_POWER(uint16_t packVoltage, uint8_t state_of_charge, int16_t current) {
+    data[0] = (uint8_t)packVoltage;
+    data[1] = (uint8_t)packVoltage >> 8;
+    data[2] = state_of_charge;
+    data[3] = current;
+    data[4] = current >> 8;
+
+    return CANMessage{kACC_TPDO_POWER, data};
+}
+
+// FULL CAN send message, sends all the possible can messages for the ACC in one go
+// status is precalled for this to work
+void canSend(const CANMessage &boardstate, uint16_t packVolt, uint8_t soc, int16_t curr, uint16_t (&allVoltages)[BMS_BANK_COUNT * BMS_BANK_CELL_COUNT],
+            int8_t (&allTemps)[BMS_BANK_COUNT * BMS_BANK_CELL_COUNT] ) {
+
+    // status
+    canBus->write(boardstate);
+    ThisThread::sleep_for(1ms);
+
+    //power
+    canBus->write(ACC_TPDO_POWER(packVolt, soc, curr));
+    ThisThread::sleep_for(1ms);
+
+    // all the segment volts
+    canBus->write(ACC_TPDO_SEG0_VOLTS(allVoltages));
+    ThisThread::sleep_for(1ms);
+    canBus->write(ACC_TPDO_SEG1_VOLTS(allVoltages));
+    ThisThread::sleep_for(1ms);
+    canBus->write(ACC_TPDO_SEG2_VOLTS(allVoltages));
+    ThisThread::sleep_for(1ms);
+    canBus->write(ACC_TPDO_SEG3_VOLTS(allVoltages));
+    ThisThread::sleep_for(1ms);
+    canBus->write(ACC_TPDO_SEG4_VOLTS(allVoltages));
+    ThisThread::sleep_for(1ms);
+
+    // all the segment temps
+    canBus->write(ACC_TPDO_SEG0_TEMPS(allTemps));
+    ThisThread::sleep_for(1ms);
+    canBus->write(ACC_TPDO_SEG1_TEMPS(allTemps + BMS_BANK_CELL_COUNT));
+    ThisThread::sleep_for(1ms);
+    canBus->write(ACC_TPDO_SEG2_TEMPS(allTemps + (2 * BMS_BANK_CELL_COUNT)));
+    ThisThread::sleep_for(1ms);
+    canBus->write(ACC_TPDO_SEG3_TEMPS(allTemps + (3* BMS_BANK_CELL_COUNT)));
+    ThisThread::sleep_for(1ms);
+    canBus->write(ACC_TPDO_SEG4_TEMPS(allTemps + (4*BMS_BANK_CELL_COUNT)));
     ThisThread::sleep_for(1ms);
 }
-
-//--------------------------------------------------------------------------------
-// Motor Controller Current Limit
-
-CANMessage motorControllerCurrentLim(uint16_t chargeCurLim,
-                                     uint16_t dischargeCurLim) {
-  uint8_t data[8] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-  data[0] = chargeCurLim;
-  data[1] = chargeCurLim >> 8;
-  data[2] = dischargeCurLim;
-  data[3] = dischargeCurLim >> 8;
-  return CANMessage(kRPDO_MAX_CURRENTS, data);
-}
-
-void canCurrentLimTX(const uint32_t &tsVoltage) {
-    uint16_t chargeCurrentLimit = 0x0000;
-    auto dischargeCurrentLimit = (uint16_t)(((CAR_MAX_POWER/(tsVoltage/1000.0))*CAR_POWER_PERCENT < CAR_CURRENT_MAX) ? (CAR_MAX_POWER/(tsVoltage/1000.0)*CAR_POWER_PERCENT) : CAR_CURRENT_MAX);
-    canBus->write(motorControllerCurrentLim(chargeCurrentLimit, dischargeCurrentLimit));
-    ThisThread::sleep_for(1ms);
-}
-
-//--------------------------------------------------------------------------------
-// Charger Charge Control
-
-CANMessage chargerChargeControlRPDO(uint8_t destinationNodeID,
-                                    uint32_t packVoltage, bool evseOverride,
-                                    bool current10xMultiplier, bool enable) {
-  uint8_t data[8] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-  data[0] = destinationNodeID;
-  data[1] = (enable << 1) | (current10xMultiplier << 3) | (evseOverride << 5);
-  data[2] = packVoltage;
-  data[3] = packVoltage >> 8;
-  data[4] = packVoltage >> 16;
-  data[5] = packVoltage >> 24;
-  return CANMessage(kRPDO_ChargeControl, data);
-}
-
-void can_ChargerChargeControl(const bool chargeEnable) {
-    canBus->write(chargerChargeControlRPDO(
-        0x10, // destination node ID
-        0x00000000, // pack voltage; doesn't matter as only for internal charger logging
-        true, // evse override, tells the charger to respect the max AC input current sent in the other message
-        false, // current x10 multipler, only used for certain zero chargers
-        chargeEnable // enable
-    ));
-}
-
-//--------------------------------------------------------------------------------
-// Max Allowed Voltage Of Charger
-
-CANMessage
-chargerMaxAllowedVoltageCurrentRPDO(uint8_t destinationNodeID,
-                                    uint32_t maxAllowedChargeVoltage,
-                                    uint16_t maxAllowedChargeCurrent,
-                                    uint8_t maxAllowedInputCurrentEVSEoverride) {
-    uint8_t data[8] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-    data[0] = destinationNodeID;
-    data[1] = maxAllowedChargeVoltage;
-    data[2] = maxAllowedChargeVoltage >> 8;
-    data[3] = maxAllowedChargeVoltage >> 16;
-    data[4] = maxAllowedChargeVoltage >> 24;
-    data[5] = maxAllowedChargeCurrent;
-    data[6] = maxAllowedChargeCurrent >> 8;
-    data[7] = maxAllowedInputCurrentEVSEoverride;
-    return CANMessage(kRPDO_ChargeLimits, data);
-}
-
-void can_ChargerMaxCurrentVoltage() {
-    canBus->write(chargerMaxAllowedVoltageCurrentRPDO(
-        0x10, // destination node ID
-        CHARGE_VOLTAGE*1000, // desired voltage, mV
-        CHARGE_DC_LIMIT, // charge current limit, mA
-        CHARGE_AC_LIMIT // input AC current, can change to 20 if plugged into nema 5-20, nema 5-15 is standard
-    ));
-}
-
-//--------------------------------------------------------------------------------
-// MISC - idk what these do exactly
-
-void canLSS_SwitchStateGlobal() { // Switch state global protocal, switch to LSS configuration state
-    uint8_t data[8] = {0x04, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-    CANMessage msg(0x7E5, data);
-    canBus->write(msg);
-}
-
-void canLSS_SetNodeIDGlobal() { // Configurate node ID protocal, set node ID to 0x10
-    uint8_t data[8] = {0x11, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-    CANMessage msg(0x7E5, data);
-    canBus->write(msg);
-}
-
-void can_ChargerSync() {
-    uint8_t data[0] = {};
-    CANMessage msg(0x80, data, 0);
-    canBus->write(msg);
-}
-
-//-------------------------------------------------------------------------------------
-// Driving/Charging CAN Messages To Regularly Display Car Data During Charging/Driving
-
-// Since queue.call_every only allows functions with no parameters, we get around it by using lambda functions
-void initDrivingCAN(EventQueue &queue, const CANMessage &boardstate,
-            const uint32_t &tsVoltage, uint16_t (&allVoltages)[BMS_BANK_COUNT * BMS_BANK_CELL_COUNT],
-            int8_t (&allTemps)[BMS_BANK_COUNT * BMS_BANK_CELL_COUNT]) {
-
-    queue.call_every(100ms, [boardstate]() {
-        canBoardStateTX(boardstate);
-    });
-
-    queue.call_every( 20ms, [tsVoltage]() {
-        canCurrentLimTX(tsVoltage);
-    });
-
-    uint8_t num = 0;
-    queue.call_every( 200ms, [num, allVoltages]() {
-        canVoltTX(num, allVoltages);
-    });
-
-    num = 1;
-    queue.call_every(200ms, [num, allVoltages]() {
-        canVoltTX(num, allVoltages);
-    });
-
-    num = 2;
-    queue.call_every(200ms, [num, allVoltages]() {
-        canVoltTX(num, allVoltages);
-    });
-
-    num = 3;
-    queue.call_every(200ms, [num, allVoltages]() {
-        canVoltTX(num, allVoltages);
-    });
-
-    num = 4;
-    queue.call_every(200ms, [num, allVoltages]() {
-        canVoltTX(num, allVoltages);
-    });
-
-    num = 0;
-    queue.call_every(200ms, [num, allTemps]() {
-        canTempTX(num, allTemps);
-    });
-
-    num = 1;
-    queue.call_every(200ms, [num, allTemps]() {
-        canTempTX(num, allTemps);
-    });
-
-    num = 2;
-    queue.call_every(200ms, [num, allTemps]() {
-        canTempTX(num, allTemps);
-    });
-
-    num = 3;
-    queue.call_every(200ms, [num, allTemps]() {
-        canTempTX(num, allTemps);
-    });
-
-    num = 4;
-    queue.call_every(200ms, [num, allTemps]() {
-        canTempTX(num, allTemps);
-    });
-}
-
-// Since queue.call_every and queue.call only allow functions with no parameters, we get around it by using lambda functions
-void initChargingCAN(EventQueue &queue, const CANMessage &boardstate,
-            const uint32_t &tsVoltage, uint16_t (&allVoltages)[BMS_BANK_COUNT * BMS_BANK_CELL_COUNT],
-            int8_t (&allTemps)[BMS_BANK_COUNT * BMS_BANK_CELL_COUNT], const bool &enablecharge) {
-    ThisThread::sleep_for(100ms);
-    queue.call(&canLSS_SwitchStateGlobal);
-    queue.dispatch_once();
-    ThisThread::sleep_for(5ms);
-    queue.call(&canLSS_SetNodeIDGlobal);
-    queue.dispatch_once();
-    ThisThread::sleep_for(5ms);
-    queue.call(&can_ChargerSync);
-    queue.call(&can_ChargerMaxCurrentVoltage);
-
-    queue.call( [enablecharge]() {
-        can_ChargerChargeControl(enablecharge);
-    });
-
-    queue.dispatch_once();
-    queue.call_every(100ms, &can_ChargerSync);
-    queue.call_every(100ms, &can_ChargerMaxCurrentVoltage);
-
-    queue.call_every(100ms, [enablecharge]() {
-        can_ChargerChargeControl(enablecharge);
-    });
-
-    queue.call_every(100ms, [boardstate]() {
-        canBoardStateTX(boardstate);
-    });
-    queue.call_every( 20ms, [tsVoltage]() {
-        canCurrentLimTX(tsVoltage);
-    });
-
-    uint8_t num = 0;
-    queue.call_every( 200ms, [num, allVoltages]() {
-        canVoltTX(num, allVoltages);
-    });
-
-    num = 1;
-    queue.call_every(200ms, [num, allVoltages]() {
-        canVoltTX(num, allVoltages);
-    });
-
-    num = 2;
-    queue.call_every(200ms, [num, allVoltages]() {
-        canVoltTX(num, allVoltages);
-    });
-
-    num = 3;
-    queue.call_every(200ms, [num, allVoltages]() {
-        canVoltTX(num, allVoltages);
-    });
-
-    num = 4;
-    queue.call_every(200ms, [num, allVoltages]() {
-        canVoltTX(num, allVoltages);
-    });
-
-    num = 0;
-    queue.call_every(200ms, [num, allTemps]() {
-        canTempTX(num, allTemps);
-    });
-
-    num = 1;
-    queue.call_every(200ms, [num, allTemps]() {
-        canTempTX(num, allTemps);
-    });
-
-    num = 2;
-    queue.call_every(200ms, [num, allTemps]() {
-        canTempTX(num, allTemps);
-    });
-
-    num = 3;
-    queue.call_every(200ms, [num, allTemps]() {
-        canTempTX(num, allTemps);
-    });
-
-    num = 4;
-    queue.call_every(200ms, [num, allTemps]() {
-        canTempTX(num, allTemps);
-    });
-}
-
-// void canRX() {
-//     CANMessage msg;
-
-//     if (canBus->read(msg)) {
-//         canqueue.push(msg);
-//     }
-// }
