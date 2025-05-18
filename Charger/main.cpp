@@ -26,21 +26,48 @@ int main()
    printf("main()\n");
    initIO();
 
+   this_thread::sleep_for(500ms);
+
    printf("Starting main loop\n");
    while(true) {
       CANMessage msg;
+
+      bool prechargeDone = false;
+      bool fault = false;
+      bool shutdown_closed = false;
+      bool cell_temps_fine = false;
+
       while (can->read(msg)) {
          switch (msg.id) {
             case 0x80: // sync
                sendCAN();
                break;
+            case 0x188: // ACC_TPDO_STATUS
+               prechargeDone = msg.data[0] & 0b00001000;
+               fault = msg.data[0] & 0b00000011;
+               shutdown_closed = msg.data[0] & 0b00000100;
+               cell_temps_fine = !(msg.data[1] & 0b00010000);
+               break;
          }
       }
 
 
-      // if proximity pilot is about
+      // if proximity pilot is about 2.7v then no EVSE connected
+      // if proximity pilot is about 1.7v then EVSE connected and button pressed
+      // if proximity pilot is about 0.9v then EVSE connected and button not pressed
+      bool proximity_pilot_ready = (proximity_pilot.read_voltage() < 1.2);
+
+      // Duty cycle is 31 times voltage on control pilot
+      // Duty cycle times 0.6 is max allowed continuous current draw
+      // control pilot voltage times 18.5 is the max allowed current
+      int max_ac_current_CP = std::floor(control_pilot.read_voltage() * 18.5);
+      max_ac_current_A = std::min(max_ac_current_CP, MAX_AC_CURRENT);
+
+      max_voltage_mV = VOLTAGE_TARGET_MV;
+      max_dc_current_mA = CURRENT_MAX_MA;
 
 
+      enable = proximity_pilot_ready && prechargeDone && !fault && shutdown_closed && cell_temps_fine;
    }
 
    // main() is expected to loop forever.
@@ -98,7 +125,7 @@ void sendCAN() {
    // send charge control
    uint8_t charge_control_data[8] = {
       0x10,
-      static_cast<uint8_t>(enable << 1 + 0b00100000),
+      static_cast<uint8_t>((enable << 1) + 0b00100000),
       0x00,
       0x00,
       0x00,
