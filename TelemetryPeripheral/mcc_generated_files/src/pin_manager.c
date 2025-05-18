@@ -39,6 +39,8 @@ static void (*PORTA_IO_PA4_InterruptHandler)(void);
 static void (*PORTA_PA3_InterruptHandler)(void);
 static void (*PORTA_PA5_InterruptHandler)(void);
 static void (*PORTC_PC0_InterruptHandler)(void);
+static void (*PORTB_PB1_InterruptHandler)(void);
+static void (*PORTB_PB0_InterruptHandler)(void);
 
 void PORT_Initialize(void);
 
@@ -96,6 +98,8 @@ void PIN_MANAGER_Initialize()
     PORTA_PA3_SetInterruptHandler(PORTA_PA3_DefaultInterruptHandler);
     PORTA_PA5_SetInterruptHandler(PORTA_PA5_DefaultInterruptHandler);
     PORTC_PC0_SetInterruptHandler(PORTC_PC0_DefaultInterruptHandler);
+    PORTB_PB1_SetInterruptHandler(PORTB_PB1_DefaultInterruptHandler);
+    PORTB_PB0_SetInterruptHandler(PORTB_PB0_DefaultInterruptHandler);
 }
 
 void PORT_Initialize(void)
@@ -209,4 +213,30 @@ void PORTC_PC0_DefaultInterruptHandler(void)
 {
     // add your PORTC_PC0 interrupt custom code
     // or set custom function using PORTC_PC0_SetInterruptHandler()
+}
+/**
+  Allows selecting an interrupt handler for PORTB_PB1 at application runtime
+*/
+void PORTB_PB1_SetInterruptHandler(void (* interruptHandler)(void)) 
+{
+    PORTB_PB1_InterruptHandler = interruptHandler;
+}
+
+void PORTB_PB1_DefaultInterruptHandler(void)
+{
+    // add your PORTB_PB1 interrupt custom code
+    // or set custom function using PORTB_PB1_SetInterruptHandler()
+}
+/**
+  Allows selecting an interrupt handler for PORTB_PB0 at application runtime
+*/
+void PORTB_PB0_SetInterruptHandler(void (* interruptHandler)(void)) 
+{
+    PORTB_PB0_InterruptHandler = interruptHandler;
+}
+
+void PORTB_PB0_DefaultInterruptHandler(void)
+{
+    // add your PORTB_PB0 interrupt custom code
+    // or set custom function using PORTB_PB0_SetInterruptHandler()
 }

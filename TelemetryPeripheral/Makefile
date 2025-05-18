@@ -30,7 +30,8 @@ hex:
 	avr-objcopy -O ihex $(OUT_DIRECTORY)/default.elf $(OUT_DIRECTORY)/default.hex
 
 upload:
-	avrdude -c serialupdi -p attiny1616 -P /dev/ttyUSB0 -e -U flash:w:out/TelemetryPeripheral/default.elf
+	# /dev/ttyACM0 /dev/ttyUSB0
+	avrdude -c serialupdi -p attiny1616 -P ch9102 -e -U flash:w:out/TelemetryPeripheral/default.elf
 
 link_compile_commands:
 	ln -s $(BUILD_DIRECTORY)/compile_commands.json .

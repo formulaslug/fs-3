@@ -31,35 +31,20 @@
 */
 
 
-#ifndef MCC_H
-#define	MCC_H
+#ifndef TWI0_MASTER_EXAMPLE_H
+#define TWI0_MASTER_EXAMPLE_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include <stdint.h>
+#include <stdio.h>
+#include "../include/twi0_master.h"
 
-#include "utils/compiler.h"
-#include "include/pin_manager.h"
-#include "include/cpuint.h"
-#include "delay.h"
-#include "drivers/i2c_simple_master.h"
-#include "include/adc1.h"
-#include "include/adc0.h"
-#include "include/spi0.h"
-#include "include/twi0_master.h"
-#include "drivers/spi_master.h"
-#include "config/clock_config.h"
+uint8_t I2C0_example_read1ByteRegister(twi0_address_t address, uint8_t reg);
+uint16_t I2C0_example_read2ByteRegister(twi0_address_t address, uint8_t reg);
+void I2C0_example_write1ByteRegister(twi0_address_t address, uint8_t reg, uint8_t data);
+void I2C0_example_write2ByteRegister(twi0_address_t address, uint8_t reg, uint16_t data);
 
-/**
- * Initializes MCU, drivers and middleware in the project
-**/
-void SYSTEM_Initialize(void);
-int8_t BOD_Initialize();
-int8_t CLKCTRL_Initialize();
-int8_t SLPCTRL_Initialize();
-int8_t WDT_Initialize();
+void I2C0_example_writeNBytes(twi0_address_t address, void* data, size_t len);
+void I2C0_example_readDataBlock(twi0_address_t address, uint8_t reg, void *data, size_t len);
+void iI2C0_example_readNBytes(twi0_address_t address, void *data, size_t len);
 
-#ifdef __cplusplus
-}
-#endif
-#endif	/* MCC_H */
+#endif /* TWI0_MASTER_EXAMPLE_H */
