@@ -40,14 +40,14 @@ extern "C" {
 
 #include "utils/compiler.h"
 #include "include/pin_manager.h"
-#include "include/cpuint.h"
-#include "delay.h"
-#include "drivers/i2c_simple_master.h"
-#include "include/adc1.h"
-#include "include/adc0.h"
-#include "include/spi0.h"
 #include "include/twi0_master.h"
+#include "include/adc0.h"
+#include "include/adc1.h"
+#include "delay.h"
+#include "include/cpuint.h"
 #include "drivers/spi_master.h"
+#include "include/spi0.h"
+#include "drivers/i2c_simple_master.h"
 #include "config/clock_config.h"
 
 /**

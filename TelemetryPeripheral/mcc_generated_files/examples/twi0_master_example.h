@@ -45,6 +45,6 @@ void I2C0_example_write2ByteRegister(twi0_address_t address, uint8_t reg, uint16
 
 void I2C0_example_writeNBytes(twi0_address_t address, void* data, size_t len);
 void I2C0_example_readDataBlock(twi0_address_t address, uint8_t reg, void *data, size_t len);
-void iI2C0_example_readNBytes(twi0_address_t address, void *data, size_t len);
+void I2C0_example_readNBytes(twi0_address_t address, void *data, size_t len);
 
 #endif /* TWI0_MASTER_EXAMPLE_H */

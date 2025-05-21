@@ -1,4 +1,7 @@
 _build/
 out/
 .cache/
-cmake/TelemetryPeripheral/default/.generated
+
+# Turns out we want to commit .generated, as even though it can bloat commit diffs,
+# its a source of working truth to debug MCC issues
+#cmake/TelemetryPeripheral/default/.generated
