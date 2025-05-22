@@ -250,6 +250,19 @@ const int BMS_CELL_MAP[12] = {0, 1, 2, -1, -1, -1, 3, 4, 5, -1, -1, -1};
 
 #endif
 
+// Acc BMS Fault Output Inverse
+//
+// To be set to the opposite of the BMS Fault pin
+#ifndef ACC_BMS_FAULT_INVERSE
+
+#ifdef TARGET_NUCLEO_L432KC
+#define ACC_BMS_FAULT_INVERSE PA_7
+#else
+#error "Unknown board for ACC_BMS_FAULT_INVERSE"
+#endif
+
+#endif
+
 
 // Acc Precharge Control
 //

@@ -44,6 +44,7 @@ DigitalIn imd_status_pin(ACC_IMD_STATUS);
 // DigitalIn charge_state_pin(ACC_CHARGE_STATE);
 
 DigitalOut bms_fault_pin(ACC_BMS_FAULT);
+DigitalOut bms_fault_inverse_pin(ACC_BMS_FAULT_INVERSE);
 DigitalOut precharge_control_pin(ACC_PRECHARGE_CONTROL);
 
 // AnalogIn current_vref_pin(ACC_BUFFERED_C_VREF);
@@ -249,6 +250,7 @@ int main() {
         }
 
         bms_fault_pin = !hasBmsFault;
+        bms_fault_inverse_pin = !bms_fault_pin;
 
 
         // isCharging = charge_state_pin;
@@ -345,6 +347,7 @@ void initIO() {
     fan_percent = 0;
     // charge_enable_pin = 0; // charge not allowed at start
     bms_fault_pin = 0; // assume fault at start, low means fault
+    bms_fault_inverse_pin = 1; // just the opposite of the bms fault pin
     precharge_control_pin = 0; // positive AIR open at start
     state_of_charge = 100; // TODO: CHANGE TO ACCOUNT FOR POSSIBLE DISCHARGE
 
