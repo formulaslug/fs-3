@@ -5,6 +5,7 @@
  * @brief Main function
  */
 
+#include "mcc_generated_files/delay.h"
 #include "mcc_generated_files/mcc.h"
 #include <avr/io.h>
 #include <math.h>
@@ -24,6 +25,12 @@ int main() {
   d6t_8lh_setup();
 
   SPI0_OpenConfiguration(MASTER0_CONFIG);
+
+  IO_PA4_SetLow();
+  char bufreset[] = { 0b11000000}; // newer code
+  SPI0_WriteBlock(bufreset, sizeof(bufreset));
+  IO_PA4_SetHigh();
+  DELAY_milliseconds(10);
 
   IO_PA4_SetLow();
   char clear[] = {0b00000010, 0b00110000, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
@@ -75,8 +82,9 @@ int main() {
     IO_PA4_SetLow();
 
     // clang-format: ignore
-    //            WRITE       ADDR        CTRL        SIDH        SIDL        EID8  EID0  DLC         DATA                                           
-    char buf_deadbeef[] = {0b00000010, 0b00110000, 0b00001011, 0b10101010, 0b01000000, 0x00, 0x00, 0b00001000, 0xDE, 0xAD, 0xBE, 0xEF, 0xDE, 0xAD, 0xBE, 0xEF, 0x00, 0x00};
+    //                     WRITE       ADDR        CTRL        SIDH        SIDL[7:5]   EID8  EID0  DLC         DATA                                            CAN          
+    char buf_deadbeef[] = {0b00000010, 0b00110000, 0b00001000, 0b10101010, 0b01000000, 0x00, 0x00, 0b00001000, 0xDE, 0xAD, 0xBE, 0xEF, 0xDE, 0xAD, 0xBE, 0xEF, 0x00, 0x00};
+    // Should check that CTRL[3] is 0 before moving on (message sent)
     // char buf_adc[] = {0b00000010, 0b00110000, 0b00001011, 0b10101010, 0b01000000, 0x00, 0x00, 0b00000010, voltage >> 8, voltage & 0xFF, 0x00, 0x00};
     SPI0_WriteBlock(buf_deadbeef, sizeof(buf_deadbeef));
 

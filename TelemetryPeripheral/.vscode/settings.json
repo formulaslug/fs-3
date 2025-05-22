@@ -1,3 +1,7 @@
 {
-    "makefile.configureOnOpen": false
+    "makefile.configureOnOpen": false,
+    "clangd.arguments": [
+        "-background-index",
+        "-compile-commands-dir=_build",
+    ]
 }
