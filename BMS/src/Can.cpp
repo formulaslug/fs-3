@@ -77,7 +77,7 @@ CANMessage ACC_TPDO_SEG4_TEMPS(int8_t *temps) {
 CANMessage ACC_TPDO_SEG0_VOLTS(uint16_t *volts) {
     uint8_t data[BMS_BANK_CELL_COUNT];
     for (int i = 0; i < BMS_BANK_CELL_COUNT; i++) {
-        data[i] = (uint8_t)(volts[i] / 10) - 200;
+        data[i] = (uint8_t)(volts[i] / 10) - 2;
     }
 
     return CANMessage{kACC_TPDO_SEG0_VOLTS, data};
@@ -87,7 +87,7 @@ CANMessage ACC_TPDO_SEG0_VOLTS(uint16_t *volts) {
 CANMessage ACC_TPDO_SEG1_VOLTS(uint16_t *volts) {
     uint8_t data[BMS_BANK_CELL_COUNT];
     for (int i = 0; i < BMS_BANK_CELL_COUNT; i++) {
-        data[i] = (uint8_t)(volts[BMS_BANK_CELL_COUNT + i] / 10 - 200);
+        data[i] = (uint8_t)(volts[BMS_BANK_CELL_COUNT + i] / 10 - 2);
     }
 
     return CANMessage{kACC_TPDO_SEG1_VOLTS, data};
@@ -96,7 +96,7 @@ CANMessage ACC_TPDO_SEG1_VOLTS(uint16_t *volts) {
 CANMessage ACC_TPDO_SEG2_VOLTS(uint16_t *volts) {
     uint8_t data[BMS_BANK_CELL_COUNT];
     for (int i = 0; i < BMS_BANK_CELL_COUNT; i++) {
-        data[i] = (uint8_t)(volts[(2 * BMS_BANK_CELL_COUNT) + i] / 10) - 200;
+        data[i] = (uint8_t)(volts[(2 * BMS_BANK_CELL_COUNT) + i] / 10) - 2;
     }
 
     return CANMessage{kACC_TPDO_SEG2_VOLTS, data};
@@ -123,19 +123,20 @@ CANMessage ACC_TPDO_SEG4_VOLTS(uint16_t *volts) {
 // ACC Power
 
 // TODO: CAST THESE PROPERLY!! cast the signed stuff to char ... this is so cooked
-CANMessage ACC_TPDO_POWER(uint16_t packVoltage, uint8_t state_of_charge, int16_t current) {
+CANMessage ACC_TPDO_POWER(uint16_t packVoltage, uint8_t state_of_charge, int16_t current, uint8_t fan_pwm_duty_cycle) {
     data[0] = (uint8_t)packVoltage;
     data[1] = (uint8_t)packVoltage >> 8;
     data[2] = state_of_charge;
     data[3] = current;
     data[4] = current >> 8;
+    data[5] = fan_pwm_duty_cycle;
 
     return CANMessage{kACC_TPDO_POWER, data};
 }
 
 // FULL CAN send message, sends all the possible can messages for the ACC in one go
 // status is precalled for this to work
-void canSend(status_msg* status_message, uint16_t packVolt, uint8_t soc, int16_t curr, uint16_t (&allVoltages)[BMS_BANK_COUNT * BMS_BANK_CELL_COUNT],
+void canSend(status_msg* status_message, uint16_t packVolt, uint8_t soc, int16_t curr, uint8_t fan_pwm_duty_cycle, uint16_t (&allVoltages)[BMS_BANK_COUNT * BMS_BANK_CELL_COUNT],
             int8_t (&allTemps)[BMS_BANK_COUNT * BMS_BANK_CELL_COUNT] ) {
 
     // status
@@ -146,7 +147,7 @@ void canSend(status_msg* status_message, uint16_t packVolt, uint8_t soc, int16_t
     ThisThread::sleep_for(1ms);
 
     //power
-    canBus->write(ACC_TPDO_POWER(packVolt, soc, curr));
+    canBus->write(ACC_TPDO_POWER(packVolt, soc, curr, fan_pwm_duty_cycle));
     ThisThread::sleep_for(1ms);
 
     // all the segment volts

@@ -63,11 +63,11 @@ CANMessage ACC_TPDO_SEG4_VOLTS(uint16_t *volts);
 //--------------------------------------------------------------------------------
 // ACC Power
 
-CANMessage ACC_TPDO_POWER(uint16_t packVoltage, uint8_t state_of_charge, int16_t current);
+CANMessage ACC_TPDO_POWER(uint16_t packVoltage, uint8_t state_of_charge, uint8_t fan_pwm_duty_cycle, int16_t current);
 
 
 
-void canSend(status_msg *status_message, uint16_t packVolt, uint8_t soc, int16_t curr, uint16_t (&allVoltages)[BMS_BANK_COUNT * BMS_BANK_CELL_COUNT],
+void canSend(status_msg *status_message, uint16_t packVolt, uint8_t soc, int16_t curr, uint8_t fan_pwm_duty_cycle, uint16_t (&allVoltages)[BMS_BANK_COUNT * BMS_BANK_CELL_COUNT],
             int8_t (&allTemps)[BMS_BANK_COUNT * BMS_BANK_CELL_COUNT] );
 
 

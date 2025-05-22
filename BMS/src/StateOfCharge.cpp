@@ -47,10 +47,3 @@ static int16_t linearInterpolateAh(SOCConversion low, SOCConversion high, float 
 
     return ((low.capacity + ( (voltage - low.voltage) * (high.capacity - low.capacity) / (high.voltage - low.voltage)) ) * 1000) ;
 }
-
-// calculates the depthofdischarge with a riemann sum; must be added to the current amt of discharge for total sum
-int8_t currStateOfCharge(int8_t previousStateOfCharge, int deltaTime, uint16_t currentNow, uint16_t currentPrev) {
-  int8_t currentStateOfCharge = previousStateOfCharge - (deltaTime * (currentNow + currentPrev) / 200);
-
-  return currentStateOfCharge;
- }

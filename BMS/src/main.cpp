@@ -24,8 +24,6 @@ void initIO();
 void initDrivingCAN();
 int linearFans_percent(int temp);
 
-
-
 struct power_msg {
     uint16_t packVoltage;
     uint8_t state_of_charge;
@@ -109,10 +107,7 @@ int main() {
     Thread bmsThreadThread;
     BMSThread bmsThread(ltcBus, 1, bmsMailbox, mainToBMSMailbox); // define bmsThread object...?
     bmsThreadThread.start(callback(&BMSThread::startThread, &bmsThread));
-
-
-
-
+    
 
     printf("BMS thread started\n");
 
@@ -123,9 +118,9 @@ int main() {
     soc_timer.start();
     while (1) {
         // infinite loop
-        // glvVoltage = (uint8_t)(glv_voltage_pin * 185.3); // Read voltage from glv_voltage_pin and convert it to mV
+        glvVoltage = (uint8_t)(glv_voltage_pin * 185.3); // Read voltage from glv_voltage_pin and convert it to mV
         //printf("GLV voltage: %d mV\n", glvVoltage * 100);
-
+        int16_t capacity = convertLowVoltage(glvVoltage); // capacity initialization using the voltage lookup table
         while (!bmsMailbox->empty()) {
             // while the bmsMailbox is not empty
             BmsEvent *bmsEvent; // create bms event pointer
@@ -195,7 +190,7 @@ int main() {
                     break;
                 case BMSThreadState::BMSFault:
                     printf("*** BMS FAULT ***\n");
-                // hasBmsFault = true;
+                    hasBmsFault = true;
                     break;
                 default:
                     printf("FUBAR\n");
@@ -312,25 +307,24 @@ int main() {
         avgCurrent = avgCurrent / (uint16_t) lastCurrentReadings.size();
         printf("Avg Current: %d\n", avgCurrent);
 
-        if (filteredTsCurrent < CURR_SOC_LIMIT && avgCellTemp < TEMP_SOC_LIMIT) {
+        // State of Charge calculations
+        if (filteredTsCurrent < CURR_SOC_LIMIT && avgCellTemp < TEMP_SOC_LIMIT) { // if the current is low and temp is low
             if (volt_timer.read_ms() == 0) {
                 volt_timer.start();
             } else if (volt_timer.read_ms() > SOC_TIME_THRESHOLD) {
                 // LOOKUP table
-                int16_t capacity = convertLowVoltage(glvVoltage);
-                state_of_charge = state_of_charge + (capacity / CELL_CAPACITY_RATED) * 100;
-
+                capacity = convertLowVoltage(glvVoltage);
             }
         } else {
             volt_timer.reset();
             soc_timer.stop();
             if (lastCurrentReadings.size() >= 2) {
-                state_of_charge = currStateOfCharge(state_of_charge, soc_timer.read_ms(),
-                    lastCurrentReadings[-1], lastCurrentReadings[-2]);
+                capacity = capacity + ( soc_timer.read_ms() * ((lastCurrentReadings[-1] + lastCurrentReadings[-2]) / 2) );
                 soc_timer.reset();
                 soc_timer.start();
             }
         }
+        state_of_charge = (capacity / CELL_CAPACITY_RATED) * 100;
 
 
 
@@ -346,7 +340,7 @@ int main() {
 // todo: when temp is 50, fan percent is 100
 void initIO() {
     fan_pwm.period_us(40);
-    fan_pwm.write(0);// TODO: range is 0-1, use write to change the fan percent
+    fan_pwm.write(0);
     fan_percent = 0;
     // charge_enable_pin = 0; // charge not allowed at start
     bms_fault_pin = 0; // assume fault at start, low means fault
@@ -376,7 +370,7 @@ void initIO() {
 // move to main!!!
 void canSendmain() {
 
-    canSend(&status_message, packVoltagemV, state_of_charge, filteredTsCurrent, allVoltages, allTemps);
+    canSend(&status_message, packVoltagemV, state_of_charge, filteredTsCurrent, fan_percent, allVoltages, allTemps);
 }
 
 // move to main!!!
@@ -401,8 +395,7 @@ void checkShutdownStatus() {
     checkingShutdownStatus = false;
 }
 
-int linearFans_percent(int temp)
-{
+int linearFans_percent(int temp) {
     int tmp = ((8/3) * temp) + (100/3);
     return tmp;
 }
