@@ -197,6 +197,7 @@ const int BMS_CELL_MAP[12] = {0, 1, 2, -1, -1, -1, 3, 4, 5, -1, -1, -1};
 // Acc board GLV voltage read
 //
 // To measure the voltage of the GLV system
+//TODO: Can someone confirm if glvVoltage is in mV? If not we need to convert it in main for SOC Logic.
 #ifndef ACC_GLV_VOLTAGE
 
 #ifdef TARGET_NUCLEO_L432KC

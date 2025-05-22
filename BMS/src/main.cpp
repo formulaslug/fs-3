@@ -318,6 +318,7 @@ int main() {
             } else if (volt_timer.read_ms() > SOC_TIME_THRESHOLD) {
                 // LOOKUP table
                 int16_t capacity = convertLowVoltage(glvVoltage);
+                //TODO: Can someone confirm if glvVoltage is in mV? If not we need to convert
                 state_of_charge = state_of_charge + (capacity / CELL_CAPACITY_RATED) * 100;
 
             }
@@ -326,7 +327,8 @@ int main() {
             soc_timer.stop();
             if (lastCurrentReadings.size() >= 2) {
                 state_of_charge = currStateOfCharge(state_of_charge, soc_timer.read_ms(),
-                    lastCurrentReadings[-1], lastCurrentReadings[-2]);
+                    (lastCurrentReadings[-1] * 100), (lastCurrentReadings[-2] * 100));
+                //Note: Multiplied lastCurrentReadings by 100 since filteredTsCurrent is in 100 mAs
                 soc_timer.reset();
                 soc_timer.start();
             }
