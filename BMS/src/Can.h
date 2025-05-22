@@ -64,34 +64,13 @@ CANMessage ACC_TPDO_SEG4_VOLTS(uint16_t *volts);
 // ACC Power
 
 CANMessage ACC_TPDO_POWER(uint16_t packVoltage, uint8_t state_of_charge, int16_t current);
-}
 
-void initDrivingCAN(const EventQueue &queue, const CANMessage &msg,
-                    const uint32_t &tsVoltage, uint16_t (&allVoltages)[BMS_BANK_COUNT * BMS_BANK_CELL_COUNT],
-                    int8_t (&allTemps)[BMS_BANK_COUNT * BMS_BANK_CELL_COUNT]);
 
-void initChargingCAN(const EventQueue &queue, const CANMessage &msg,
-                    const uint32_t &tsVoltage, uint16_t (&allVoltages)[BMS_BANK_COUNT * BMS_BANK_CELL_COUNT],
-                    int8_t (&allTemps)[BMS_BANK_COUNT * BMS_BANK_CELL_COUNT], const bool &enablecharge);
 
-void canBootupTX();
-
-void canBoardStateTX();
-
-void canSend(const CANMessage &boardstate, uint16_t packVolt, uint8_t soc, int16_t curr, uint16_t (&allVoltages)[BMS_BANK_COUNT * BMS_BANK_CELL_COUNT],
+void canSend(status_msg *status_message, uint16_t packVolt, uint8_t soc, int16_t curr, uint16_t (&allVoltages)[BMS_BANK_COUNT * BMS_BANK_CELL_COUNT],
             int8_t (&allTemps)[BMS_BANK_COUNT * BMS_BANK_CELL_COUNT] );
 
-void canCurrentLimTX();
 
-void canLSS_SwitchStateGlobal();
-
-void canLSS_SetNodeIDGlobal();
-
-void can_ChargerSync();
-
-void can_ChargerChargeControl();
-
-void can_ChargerMaxCurrentVoltage();
 
 void writeCAN(string name, CANMessage message);
 

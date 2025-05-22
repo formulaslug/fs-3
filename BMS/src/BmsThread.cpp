@@ -92,9 +92,15 @@ void BMSThread::threadWorker() {
 
   std::array<uint16_t, BMS_BANK_COUNT * BMS_BANK_CELL_COUNT> allVoltages;
   std::array<int8_t, BMS_BANK_COUNT * BMS_BANK_TEMP_COUNT> allTemps;
+  std::array<int, BMS_BANK_COUNT * BMS_BANK_TEMP_COUNT> cell_faults{};
   while (true) {
 
       bool isBalancing = false;
+      bool cell_volt_high = false;
+      bool cell_temp_high = false;
+      bool cell_volt_low = false;
+      bool cell_temp_low = false;
+      bool cell_temp_high_charging = false;
 
     while(!mainToBMSMailbox->empty()) { // checks if maintoBMSMailbox pointer is NOT empty (assuming in order to read
                                         // inforation from that mailbox that has data in it?  )
@@ -243,9 +249,9 @@ void BMSThread::threadWorker() {
     uint16_t minVoltage = allVoltages[0];
     uint16_t maxVoltage = 0;
     for (int i = 0; i < BMS_BANK_COUNT * BMS_BANK_CELL_COUNT; i++) {
-        if (allVoltages[i] > BMS_FAULT_VOLTAGE_THRESHOLD_HIGH) {
-            printf("%d, ", i);
-        }
+       if (allVoltages[i] > BMS_FAULT_VOLTAGE_THRESHOLD_HIGH || allVoltages[i] < BMS_FAULT_VOLTAGE_THRESHOLD_LOW) {
+           cell_faults[i] = 1;
+       }
       if (allVoltages[i] < minVoltage) {
         minVoltage = allVoltages[i];
       } else if (allVoltages[i] > maxVoltage) {
@@ -260,6 +266,9 @@ void BMSThread::threadWorker() {
     int16_t tempSum = 0;
     for (int i = 0; i < BMS_BANK_COUNT * BMS_BANK_TEMP_COUNT; i++) {
       tempSum += allTemps[i];
+        if (allVoltages[i] > BMS_FAULT_TEMP_THRESHOLD_HIGH || allVoltages[i] < BMS_FAULT_TEMP_THRESHOLD_LOW) {
+            cell_faults[i] = 1;
+        }
       if (allTemps[i] < minTemp) {
         minTemp = allTemps[i];
       } else if (allTemps[i] > maxTemp) {
@@ -280,9 +289,12 @@ void BMSThread::threadWorker() {
         
         if (minVoltage <= BMS_FAULT_VOLTAGE_THRESHOLD_LOW) {
             printf("Voltage too low: %d\n", minVoltage);
+            cell_volt_low = true;
         }
         if (maxVoltage >= BMS_FAULT_VOLTAGE_THRESHOLD_HIGH) {
             printf("Voltage too high: %d\n", maxVoltage);
+            cell_volt_high = true;
+
             printf("Voltages: ");
             for (int l = 0; l < BMS_BANK_COUNT * BMS_BANK_CELL_COUNT; l++) {
                 printf("%d, ", allVoltages[l]);
@@ -291,9 +303,16 @@ void BMSThread::threadWorker() {
         }
         if (minTemp <= BMS_FAULT_TEMP_THRESHOLD_LOW) {
             printf("Temp too low: %d\n", minTemp);
+            cell_temp_low = true;
+
         }
         if (maxTemp >= ((charging) ? BMS_FAULT_TEMP_THRESHOLD_CHARING_HIGH : BMS_FAULT_TEMP_THRESHOLD_HIGH)) {
             printf("Temp too high: %d\n", maxTemp);
+            cell_temp_high = true;
+            if (charging) {
+                cell_temp_high_charging = true;
+            }
+
         }
 
 
@@ -364,6 +383,7 @@ void BMSThread::threadWorker() {
         // #### I ADDED THIS #### MAYBE COULD BE USED INSTEAD OF THE FOR LOOPS?
         std::copy(allVoltages.begin(), allVoltages.end(), msg->voltageValues); // Copy all voltage values
     	std::copy(allTemps.begin(), allTemps.end(), msg->temperatureValues); // Copy all temperature values
+    	std::copy(cell_faults.begin(), cell_faults.end(), msg->cell_fault_index); // Copy all temperature values
         // #### IDK IF THIS IS BETTER THOUGH.... ####
         msg->bmsState = bmsState; // Assign the current bmsState to the msg's bmsState
         msg->isBalancing = isBalancing; // Assign the current balancing state to the msg's isBalancing
@@ -372,6 +392,11 @@ void BMSThread::threadWorker() {
         msg->minTemp = minTemp;  // Assign the min temperature to msg's minTemp
         msg->maxTemp = maxTemp; // Assign the max temperature to msg's minTemp
         msg->avgTemp = avgTemp; // Assign the average temperature to msg's minTemp
+        msg->cell_volt_low = cell_volt_low; // assigning the booleans
+        msg->cell_volt_high = cell_volt_high; // assigning the booleans
+        msg->cell_temp_high = cell_temp_high; // assigning the booleans
+        msg->cell_temp_low = cell_temp_low; // assigning the booleans
+        msg->cell_temp_high_charging = cell_temp_high_charging; // assigning the booleans
         bmsEventMailbox->put((BmsEvent *)msg);
 
 

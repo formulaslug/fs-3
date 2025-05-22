@@ -24,28 +24,13 @@ void initIO();
 void initDrivingCAN();
 int linearFans_percent(int temp);
 
-struct status_msg {
-    bool bmsFault;
-    bool imdFault;
-    bool shutdownState;
-    bool prechargeDone;
-    bool precharging;
-    bool charging;
-    bool isBalancing;
-    bool cell_too_low;
-    bool cell_too_high;
-    bool temp_too_low;
-    bool temp_too_high;
-    bool temp_too_high_charging;
-    uint16_t glv_voltage;
-    uint32_t cell_fault_index;
-};
 
-struct power_msg
-{
+
+struct power_msg {
     uint16_t packVoltage;
     uint8_t state_of_charge;
     int16_t current;
+    uint8_t fan_percent;
 };
 
 EventQueue queue(32*EVENTS_EVENT_SIZE);// creates an eventqueue which is thread and ISR safe. EVENTS_EVENT_SIZE is the size of the buffer allocated
@@ -56,8 +41,8 @@ CircularBuffer<CANMessage, 32> canqueue;
 // uint8_t canCount;
 
 
-// DigitalIn shutdown_measure_pin(ACC_SHUTDOWN_MEASURE);
-// DigitalIn imd_status_pin(ACC_IMD_STATUS);
+DigitalIn shutdown_measure_pin(ACC_SHUTDOWN_MEASURE);
+DigitalIn imd_status_pin(ACC_IMD_STATUS);
 // DigitalIn charge_state_pin(ACC_CHARGE_STATE);
 
 DigitalOut bms_fault_pin(ACC_BMS_FAULT);
@@ -66,6 +51,7 @@ DigitalOut precharge_control_pin(ACC_PRECHARGE_CONTROL);
 // AnalogIn current_vref_pin(ACC_BUFFERED_C_VREF);
 AnalogIn current_sense_pin(ACC_AMP_CURR_OUT);
 AnalogIn glv_voltage_pin(ACC_GLV_VOLTAGE);
+
 
 PwmOut fan_pwm(ACC_FANS_ON);
 uint8_t fan_percent;
@@ -98,6 +84,8 @@ int8_t state_of_charge;
 
 vector<uint16_t> lastCurrentReadings;
 
+status_msg status_message;
+
 int main() {
     osThreadSetPriority(osThreadGetId(), osPriorityHigh7);
 
@@ -121,6 +109,11 @@ int main() {
     Thread bmsThreadThread;
     BMSThread bmsThread(ltcBus, 1, bmsMailbox, mainToBMSMailbox); // define bmsThread object...?
     bmsThreadThread.start(callback(&BMSThread::startThread, &bmsThread));
+
+
+
+
+
     printf("BMS thread started\n");
 
     Timer t; // create timer obj
@@ -160,6 +153,14 @@ int main() {
                     avgCellTemp = bmsEvent->avgTemp; // Assign the avgTemp from bmsEvent
                     isBalancing = bmsEvent->isBalancing; // Assign the isBalancing value from bmsEvent
 
+                    status_message.cell_too_high = bmsEvent->cell_volt_high;
+                    status_message.cell_too_low = bmsEvent->cell_volt_low;
+                    status_message.temp_too_high = bmsEvent->cell_temp_high;
+                    status_message.temp_too_low = bmsEvent->cell_temp_low;
+                    status_message.temp_too_high_charging = bmsEvent->cell_temp_high_charging;
+
+
+
                     packVoltagemV = 0;
 
                     for (int i = 0; i < BMS_BANK_COUNT * BMS_BANK_CELL_COUNT; i++) {
@@ -173,6 +174,12 @@ int main() {
                         allTemps[i] = bmsEvent->temperatureValues[i]; // Assign temperature values from bmsEvent
                         // printf("%d, T: %d\n", i, allTemps[i]);
                     }
+                    for (int i = 0; i < BMS_BANK_COUNT * BMS_BANK_TEMP_COUNT; i++) {
+                        if (bmsEvent->cell_fault_index[i]) {
+                            status_message.cell_fault_index |= (1U << i);  // Set bit i
+                        }
+                    }
+
                 // #### I CHANGED THIS #### REPLACED THE FOR LOOPS WITH ACCUMULATE AND COPY...
                     packVoltagemV = std::accumulate(bmsEvent->voltageValues,
                                                   bmsEvent->voltageValues + BMS_BANK_COUNT * BMS_BANK_CELL_COUNT, 0);
@@ -266,6 +273,13 @@ int main() {
             fan_percent = linearFans_percent(maxCellTemp) / 100;
             fan_pwm.write(fan_percent);
         }
+
+        status_message.hasBmsFault =hasBmsFault;
+        status_message.checkingPrechargeStatus =checkingPrechargeStatus;
+        status_message.checkingShutdownStatus =checkingShutdownStatus;
+        status_message.isBalancing =isBalancing;
+        status_message.isCharging =isCharging;
+
 
         // chargeEnable = isCharging && !hasBmsFault && shutdown_measure_pin && prechargeDone;
         // charge_enable_pin = chargeEnable;
@@ -361,9 +375,8 @@ void initIO() {
 
 // move to main!!!
 void canSendmain() {
-    CANMessage boardstate = ACC_TPDO_STATUS(hasBmsFault, checkingShutdownStatus, prechargeDone, checkingPrechargeStatus, isCharging, isBalancing,
-                                            /* cell low, cell high, temp low, temp high, temp high charging*/, glvVoltage, /*cell fault index*/);
-    canSend(&boardstate, packVoltagemV, state_of_charge, filteredTsCurrent, allVoltages, allTemps);
+
+    canSend(&status_message, packVoltagemV, state_of_charge, filteredTsCurrent, allVoltages, allTemps);
 }
 
 // move to main!!!
@@ -374,19 +387,19 @@ void initDrivingCAN() {
 }
 
 //
-// void checkPrechargeVoltage() {
-//     if (dcBusVoltage < 20000) {
-//         prechargeDone = false;
-//     }
-//     checkingPrechargeStatus = false;
-// }
+void checkPrechargeVoltage() {
+    if (dcBusVoltage < 20000) {
+        prechargeDone = false;
+    }
+    checkingPrechargeStatus = false;
+}
 //
-// void checkShutdownStatus() {
-//     if (!shutdown_measure_pin) {
-//         prechargeDone = false;
-//     }
-//     checkingShutdownStatus = false;
-// }
+void checkShutdownStatus() {
+    if (!shutdown_measure_pin) {
+        prechargeDone = false;
+    }
+    checkingShutdownStatus = false;
+}
 
 int linearFans_percent(int temp)
 {

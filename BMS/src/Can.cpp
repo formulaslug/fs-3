@@ -28,7 +28,7 @@ CANMessage ACC_TPDO_STATUS(bool bmsFault, bool imdFault, bool shutdownState, boo
 CANMessage ACC_TPDO_SEG0_TEMPS(int8_t *temps) {
     int8_t data[BMS_BANK_CELL_COUNT];
     for (int i = 0; i < BMS_BANK_CELL_COUNT; i++) {
-        data[i] = temps[i]
+        data[i] = temps[i];
     }
 
     return CANMessage{kACC_TPDO_SEG0_TEMPS, data};
@@ -37,7 +37,7 @@ CANMessage ACC_TPDO_SEG0_TEMPS(int8_t *temps) {
 CANMessage ACC_TPDO_SEG1_TEMPS(int8_t *temps) {
     int8_t data[BMS_BANK_CELL_COUNT];
     for (int i = 0; i < BMS_BANK_CELL_COUNT; i++) {
-        data[i] = temps[i]
+        data[i] = temps[i];
     }
 
     return CANMessage{kACC_TPDO_SEG1_TEMPS, data};
@@ -46,7 +46,7 @@ CANMessage ACC_TPDO_SEG1_TEMPS(int8_t *temps) {
 CANMessage ACC_TPDO_SEG2_TEMPS(int8_t *temps) {
     int8_t data[BMS_BANK_CELL_COUNT];
     for (int i = 0; i < BMS_BANK_CELL_COUNT; i++) {
-        data[i] = temps[i]
+        data[i] = temps[i];
     }
 
     return CANMessage{kACC_TPDO_SEG2_TEMPS, data};
@@ -55,7 +55,7 @@ CANMessage ACC_TPDO_SEG2_TEMPS(int8_t *temps) {
 CANMessage ACC_TPDO_SEG3_TEMPS(int8_t *temps) {
     int8_t data[BMS_BANK_CELL_COUNT];
     for (int i = 0; i < BMS_BANK_CELL_COUNT; i++) {
-        data[i] = temps[i]
+        data[i] = temps[i];
     }
 
     return CANMessage{kACC_TPDO_SEG3_TEMPS, data};
@@ -64,7 +64,7 @@ CANMessage ACC_TPDO_SEG3_TEMPS(int8_t *temps) {
 CANMessage ACC_TPDO_SEG4_TEMPS(int8_t *temps) {
     int8_t data[BMS_BANK_CELL_COUNT];
     for (int i = 0; i < BMS_BANK_CELL_COUNT; i++) {
-        data[i] = temps[i]
+        data[i] = temps[i];
     }
 
     return CANMessage{kACC_TPDO_SEG4_TEMPS, data};
@@ -135,11 +135,14 @@ CANMessage ACC_TPDO_POWER(uint16_t packVoltage, uint8_t state_of_charge, int16_t
 
 // FULL CAN send message, sends all the possible can messages for the ACC in one go
 // status is precalled for this to work
-void canSend(const CANMessage &boardstate, uint16_t packVolt, uint8_t soc, int16_t curr, uint16_t (&allVoltages)[BMS_BANK_COUNT * BMS_BANK_CELL_COUNT],
+void canSend(status_msg* status_message, uint16_t packVolt, uint8_t soc, int16_t curr, uint16_t (&allVoltages)[BMS_BANK_COUNT * BMS_BANK_CELL_COUNT],
             int8_t (&allTemps)[BMS_BANK_COUNT * BMS_BANK_CELL_COUNT] ) {
 
     // status
-    canBus->write(boardstate);
+    canBus->write(ACC_TPDO_STATUS(status_message->hasBmsFault, status_message->imdFault, status_message->checkingShutdownStatus,
+        status_message->prechargeDone, status_message->checkingPrechargeStatus, status_message->isCharging, status_message->isBalancing,
+        status_message->cell_too_low, status_message->cell_too_high, status_message->temp_too_low, status_message->temp_too_high, status_message->temp_too_high_charging,
+        status_message->glv_voltage, status_message->cell_fault_index));
     ThisThread::sleep_for(1ms);
 
     //power

@@ -401,3 +401,20 @@ enum class BMSThreadState {
     // BMS in failure mode
     BMSFault
 };
+
+struct status_msg {
+  bool hasBmsFault;
+  bool imdFault;
+  bool checkingShutdownStatus;
+  bool prechargeDone;
+  bool checkingPrechargeStatus;
+  bool isCharging;
+  bool isBalancing;
+  bool cell_too_low;
+  bool cell_too_high;
+  bool temp_too_low;
+  bool temp_too_high;
+  bool temp_too_high_charging;
+  uint16_t glv_voltage;
+  uint32_t cell_fault_index;
+};
