@@ -313,13 +313,14 @@ int main() {
                 volt_timer.start();
             } else if (volt_timer.read_ms() > SOC_TIME_THRESHOLD) {
                 // LOOKUP table
-                capacity = convertLowVoltage(glvVoltage);
+                capacity = convertLowVoltage(glvVoltage); // TODO: Can someone confirm if glvVoltage is in mV? If not we need to convert
             }
         } else {
             volt_timer.reset();
             soc_timer.stop();
             if (lastCurrentReadings.size() >= 2) {
-                capacity = capacity + ( soc_timer.read_ms() * ((lastCurrentReadings[-1] + lastCurrentReadings[-2]) / 2) );
+                capacity = capacity + ( soc_timer.read_ms() * (((lastCurrentReadings[-1] * 100) + (100 * lastCurrentReadings[-2])) / 2) );
+                //Note: Multiplied lastCurrentReadings by 100 since filteredTsCurrent is in 100 mAs
                 soc_timer.reset();
                 soc_timer.start();
             }

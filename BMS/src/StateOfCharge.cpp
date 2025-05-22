@@ -9,21 +9,21 @@ SoC previous, change in time, current now and current previously
 #include <array>
 #include <cstdint>
 
+#include "StateOfCharge.h"
+
 struct SOCConversion {
     float voltage;
     float capacity;
 };
 
 static constexpr size_t socLookupTableSize = 15;
-// Pairs of Measured Voltages(V) & Corresponding Capacities Of Battery(Ah). V -> Ah // TODO: CHANGE INTO mV and mAh -> make everything into ints (faster for processor)
+// Pairs of Measured Voltages(mV) & Corresponding Capacities Of Battery(mAh). mV -> mAh
 static constexpr std::array<SOCConversion, socLookupTableSize>
 socLookupTable {{
     {2800,2500}, {2900,2480}, {3000,2400}, {3100,2350}, {3200,2250},
     {3300,2170}, {3400,2020}, {3500,1800}, {3600,1600}, {3700,1270},
     {3800,910}, {3900,710}, {4000,400}, {4100,180}, {4200,0}
 }};
-
-static int16_t linearInterpolateAh(SOCConversion low, SOCConversion high, float voltage);
 
 // Returns Capacity In mAh
 int16_t convertLowVoltage(float voltage) {
