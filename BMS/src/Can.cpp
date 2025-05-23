@@ -26,7 +26,7 @@ CANMessage ACC_TPDO_STATUS(bool bmsFault, bool imdFault, bool shutdownState, boo
 // Accumulator Temperatures
 
 CANMessage ACC_TPDO_SEG0_TEMPS(int8_t *temps) {
-    int8_t data[BMS_BANK_CELL_COUNT];
+    char data[BMS_BANK_CELL_COUNT];
     for (int i = 0; i < BMS_BANK_CELL_COUNT; i++) {
         data[i] = temps[i];
     }
@@ -35,7 +35,7 @@ CANMessage ACC_TPDO_SEG0_TEMPS(int8_t *temps) {
 }
 
 CANMessage ACC_TPDO_SEG1_TEMPS(int8_t *temps) {
-    int8_t data[BMS_BANK_CELL_COUNT];
+    char data[BMS_BANK_CELL_COUNT];
     for (int i = 0; i < BMS_BANK_CELL_COUNT; i++) {
         data[i] = temps[i];
     }
@@ -44,7 +44,7 @@ CANMessage ACC_TPDO_SEG1_TEMPS(int8_t *temps) {
 }
 
 CANMessage ACC_TPDO_SEG2_TEMPS(int8_t *temps) {
-    int8_t data[BMS_BANK_CELL_COUNT];
+    char data[BMS_BANK_CELL_COUNT];
     for (int i = 0; i < BMS_BANK_CELL_COUNT; i++) {
         data[i] = temps[i];
     }
@@ -53,7 +53,7 @@ CANMessage ACC_TPDO_SEG2_TEMPS(int8_t *temps) {
 }
 
 CANMessage ACC_TPDO_SEG3_TEMPS(int8_t *temps) {
-    int8_t data[BMS_BANK_CELL_COUNT];
+    char data[BMS_BANK_CELL_COUNT];
     for (int i = 0; i < BMS_BANK_CELL_COUNT; i++) {
         data[i] = temps[i];
     }
@@ -62,7 +62,7 @@ CANMessage ACC_TPDO_SEG3_TEMPS(int8_t *temps) {
 }
 
 CANMessage ACC_TPDO_SEG4_TEMPS(int8_t *temps) {
-    int8_t data[BMS_BANK_CELL_COUNT];
+    char data[BMS_BANK_CELL_COUNT];
     for (int i = 0; i < BMS_BANK_CELL_COUNT; i++) {
         data[i] = temps[i];
     }
@@ -87,7 +87,7 @@ CANMessage ACC_TPDO_SEG0_VOLTS(uint16_t *volts) {
 CANMessage ACC_TPDO_SEG1_VOLTS(uint16_t *volts) {
     uint8_t data[BMS_BANK_CELL_COUNT];
     for (int i = 0; i < BMS_BANK_CELL_COUNT; i++) {
-        data[i] = (uint8_t)(volts[BMS_BANK_CELL_COUNT + i] / 10 - 2);
+        data[i] = (uint8_t)(volts[BMS_BANK_CELL_COUNT + i] / 10) - 2;
     }
 
     return CANMessage{kACC_TPDO_SEG1_VOLTS, data};
@@ -124,8 +124,9 @@ CANMessage ACC_TPDO_SEG4_VOLTS(uint16_t *volts) {
 
 // TODO: CAST THESE PROPERLY!! cast the signed stuff to char ... this is so cooked
 CANMessage ACC_TPDO_POWER(uint16_t packVoltage, uint8_t state_of_charge, int16_t current, uint8_t fan_pwm_duty_cycle) {
-    data[0] = (uint8_t)packVoltage;
-    data[1] = (uint8_t)packVoltage >> 8;
+    uint8_t data[8];
+    data[0] = packVoltage;
+    data[1] = packVoltage >> 8;
     data[2] = state_of_charge;
     data[3] = current;
     data[4] = current >> 8;

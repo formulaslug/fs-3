@@ -74,4 +74,4 @@ void canSend(status_msg *status_message, uint16_t packVolt, uint8_t soc, int16_t
 
 void writeCAN(string name, CANMessage message);
 
-#endif _FS_BMS_SRC_CAN_H_
+#endif

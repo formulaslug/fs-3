@@ -10,6 +10,7 @@ SoC previous, change in time, current now and current previously
 #include <cstdint>
 
 #include "StateOfCharge.h"
+#include "BmsConfig.h"
 
 struct SOCConversion {
     float voltage;
@@ -20,24 +21,25 @@ static constexpr size_t socLookupTableSize = 15;
 // Pairs of Measured Voltages(mV) & Corresponding Capacities Of Battery(mAh). mV -> mAh
 static constexpr std::array<SOCConversion, socLookupTableSize>
 socLookupTable {{
-    {2800,2500}, {2900,2480}, {3000,2400}, {3100,2350}, {3200,2250},
-    {3300,2170}, {3400,2020}, {3500,1800}, {3600,1600}, {3700,1270},
-    {3800,910}, {3900,710}, {4000,400}, {4100,180}, {4200,0}
+    {2800,50000}, {2900,49600}, {3000,48000}, {3100,47000}, {3200,45000},
+    {3300,43400}, {3400,40400}, {3500,36000}, {3600,32000}, {3700,25400},
+    {3800,18200}, {3900,14200}, {4000,8000}, {4100,3600}, {4200,0}
 }};
 
 // Returns Capacity In mAh
-int16_t convertLowVoltage(float voltage) {
-    for(unsigned int i = 0; i < socLookupTableSize; i++) {
-        if(voltage > socLookupTable[i].voltage) {
-            if(i != socLookupTableSize - 1) {
-                return linearInterpolateAh(socLookupTable[i], socLookupTable[i-1], voltage);
-            } else {
-                return static_cast<int16_t>(socLookupTable[i].capacity * 1000);
+int16_t convertLowVoltage(uint32_t voltage) {
+    uint32_t cell_voltage = voltage / (BMS_BANK_COUNT * BMS_BANK_CELL_COUNT);
+    for(unsigned int i = 0; i < socLookupTableSize - 1; i++) {
+        if(cell_voltage < socLookupTable[i].voltage) {
+            if (i == 0)
+            {
+                return CELL_CAPACITY_RATED;
             }
+            return linearInterpolateAh(socLookupTable[i-1], socLookupTable[i], cell_voltage);
         }
     }
     // Fallback Value
-    return {};
+    return 0;
 }
 
 static int16_t linearInterpolateAh(SOCConversion low, SOCConversion high, float voltage) {

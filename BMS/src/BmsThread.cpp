@@ -92,7 +92,7 @@ void BMSThread::threadWorker() {
 
   std::array<uint16_t, BMS_BANK_COUNT * BMS_BANK_CELL_COUNT> allVoltages;
   std::array<int8_t, BMS_BANK_COUNT * BMS_BANK_TEMP_COUNT> allTemps;
-  std::array<int, BMS_BANK_COUNT * BMS_BANK_TEMP_COUNT> cell_faults{};
+  uint32_t cell_faults = 0;
   while (true) {
 
       bool isBalancing = false;
@@ -248,9 +248,10 @@ void BMSThread::threadWorker() {
     // printf("Fuck: ");
     uint16_t minVoltage = allVoltages[0];
     uint16_t maxVoltage = 0;
+    cell_faults = 0;
     for (int i = 0; i < BMS_BANK_COUNT * BMS_BANK_CELL_COUNT; i++) {
        if (allVoltages[i] > BMS_FAULT_VOLTAGE_THRESHOLD_HIGH || allVoltages[i] < BMS_FAULT_VOLTAGE_THRESHOLD_LOW) {
-           cell_faults[i] = 1;
+           cell_faults |= (1 << i);
        }
       if (allVoltages[i] < minVoltage) {
         minVoltage = allVoltages[i];
@@ -276,8 +277,8 @@ void BMSThread::threadWorker() {
       }
     }
     avgTemp = tempSum / (BMS_BANK_COUNT * BMS_BANK_TEMP_COUNT);
-    printf("0 Temps: %d, %d, %d, %d, %d, %d\n", allTemps[0], allTemps[1], allTemps[2], allTemps[3], allTemps[4], allTemps[5]);
-    printf("0 Volts: %d, %d, %d, %d, %d, %d\n", allVoltages[0], allVoltages[1], allVoltages[2], allVoltages[3], allVoltages[4], allVoltages[5]);
+    // printf("0 Temps: %d, %d, %d, %d, %d, %d\n", allTemps[0], allTemps[1], allTemps[2], allTemps[3], allTemps[4], allTemps[5]);
+    // printf("0 Volts: %d, %d, %d, %d, %d, %d\n", allVoltages[0], allVoltages[1], allVoltages[2], allVoltages[3], allVoltages[4], allVoltages[5]);
     // printf("2 Temps: %d, %d, %d, %d, %d, %d, %d\n", allTemps[14], allTemps[15], allTemps[16], allTemps[17], allTemps[18], allTemps[19], allTemps[20]);
     // printf("3 Temps: %d, %d, %d, %d, %d, %d, %d\n\n", allTemps[21], allTemps[22], allTemps[23], allTemps[24], allTemps[25], allTemps[26], allTemps[27]);
     // printf("min temp: %d, max temp: %d\nmin volt: %d, max volt %d\n", minTemp, maxTemp, minVoltage, maxVoltage);
@@ -285,7 +286,7 @@ void BMSThread::threadWorker() {
     if (minVoltage <= BMS_FAULT_VOLTAGE_THRESHOLD_LOW ||
         maxVoltage >= BMS_FAULT_VOLTAGE_THRESHOLD_HIGH ||
         minTemp <= BMS_FAULT_TEMP_THRESHOLD_LOW ||
-        maxTemp >= ((charging) ? BMS_FAULT_TEMP_THRESHOLD_CHARING_HIGH : BMS_FAULT_TEMP_THRESHOLD_HIGH)) {
+        maxTemp >= BMS_FAULT_TEMP_THRESHOLD_HIGH) {
         
         if (minVoltage <= BMS_FAULT_VOLTAGE_THRESHOLD_LOW) {
             printf("Voltage too low: %d\n", minVoltage);
@@ -306,7 +307,10 @@ void BMSThread::threadWorker() {
             cell_temp_low = true;
 
         }
-        if (maxTemp >= ((charging) ? BMS_FAULT_TEMP_THRESHOLD_CHARING_HIGH : BMS_FAULT_TEMP_THRESHOLD_HIGH)) {
+
+
+        // TODO: Move outside of fault logic
+        if (maxTemp >= ((charging) ? BMS_FAULT_TEMP_THRESHOLD_CHARGING_HIGH : BMS_FAULT_TEMP_THRESHOLD_HIGH)) {
             printf("Temp too high: %d\n", maxTemp);
             cell_temp_high = true;
             if (charging) {
@@ -324,7 +328,6 @@ void BMSThread::threadWorker() {
             printf("ENTERING FAULT RECOVERY\n");
             bmsState = BMSThreadState::BMSFaultRecover;
             ThisThread::sleep_for(10ms);
-            continue;
         }
     }
 
@@ -383,7 +386,7 @@ void BMSThread::threadWorker() {
         // #### I ADDED THIS #### MAYBE COULD BE USED INSTEAD OF THE FOR LOOPS?
         std::copy(allVoltages.begin(), allVoltages.end(), msg->voltageValues); // Copy all voltage values
     	std::copy(allTemps.begin(), allTemps.end(), msg->temperatureValues); // Copy all temperature values
-    	std::copy(cell_faults.begin(), cell_faults.end(), msg->cell_fault_index); // Copy all temperature values
+    	msg->cell_fault_index = cell_faults; // Copy all temperature values
         // #### IDK IF THIS IS BETTER THOUGH.... ####
         msg->bmsState = bmsState; // Assign the current bmsState to the msg's bmsState
         msg->isBalancing = isBalancing; // Assign the current balancing state to the msg's isBalancing

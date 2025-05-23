@@ -19,7 +19,7 @@ extern DigitalOut* chargerControl;
 
 // Number of LTC6811 battery banks to communicate with
 #ifndef BMS_BANK_COUNT
-#define BMS_BANK_COUNT 1
+#define BMS_BANK_COUNT 5
 #endif
 
 // Number of cell voltage readings per LTC6811
@@ -36,14 +36,14 @@ extern DigitalOut* chargerControl;
 //
 // Units: degrees celcius
 #ifndef BMS_FAULT_TEMP_THRESHOLD_HIGH
-#define BMS_FAULT_TEMP_THRESHOLD_HIGH 58
+#define BMS_FAULT_TEMP_THRESHOLD_HIGH 60
 #endif
 
 // Upper threshold when fault will be thrown for cell temperature when charging
 //
 // Units: degrees celcius
-#ifndef BMS_FAULT_TEMP_THRESHOLD_CHARING_HIGH
-#define BMS_FAULT_TEMP_THRESHOLD_CHARING_HIGH 45
+#ifndef BMS_FAULT_TEMP_THRESHOLD_CHARGING_HIGH
+#define BMS_FAULT_TEMP_THRESHOLD_CHARGING_HIGH 45
 #endif
 
 // Lower threshold when fault will be thrown for cell temperature
@@ -87,38 +87,15 @@ extern DigitalOut* chargerControl;
 #define CAR_MAX_POWER 80000
 #endif
 
-// percent of highest power allowed (for tolerance)
-#ifndef CAR_POWER_PERCENT
-#define CAR_POWER_PERCENT 0.95
-#endif
-// maximum allowed current draw by the motor controller
-#ifndef CAR_CURRENT_MAX
-#define CAR_CURRENT_MAX 300
-#endif
 
 // percent of precharge needed to consider precharging done (and close the +AIR)
 #ifndef PRECHARGE_PERCENT
 #define PRECHARGE_PERCENT 0.95
 #endif
 
-// voltage to charge to
-#ifndef CHARGE_VOLTAGE
-#define CHARGE_VOLTAGE 112
-#endif
-
-// AC wall charging current in A, 12 for NEMA 5-15
-#ifndef CHARGE_AC_LIMIT
-#define CHARGE_AC_LIMIT 12
-#endif
-
-// Charge current, in mA
-#ifndef CHARGE_DC_LIMIT
-#define CHARGE_DC_LIMIT 15000
-#endif
-
 // Current threshold for lookuptable, in mA
 #ifndef CURR_SOC_LIMIT
-#define CURR_SOC_LIMIT 20000
+#define CURR_SOC_LIMIT 10000
 #endif
 
 // Temperature limit for lookup, in C
@@ -133,7 +110,7 @@ extern DigitalOut* chargerControl;
 
 // cell capacity rated
 #ifndef CELL_CAPACITY_RATED
-#define CELL_CAPACITY_RATED 2500 // in mAh
+#define CELL_CAPACITY_RATED 50000 // in mAh
 #endif
 
 
@@ -172,7 +149,7 @@ const int BMS_CELL_MAP[12] = {0, 1, 2, -1, -1, -1, 3, 4, 5, -1, -1, -1};
 #ifndef ACC_SHUTDOWN_MEASURE
 
 #ifdef TARGET_NUCLEO_L432KC
-  #define ACC_SHUTDOWN_MEASURE PA_6
+  #define ACC_SHUTDOWN_MEASURE PA_2
 #else
   #error "Unknown board for ACC_SHUTDOWN_MEASURE"
 #endif
@@ -297,48 +274,21 @@ const int BMS_CELL_MAP[12] = {0, 1, 2, -1, -1, -1, 3, 4, 5, -1, -1, -1};
 
 // SPI master out slave in
 #ifndef BMS_PIN_SPI_MOSI
-
-#ifdef TARGET_LPC1768
-  #define BMS_PIN_SPI_MOSI p5
-#elif TARGET_NUCLEO_F303K8
-  #define BMS_PIN_SPI_MOSI PA_7
-#elif TARGET_NUCLEO_L432KC
-  #define BMS_PIN_SPI_MOSI PB_5
-#else
-  #error "Unknown board for BMS_PIN_SPI_MOSI"
+#define BMS_PIN_SPI_MOSI PB_5
 #endif
 
-#endif
 
 // SPI master in slave out
 #ifndef BMS_PIN_SPI_MISO
-
-#ifdef TARGET_LPC1768
-  #define BMS_PIN_SPI_MISO p6
-#elif TARGET_NUCLEO_F303K8
-  #define BMS_PIN_SPI_MISO PA_6
-#elif TARGET_NUCLEO_L432KC
-  #define BMS_PIN_SPI_MISO PB_4
-#else
-  #error "Unknown board for BMS_PIN_SPI_MISO"
+#define BMS_PIN_SPI_MISO PB_4
 #endif
 
-#endif
 
 // SPI clock
 #ifndef BMS_PIN_SPI_SCLK
-
-#ifdef TARGET_LPC1768
-  #define BMS_PIN_SPI_SCLK p7
-#elif TARGET_NUCLEO_F303K8
-  #define BMS_PIN_SPI_SCLK PA_5
-#elif TARGET_NUCLEO_L432KC
-  #define BMS_PIN_SPI_SCLK PB_3
-#else
-  #error "Unknown board for BMS_PIN_SPI_SCLK"
+#define BMS_PIN_SPI_SCLK PB_3
 #endif
 
-#endif
 
 // SPI chip select
 #ifndef BMS_PIN_SPI_SSEL
