@@ -12,7 +12,7 @@ SoC previous, change in time, current now and current previously
 struct SOCConversion;
 
 // Returns Capacity In mAh from pack voltage
-int16_t convertLowVoltage(uint32_t voltage);
+uint16_t convertLowVoltage(uint32_t voltage);
 
 //Linear Interpolation Function
 static uint16_t linearInterpolateAh(SOCConversion low, SOCConversion high, uint32_t voltage);

@@ -23,8 +23,7 @@ SPI* spiDriver;
 void initIO();
 
 void initDrivingCAN();
-int linearFans_percent(int temp);
-
+uint8_t linearFans_percent(int8_t temp);
 void checkShutdownStatus();
 void checkPrechargeVoltage();
 
@@ -108,11 +107,12 @@ int main() {
     Timer soc_timer;
     t.start(); // start timer
     soc_timer.start();
+    int32_t capacityDischarged = -1;
     while (1) {
         // infinite loop
         glvVoltage = (uint8_t)(glv_voltage_pin * 185.3); // Read voltage from glv_voltage_pin and convert it to mV
         //printf("GLV voltage: %d mV\n", glvVoltage * 100);
-        int16_t capacityDischarged = convertLowVoltage(packVoltagemV); // capacity initialization using the voltage lookup table
+         // capacity initialization using the voltage lookup table
         while (!bmsMailbox->empty()) {
             // while the bmsMailbox is not empty
             BmsEvent *bmsEvent; // create bms event pointer
@@ -149,6 +149,12 @@ int main() {
                 packVoltagemV += allVoltages[i]; // Sum of voltage values
                 //printf("%d, V: %d\n", i, allVoltages[i]);
             }
+
+            if (capacityDischarged == -1)
+            {
+                capacityDischarged = convertLowVoltage(packVoltagemV);
+            }
+
             for (int i = 0; i < BMS_BANK_COUNT * BMS_BANK_TEMP_COUNT; i++) {
                 // Loop through all bank temperatures
                 allTemps[i] = bmsEvent->temperatureValues[i]; // Assign temperature values from bmsEvent
@@ -277,7 +283,7 @@ int main() {
         if (lastCurrentReadings.size() > 10) {
             lastCurrentReadings.erase(lastCurrentReadings.begin());
         }
-
+        // printf("Voltage before SoC: %d\n", packVoltagemV);
         // State of Charge calculations
         if (filteredTsCurrent < CURR_SOC_LIMIT && avgCellTemp < TEMP_SOC_LIMIT) { // if the current is low and temp is low
             if (volt_timer.read_ms() == 0) {
@@ -299,7 +305,9 @@ int main() {
 
             }
         }
+        // printf("capacity discharged: %d\n", capacityDischarged);
         state_of_charge = 100 - (100 * capacityDischarged / (CELL_CAPACITY_RATED));
+        printf("state of charge: %d\n", state_of_charge);
 
 
 

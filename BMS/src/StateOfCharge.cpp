@@ -27,25 +27,26 @@ socLookupTable {{
 }};
 
 // Returns Capacity In mAh
-int16_t convertLowVoltage(uint32_t voltage) {
+uint16_t convertLowVoltage(uint32_t voltage) {
     uint32_t cell_voltage = voltage / (BMS_BANK_COUNT * BMS_BANK_CELL_COUNT);
+    printf("cell voltage: %d\n", cell_voltage);
     for(unsigned int i = 0; i < socLookupTableSize - 1; i++) {
         if(cell_voltage < socLookupTable[i].voltage) {
             if (i == 0)
             {
                 return CELL_CAPACITY_RATED;
             }
-            return linearInterpolateAh(socLookupTable[i-1], socLookupTable[i], cell_voltage);
+            return linearInterpolateAh(socLookupTable[i], socLookupTable[i-1], cell_voltage);
         }
     }
     // Fallback Value
     return 0;
 }
 
-static int16_t linearInterpolateAh(SOCConversion low, SOCConversion high, float voltage) {
+static uint16_t linearInterpolateAh(SOCConversion low, SOCConversion high, uint32_t voltage) {
 
     // If something went wrong with convertLowVoltage
     // if(voltage < low.capacity || voltage > high.capacity) return 100;
 
-    return ((low.capacity + ( (voltage - low.voltage) * (high.capacity - low.capacity) / (high.voltage - low.voltage)) ) * 1000) ;
+    return ((low.capacity + ( (voltage - low.voltage) * (high.capacity - low.capacity) / (high.voltage - low.voltage)) )) ;
 }

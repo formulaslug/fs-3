@@ -268,7 +268,7 @@ void BMSThread::threadWorker() {
     for (int i = 0; i < BMS_BANK_COUNT * BMS_BANK_TEMP_COUNT; i++) {
       tempSum += allTemps[i];
         if (allVoltages[i] > BMS_FAULT_TEMP_THRESHOLD_HIGH || allVoltages[i] < BMS_FAULT_TEMP_THRESHOLD_LOW) {
-            cell_faults[i] = 1;
+            cell_faults |= (1 << i);
         }
       if (allTemps[i] < minTemp) {
         minTemp = allTemps[i];
