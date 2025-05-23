@@ -33,32 +33,6 @@ int main() {
     DELAY_milliseconds(10);
 
     // clang-format off
-    char clear_tx0[] = {0b00000010, 0b00110000, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-    char clear_tx1[] = {0b00000010, 0b01000000, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-    char clear_tx2[] = {0b00000010, 0b01010000, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-    char clear_rxctrl1[] = {0b00000010, 0b01100000, 0x00};
-    char clear_rxctrl2[] = {0b00000010, 0b01110000, 0x00};
-    // clang-format on
-    IO_PA4_SetLow();
-    SPI0_WriteBlock(clear_tx0, sizeof(clear_tx0));
-    IO_PA4_SetHigh();
-    IO_PA4_SetLow();
-    SPI0_WriteBlock(clear_tx1, sizeof(clear_tx1));
-    IO_PA4_SetHigh();
-    IO_PA4_SetLow();
-    SPI0_WriteBlock(clear_tx2, sizeof(clear_tx2));
-    IO_PA4_SetHigh();
-    IO_PA4_SetLow();
-    SPI0_WriteBlock(clear_rxctrl1, sizeof(clear_rxctrl1));
-    IO_PA4_SetHigh();
-    IO_PA4_SetLow();
-    SPI0_WriteBlock(clear_rxctrl2, sizeof(clear_rxctrl2));
-    IO_PA4_SetHigh();
-    // SPI0_Close();
-
-    DELAY_milliseconds(100);
-
-    // clang-format off
     // //             WRITE       ADDR  CNF3        CNF2        CNF1
     // char buf[] = { 0b00000010, 0x28, 0b00000001, 0b10000000, 0b00000100 }; // from our old peripheral board revision (math done with Cole)
     // char buf[] = { 0b00000010, 0x28, 0x81, 0xD1, 0x00 }; // from the arduino mcp_can library
@@ -93,15 +67,23 @@ int main() {
         // I2C0_SetBuffer(i2c_buf, 1);
         // I2C0_MasterRead();
 
-        // double degC = d6t_8lh_loop();
-
         // clang-format off
-        //                     WRITE       ADDR        CTRL        SIDH        SIDL[7:5]   EID8  EID0  DLC         DATA                                          
-        char buf_deadbeef[] = {0b00000010, 0b00110000, 0b00001000, 0b11111111, 0b11101011, 0xff, 0xff, 0b00001000, 0xDE, 0xAD, 0xBE, 0xEF, 0xDE, 0xAD, 0xBE, 0xEF};
+        //                     WRITE       ADDR        SIDH        SIDL[7:5]   EID8  EID0  DLC         DATA                                          
+        char buf_deadbeef[] = {0b00000010, 0b00110001, 0b11111111, 0b11100011, 0x00, 0x00, 0b00001000, 0xDE, 0xAD, 0xBE, 0xEF, 0xDE, 0xAD, 0xBE, 0xEF};
         // clang-format on
         IO_PA4_SetLow();
         SPI0_WriteBlock(buf_deadbeef, sizeof(buf_deadbeef));
-        SPI0_ReadByte();
+        IO_PA4_SetHigh();
+
+        // --- CODE TO READ FROM AN MCP2515 REGISTER ---
+        // IO_PA4_SetLow();
+        // const char buf0[3] = {0x03, 0x31};
+        // SPI0_ExchangeBlock((void*)buf0, sizeof(buf0));
+        // IO_PA4_SetHigh();
+
+        char buf_rts[] = {0b10000001};
+        IO_PA4_SetLow();
+        SPI0_WriteBlock(buf_rts, sizeof(buf_rts));
         IO_PA4_SetHigh();
 
         // Should check that CTRL[3] is 0 before moving on (message sent)
@@ -110,14 +92,27 @@ int main() {
         // char buf_adc[] = {0b00000010, 0b00110000, 0b00001011, 0b10101010, 0b01000000, 0x00, 0x00, 0b00000010, voltage >> 8, voltage & 0xFF, 0x00, 0x00};
         // clang-format on
 
-        // // clang-format off
-        // char buf_degC[] = {0b00000010, 0b00110000, 0b00001011, 0b10101010,
-        // 0b01000000, 0x00, 0x00, 0b00000010, (long)degC >> 8, (long)degC &
-        // 0x0F};
-        // // clang-format on
-        // IO_PA4_SetLow();
-        // SPI0_WriteBlock(buf_degC, sizeof(buf_deadbeef));
-        // IO_PA4_SetHigh();
+
+        // double degC = d6t_8lh_loop();
+
+        char i2c_buf[36] = {0};
+        // char cmd = 0x4c;
+        // I2C0_example_writeNBytes((0x0a<<1), &cmd, 1);
+        // I2C0_example_readNBytes(0x0a, i2c_buf, 36);
+        I2C0_example_readDataBlock(0x0a >> 1, 0x4c, i2c_buf, 36);
+
+        // clang-format off
+        //                 WRITE       ADDR        SIDH        SIDL[7:5]   EID8  EID0  DLC         DATA                                          
+        char buf_degC[] = {0b00000010, 0b00110001, 0b10101010, 0b01000000, 0x00, 0x00, 0b00001000, i2c_buf[0], i2c_buf[1], i2c_buf[2], i2c_buf[3], i2c_buf[32], i2c_buf[33], i2c_buf[34], i2c_buf[35]};
+        // clang-format on
+        IO_PA4_SetLow();
+        SPI0_WriteBlock(buf_degC, sizeof(i2c_buf));
+        IO_PA4_SetHigh();
+
+
+        IO_PA4_SetLow();
+        SPI0_WriteBlock(buf_rts, sizeof(buf_rts));
+        IO_PA4_SetHigh();
 
         DELAY_milliseconds(100);
     }
