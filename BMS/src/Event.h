@@ -22,7 +22,7 @@ public:
     int8_t avgTemp;
     bool isBalancing;
     BMSThreadState bmsState;
-    int cell_fault_index[BMS_BANK_COUNT * BMS_BANK_CELL_COUNT];
+    uint32_t cell_fault_index;
     bool cell_volt_high;
     bool cell_volt_low;
     bool cell_temp_high;
