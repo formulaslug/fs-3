@@ -99,21 +99,21 @@ void initIO() {
 void initChargerCAN() {
    printf("initChargerCAN()\n");
 
-   ThisThread::sleep_for(100ms);
+   ThisThread::sleep_for(2500ms);
 
    // Switch state global protocal, switch to LSS configuration state
    uint8_t lss0_data[8] = {0x04, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
    CANMessage lss0_msg(0x7E5, lss0_data);
    can->write(lss0_msg);
 
-   ThisThread::sleep_for(5ms);
+   ThisThread::sleep_for(500ms);
 
    // Configurate node ID protocal, set node ID to 0x10
    uint8_t lss1_data[8] = {0x11, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
    CANMessage lss1_msg(0x7E5, lss1_data);
    can->write(lss1_msg);
 
-   ThisThread::sleep_for(5ms);
+   ThisThread::sleep_for(100ms);
 
 }
 
