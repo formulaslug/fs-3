@@ -5,12 +5,12 @@
 
 ETCController::ETCController()
     : he1Input(PA_7),
-      he2Input(PA_6),
-      brakePedalInput(PA_5),
+      he2Input(PA_1),
+      brakePedalInput(PA_0),
       cockpitSwitchInterrupt(PB_0),
       reverseSwitchInterrupt(PB_1),
-      rtdsOutput(PB_7),
-      brakeLightOutput(PB_6)
+      rtdsOutput(PB_5),
+      brakeLightOutput(PB_4)
 {
     // Initialize state variables to their default conditions
     this->resetState();
