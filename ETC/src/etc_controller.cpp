@@ -123,6 +123,7 @@ void ETCController::checkStartConditions() {
     // being set to the ON position, which is what calls this method.
     if(this->state.ts_ready && this->state.brakes_read >= ETCController::BRAKE_TOLERANCE) {
         this->state.motor_enabled = true;
+        this->runRTDS();
     }
 }
 
