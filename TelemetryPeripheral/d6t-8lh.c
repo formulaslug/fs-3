@@ -11,8 +11,8 @@
 #define N_READ ((N_PIXEL + 1) * 2 + 1)
 
 uint8_t rbuf[N_READ];
-double ptat;
-double pix_data[N_PIXEL];
+double d6t_8lh_ptat;
+double d6t_8lh_pix_data[N_PIXEL];
 
 uint8_t calc_crc(uint8_t data) {
     int index;
@@ -80,7 +80,7 @@ void d6t_8lh_setup() {
 /* loop - Thermal sensor
  * 2. read data.
  */
-double d6t_8lh_loop() {
+void d6t_8lh_loop() {
     int i = 0;
     int16_t itemp = 0;
 
@@ -100,14 +100,12 @@ double d6t_8lh_loop() {
     D6T_checkPEC(rbuf, N_READ - 1);
 
     // Convert to temperature data (degC)
-    ptat = (double)conv8us_s16_le(rbuf, 0) / 10.0;
+    d6t_8lh_ptat = (double)conv8us_s16_le(rbuf, 0) / 10.0;
 
     for (i = 0; i < N_PIXEL; i++) {
         itemp = conv8us_s16_le(rbuf, 2 + 2 * i);
-        pix_data[i] = (double)itemp / 5.0;
+        d6t_8lh_pix_data[i] = (double)itemp / 5.0;
     }
-
-    return ptat;
 
     // Attiny doesn't have easy serial debug :/
     //    //Output results

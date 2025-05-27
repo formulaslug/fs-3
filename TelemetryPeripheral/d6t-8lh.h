@@ -3,6 +3,10 @@
 #include <stdint.h>
 #include <string.h>
 
+#define N_PIXEL 8
+double d6t_8lh_ptat;
+double d6t_8lh_pix_data[N_PIXEL];
+
 uint8_t calc_crc(uint8_t data);
 
 /* D6T PEC(Packet Error Check) calculation.

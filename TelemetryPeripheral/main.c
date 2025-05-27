@@ -21,7 +21,7 @@ int main() {
 
     DELAY_milliseconds(100);
 
-    // d6t_8lh_setup();
+    d6t_8lh_setup();
 
     SPI0_OpenConfiguration(MASTER0_CONFIG);
 
@@ -67,13 +67,13 @@ int main() {
         // I2C0_SetBuffer(i2c_buf, 1);
         // I2C0_MasterRead();
 
-        // clang-format off
-        //                     WRITE       ADDR        SIDH        SIDL[7:5]   EID8  EID0  DLC         DATA                                          
-        char buf_deadbeef[] = {0b00000010, 0b00110001, 0b11111111, 0b11100011, 0x00, 0x00, 0b00001000, 0xDE, 0xAD, 0xBE, 0xEF, 0xDE, 0xAD, 0xBE, 0xEF};
-        // clang-format on
-        IO_PA4_SetLow();
-        SPI0_WriteBlock(buf_deadbeef, sizeof(buf_deadbeef));
-        IO_PA4_SetHigh();
+        // // clang-format off
+        // //                     WRITE       ADDR        SIDH        SIDL[7:5]   EID8  EID0  DLC         DATA                                          
+        // char buf_deadbeef[] = {0b00000010, 0b00110001, 0b11111111, 0b11100011, 0x00, 0x00, 0b00001000, 0xDE, 0xAD, 0xBE, 0xEF, 0xDE, 0xAD, 0xBE, 0xEF};
+        // // clang-format on
+        // IO_PA4_SetLow();
+        // SPI0_WriteBlock(buf_deadbeef, sizeof(buf_deadbeef));
+        // IO_PA4_SetHigh();
 
         // --- CODE TO READ FROM AN MCP2515 REGISTER ---
         // IO_PA4_SetLow();
@@ -82,9 +82,9 @@ int main() {
         // IO_PA4_SetHigh();
 
         char buf_rts[] = {0b10000001};
-        IO_PA4_SetLow();
-        SPI0_WriteBlock(buf_rts, sizeof(buf_rts));
-        IO_PA4_SetHigh();
+        // IO_PA4_SetLow();
+        // SPI0_WriteBlock(buf_rts, sizeof(buf_rts));
+        // IO_PA4_SetHigh();
 
         // Should check that CTRL[3] is 0 before moving on (message sent)
 
@@ -92,23 +92,36 @@ int main() {
         // char buf_adc[] = {0b00000010, 0b00110000, 0b00001011, 0b10101010, 0b01000000, 0x00, 0x00, 0b00000010, voltage >> 8, voltage & 0xFF, 0x00, 0x00};
         // clang-format on
 
+        // Re-read from the d6t-8lh's pixel buffers
+        d6t_8lh_loop();
 
-        // double degC = d6t_8lh_loop();
+        // uint8_t degC = (uint8_t)d6t_8lh_ptat;
+        uint8_t pixels[N_PIXEL] = {0};
+        for (int i=0; i<N_PIXEL; i++) {
+            pixels[i] = (uint8_t)(d6t_8lh_pix_data[i]);
+        }
 
-        char i2c_buf[36] = {0};
-        // char cmd = 0x4c;
-        // I2C0_example_writeNBytes((0x0a<<1), &cmd, 1);
-        // I2C0_example_readNBytes(0x0a, i2c_buf, 36);
-        I2C0_example_readDataBlock(0x0a >> 1, 0x4c, i2c_buf, 36);
+        // char i2c_buf[36] = {0};
+        // I2C0_example_readDataBlock(0x0a, 0x4c, i2c_buf, 36);
 
         // clang-format off
         //                 WRITE       ADDR        SIDH        SIDL[7:5]   EID8  EID0  DLC         DATA                                          
-        char buf_degC[] = {0b00000010, 0b00110001, 0b10101010, 0b01000000, 0x00, 0x00, 0b00001000, i2c_buf[0], i2c_buf[1], i2c_buf[2], i2c_buf[3], i2c_buf[32], i2c_buf[33], i2c_buf[34], i2c_buf[35]};
+        // char buf_degC[] = {0b00000010, 0b00110001, 0b10101010, 0b01000000, 0x00, 0x00, 0b00000001, degC};
+        char buf_pixels[] = {0b00000010, 0b00110001, 0b10101010, 0b01000000, 0x00, 0x00, 0b00001000, pixels[0], pixels[1], pixels[2], pixels[3], pixels[4], pixels[5], pixels[6], pixels[7]};
         // clang-format on
-        IO_PA4_SetLow();
-        SPI0_WriteBlock(buf_degC, sizeof(i2c_buf));
-        IO_PA4_SetHigh();
 
+        // For some reason this value isn't very good
+        // IO_PA4_SetLow();
+        // SPI0_WriteBlock(buf_degC, sizeof(buf_degC));
+        // IO_PA4_SetHigh();
+
+        // IO_PA4_SetLow();
+        // SPI0_WriteBlock(buf_rts, sizeof(buf_rts));
+        // IO_PA4_SetHigh();
+
+        IO_PA4_SetLow();
+        SPI0_WriteBlock(buf_pixels, sizeof(buf_pixels));
+        IO_PA4_SetHigh();
 
         IO_PA4_SetLow();
         SPI0_WriteBlock(buf_rts, sizeof(buf_rts));
