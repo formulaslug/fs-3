@@ -367,12 +367,12 @@ enum class BMSThreadState {
 };
 
 struct status_msg {
-  bool hasBmsFault;
+  bool bmsFault;
   bool imdFault;
-  bool checkingShutdownStatus;
+  bool shutdownState;
   bool prechargeDone;
-  bool checkingPrechargeStatus;
-  bool isCharging;
+  bool precharging;
+  bool charging;
   bool isBalancing;
   bool cell_too_low;
   bool cell_too_high;

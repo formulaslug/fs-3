@@ -66,7 +66,7 @@ bool isBalancing = false;
 
 uint16_t dcBusVoltage; // in tenths of volts
 uint32_t packVoltagemV;
-uint8_t glvVoltage;
+uint16_t glvVoltage;
 float rawTsCurrent;
 uint16_t filteredTsCurrent;
 
@@ -110,7 +110,8 @@ int main() {
     int32_t capacityDischarged = -1;
     while (1) {
         // infinite loop
-        glvVoltage = (uint8_t)(glv_voltage_pin * 185.3); // Read voltage from glv_voltage_pin and convert it to mV
+        glvVoltage = (uint16_t)(glv_voltage_pin * 185.3); // Read voltage from glv_voltage_pin and convert it to mV
+        status_message.glv_voltage = glvVoltage;
         //printf("GLV voltage: %d mV\n", glvVoltage * 100);
          // capacity initialization using the voltage lookup table
         while (!bmsMailbox->empty()) {
@@ -263,11 +264,13 @@ int main() {
         }
         fan_pwm.write(fan_percent / 100.0);
 
-        status_message.hasBmsFault =hasBmsFault;
-        status_message.checkingPrechargeStatus =checkingPrechargeStatus;
-        status_message.checkingShutdownStatus =checkingShutdownStatus;
-        status_message.isBalancing =isBalancing;
-        status_message.isCharging =isCharging;
+        status_message.bmsFault = hasBmsFault;
+        status_message.precharging = false; // TODO: this is wrong
+        status_message.shutdownState = false; // TODO: this is wrong
+        status_message.isBalancing = isBalancing;
+        status_message.charging = isCharging;
+        status_message.prechargeDone = prechargeDone;
+        status_message.imdFault = false; // TODO
 
 
         // Current sensor math, look at ACC board (AMP_Curr_Sensor) and datasheet
@@ -307,17 +310,17 @@ int main() {
         }
         // printf("capacity discharged: %d\n", capacityDischarged);
         state_of_charge = 100 - (100 * capacityDischarged / (CELL_CAPACITY_RATED));
-        printf("state of charge: %d\n", state_of_charge);
+        // printf("state of charge: %d\n", state_of_charge);
 
+        printf("pack voltage: %d\n", packVoltagemV);
 
-
-        if (canBus->rderror() > 32 || canBus->tderror() > 32)
+        if (canBus->rderror() > 250 || canBus->tderror() > 250)
         {
             printf("CanBus Error overflow! rderror: %d, txerror: %d\n", canBus->rderror(), canBus->tderror());
             canBus->reset();
         }
 
-        // queue.dispatch_once();
+        queue.dispatch_once();
         ThisThread::sleep_for(5 - (t.read_ms() % 5));
     }
 }
@@ -348,6 +351,7 @@ void initIO() {
     ThisThread::sleep_for(1ms);
     isCharging = charge_state_pin;
     queue.call_every(100ms, &canSendMain);
+    printf("Am I charging?: %x\n", isCharging);
     if (isCharging) {
         queue.call_every(100ms, &sendSync);
     }
@@ -358,11 +362,12 @@ void initIO() {
 
 void canSendMain() {
 
-    canSend(&status_message, packVoltagemV, state_of_charge, filteredTsCurrent, fan_percent, allVoltages, allTemps);
+    canSend(&status_message, packVoltagemV / 10, state_of_charge, (int16_t)(filteredTsCurrent / 10), fan_percent, allVoltages, allTemps);
 }
 
 void sendSync()
 {
+    // printf("send sync!\n");
     CANMessage msg = CANMessage();
     msg.id = 0x80; // Sync ID
     msg.len = 0;

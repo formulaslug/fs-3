@@ -67,8 +67,8 @@ CANMessage ACC_TPDO_POWER(uint16_t packVoltage, uint8_t state_of_charge, uint8_t
 
 
 
-void canSend(status_msg *status_message, uint16_t packVolt, uint8_t soc, int16_t curr, uint8_t fan_pwm_duty_cycle, uint16_t (&allVoltages)[BMS_BANK_COUNT * BMS_BANK_CELL_COUNT],
-            int8_t (&allTemps)[BMS_BANK_COUNT * BMS_BANK_CELL_COUNT] );
+void canSend(status_msg *status_message, uint16_t packVolt, uint8_t soc, int16_t curr, uint8_t fan_pwm_duty_cycle, uint16_t* allVoltages,
+            int8_t* allTemps);
 
 
 
