@@ -39,22 +39,22 @@ void do_can_processing() {
 
         /* Check for every event, process and then clear the corresponding flag */
         if (triggered_flags & can_handle->THROTTLE_FLAG) {
-            DPRINT("Flag Trigger: Throttle\n");
+            //            DPRINT("Flag Trigger: Throttle\n");
             can_handle->sendThrottle();
             global_events.clear(can_handle->THROTTLE_FLAG);
         }
         if (triggered_flags & can_handle->STATE_FLAG) {
-            DPRINT("Flag Trigger: State\n");
+            //            DPRINT("Flag Trigger: State\n");
             can_handle->sendState();
             global_events.clear(can_handle->STATE_FLAG);
         }
         if (triggered_flags & can_handle->SYNC_FLAG) {
-            DPRINT("Flag Trigger: Sync\n");
+            //            DPRINT("Flag Trigger: Sync\n");
             can_handle->sendSync();
             global_events.clear(can_handle->SYNC_FLAG);
         }
         if (triggered_flags & can_handle->RX_FLAG) {
-            DPRINT("Flag: CAN RX\n");
+            //            DPRINT("Flag: CAN RX\n");
             can_handle->processCANRx();
             global_events.clear(can_handle->RX_FLAG);
         }
@@ -77,7 +77,7 @@ int main() {
     high_priority_thread.start(do_can_processing);
 
     while (true) {
-        DPRINT("ETC State Updated\n");
+        //        DPRINT("ETC State Updated\n");
         /* update the etc-sensor readings */
         etc_handle->updateState();
     }

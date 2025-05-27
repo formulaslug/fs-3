@@ -81,7 +81,7 @@ public:
     void sendState();
 
 
-    /** TODO: Add sendCurrentLimits function... */
+    void sendCurrentLimits();
 
 
     /**

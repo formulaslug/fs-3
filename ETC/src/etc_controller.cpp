@@ -32,10 +32,8 @@ ETCController::ETCController()
 
 
 void ETCController::updateState() {
-    float he1Voltage =
-        (this->he1Input.read() * ETCController::MAX_VOLTAGE) / ETCController::HE1_SCALE;
-    float he2Voltage =
-        (this->he1Input.read() * ETCController::MAX_VOLTAGE) / ETCController::HE2_SCALE;
+    float he1Voltage = this->he1Input.read() * ETCController::MAX_VOLTAGE;
+    float he2Voltage = this->he2Input.read() * ETCController::MAX_VOLTAGE;
 
     float he1Travel = (he1Voltage - ETCController::HE1_LOW_VOLTAGE) / ETCController::HE1_RANGE;
     float he2Travel = (he2Voltage - ETCController::HE2_LOW_VOLTAGE) / ETCController::HE2_RANGE;
@@ -58,18 +56,17 @@ void ETCController::updateState() {
             this->implausTravelTimer.reset();
             this->implausTravelTimerRunning = false;
             this->turnOffMotor();
-            return;
-        }
-        else {
-            // if everything is good and timer is running, we reset
-            this->implausTravelTimer.stop();
-            this->implausTravelTimer.reset();
-            this->implausTravelTimerRunning = false;
         }
     }
+    else {
+        // if everything is good and timer is running, we reset
+        this->implausTravelTimer.stop();
+        this->implausTravelTimer.reset();
+        this->implausTravelTimerRunning = false;
+    }
 
-    if (he1Voltage <= 0.0f || he1Voltage >= ETCController::MAX_VOLTAGE ||
-        he2Voltage <= 0.0f || he2Voltage >= ETCController::MAX_VOLTAGE)
+    if (he1Voltage <= 0.05f || he1Voltage >= ETCController::MAX_VOLTAGE ||
+        he2Voltage <= 0.05f || he2Voltage >= ETCController::MAX_VOLTAGE)
     {
         if (!this->implausBoundsTimerRunning) {
             // we now start our timer, if it's not already running
@@ -81,13 +78,12 @@ void ETCController::updateState() {
             this->implausBoundsTimer.reset();
             this->implausBoundsTimerRunning = false;
             this->turnOffMotor();
-            return;
         }
-        else {
-            this->implausBoundsTimer.stop();
-            this->implausBoundsTimer.reset();
-            this->implausBoundsTimerRunning = false;
-        }
+    }
+    else {
+        this->implausBoundsTimer.stop();
+        this->implausBoundsTimer.reset();
+        this->implausBoundsTimerRunning = false;
     }
 
     // At this point, we have passed all the implausibility checks for the current loop. We
@@ -100,9 +96,13 @@ void ETCController::updateState() {
     this->state.he1_travel = he1Travel;
     this->state.he2_travel = he2Travel;
     this->state.pedal_travel = pedalTravel;
-    this->state.torque_demand = static_cast<int16_t>(pedalTravel * ETCController::MAX_TORQUE);
-    /** TODO: ask about brake sensor voltage output */
+    this->state.torque_demand =
+        this->state.motor_enabled ?
+        static_cast<int16_t>(pedalTravel * ETCController::MAX_TORQUE) :
+        0;
     this->state.brakes_read = this->brakePedalInput.read() * ETCController::MAX_VOLTAGE;
+
+    this->brakeLightOutput.write(this->state.brakes_read >= ETCController::BRAKE_TOLERANCE);
 }
 
 
@@ -197,7 +197,7 @@ float ETCController::getPedalTravel() const {
 
 
 int16_t ETCController::getTorqueDemand() const {
-    return this->state.motor_enabled ? this->state.torque_demand : 0;
+    return this->state.torque_demand;
 }
 
 
@@ -233,4 +233,20 @@ void ETCController::switchForwardMotor() {
 
 void ETCController::turnOffMotor() {
     this->state.motor_enabled = false;
+}
+
+
+
+bool ETCController::getRTDS() {
+    return this->rtdsOutput.read();
+}
+
+
+bool ETCController::isBraking() {
+    return this->brakeLightOutput.read();
+}
+
+
+bool ETCController::hasImplausibility() {
+    return this->implausTravelTimerRunning || this->implausBoundsTimerRunning;
 }

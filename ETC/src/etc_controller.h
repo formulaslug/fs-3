@@ -88,23 +88,23 @@ public:
     static constexpr float MAX_VOLTAGE = 3.3f;
 
     /** The percentage tolerance for the brake pedal to be considered pressed. */
-    static constexpr float BRAKE_TOLERANCE = 0.1f;
+    static constexpr float BRAKE_TOLERANCE = 0.382f;
 
     /** The voltage divider slope for the hall-effect 1 sensor. */
     static constexpr float HE1_SCALE = 330.0f / 480.0f;
     /** The voltage for HE1 corresponding to 0% pedal travel. */
-    static constexpr float HE1_LOW_VOLTAGE = 1.7241f;
+    static constexpr float HE1_LOW_VOLTAGE = 2.4000000f;
     /** The voltage for HE1 corresponding to 100% pedal travel. */
-    static constexpr float HE1_HIGH_VOLTAGE = 3.9714f;
+    static constexpr float HE1_HIGH_VOLTAGE = 2.8000000f;
     /** The difference between the maximum and minimum voltages (100% and 0% travel) for HE1. */
     static constexpr float HE1_RANGE =
         ETCController::HE1_HIGH_VOLTAGE - ETCController::HE1_LOW_VOLTAGE;
     /** The voltage divider slope for the hall-effect 2 sensor. */
     static constexpr float HE2_SCALE = 1.0f / 2.0f;
     /** The voltage for HE2 corresponding to 0% pedal travel. */
-    static constexpr float HE2_LOW_VOLTAGE = 1.7956f;
+    static constexpr float HE2_LOW_VOLTAGE = 1.900000f;
     /** The voltage for HE2 corresponding to 100% pedal travel. */
-    static constexpr float HE2_HIGH_VOLTAGE = 3.1022f;
+    static constexpr float HE2_HIGH_VOLTAGE = 2.2290114f;
     /** The difference between the maximum and minimum voltages (100% and 0% travel) for HE2. */
     static constexpr float HE2_RANGE =
         ETCController::HE2_HIGH_VOLTAGE - ETCController::HE2_LOW_VOLTAGE;
@@ -265,6 +265,24 @@ public:
      * Disables the motor.
      */
     void turnOffMotor();
+
+
+    /**
+     * Whether the RTDS buzzer is running.
+     */
+    bool getRTDS();
+
+
+    /**
+     * Whether the brake pedal is being pressed.
+     */
+    bool isBraking();
+
+
+    /**
+     * Whether an implausibility is currently detected.
+     */
+    bool hasImplausibility();
 };
 
 

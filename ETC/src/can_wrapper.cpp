@@ -65,7 +65,28 @@ void CANWrapper::sendState() {
     ETCState state = this->etc.getState();
 
     CANMessage stateMessage;
-    stateMessage.id = 0x1A1;
+    stateMessage.id = 0x189;
+
+    stateMessage.data[0] = static_cast<uint8_t>(static_cast<int16_t>(state.he1_read * 1000) & 0xFF);
+    stateMessage.data[1] = static_cast<uint8_t>(static_cast<int16_t>(state.he1_read * 1000) >> 8);
+
+    stateMessage.data[2] = static_cast<uint8_t>(static_cast<int16_t>(state.he2_read * 1000) & 0xFF);
+    stateMessage.data[3] = static_cast<uint8_t>(static_cast<int16_t>(state.he2_read * 1000) >> 8);
+
+    stateMessage.data[4] = static_cast<uint8_t>(static_cast<int16_t>(state.brakes_read * 1000) & 0xFF);
+    stateMessage.data[5] = static_cast<uint8_t>(static_cast<int16_t>(state.brakes_read * 1000) >> 8);
+
+    stateMessage.data[6] = static_cast<uint8_t>(state.pedal_travel * 255);
+
+    stateMessage.data[7] =
+        (state.cockpit) |
+        (this->etc.getRTDS() << 1) |
+        (!state.motor_forward << 2) |
+        (this->etc.isBraking() << 3) |
+        (state.motor_enabled << 4) |
+        (this->etc.hasImplausibility() << 5) |
+        (state.ts_ready << 6);
+    
 
     stateMessage.data[0] =
         (0x01 & state.ts_ready) |
@@ -81,6 +102,28 @@ void CANWrapper::sendState() {
 
     this->bus->write(stateMessage);
 }
+
+
+void CANWrapper::sendCurrentLimits() {
+    CANMessage currentMessage;
+    currentMessage.id = 0x286;
+
+    // Constant charge current = 0A
+    currentMessage.data[0] = 0x00;
+    currentMessage.data[1] = 0x00;
+
+    // Constant discharge current = 400A (split into little endian order)
+    currentMessage.data[2] = 0b10010000;
+    currentMessage.data[3] = 0b00000001;
+
+    currentMessage.data[4] = 0x00;
+    currentMessage.data[5] = 0x00;
+    currentMessage.data[6] = 0x00;
+    currentMessage.data[7] = 0x00;
+
+    this->bus->write(currentMessage);    
+}
+
 
 void CANWrapper::processCANRx() {
     CANMessage rx;
