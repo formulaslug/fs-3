@@ -29,13 +29,15 @@ int main()
    ThisThread::sleep_for(500ms);
 
    printf("Starting main loop\n");
+
+   bool prechargeDone = false;
+   bool fault = false;
+   bool shutdown_closed = false;
+   bool cell_temps_fine = false;
+
    while(true) {
       CANMessage msg;
 
-      bool prechargeDone = false;
-      bool fault = false;
-      bool shutdown_closed = false;
-      bool cell_temps_fine = false;
 
       while (can->read(msg)) {
          switch (msg.id) {
@@ -77,10 +79,9 @@ int main()
       max_voltage_mV = VOLTAGE_TARGET_MV;
       max_dc_current_mA = CURRENT_MAX_MA;
 
-
+      printf("pp_ready: %x, precharge done: %x, fault: %x, sh closed: %x, cell temps fine: %x\n", proximity_pilot_ready, prechargeDone, fault, shutdown_closed, cell_temps_fine);
       enable = proximity_pilot_ready && prechargeDone && !fault && shutdown_closed && cell_temps_fine;
-
-      ThisThread::sleep_for(5ms);
+      printf("enable: %x\n", enable);
    }
 
    // main() is expected to loop forever.
@@ -133,7 +134,7 @@ void sendCAN() {
    CANMessage charge_limits_msg(0x306,  charge_limits_data);
    can->write(charge_limits_msg);
 
-   ThisThread::sleep_for(1ms);
+   // ThisThread::sleep_for(1ms);
 
    // send charge control
    uint8_t charge_control_data[8] = {
