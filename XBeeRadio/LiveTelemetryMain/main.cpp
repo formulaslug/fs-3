@@ -39,8 +39,7 @@ int main() {
             printf("%c", resp_buf[i]);
         }
 
-        printf("\nAttention:%d\n", spi_attn.read());
-        printf("\n");
+        // TODO: We need to "ack" the data
     }
 
     return 0;
