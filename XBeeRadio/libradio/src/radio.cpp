@@ -1,6 +1,8 @@
 #include "radio.hpp"
 #include "DigitalIn.h"
 #include "DigitalOut.h"
+#include "ThisThread.h"
+#include <cstdint>
 
 XBeeRadio::XBeeRadio(SPI& spi, DigitalOut& csPin, DigitalIn& attnPin)
     : spi(spi), cs(csPin), spi_attn(attnPin) {
@@ -21,6 +23,11 @@ int XBeeRadio::get_at_command(AT_COMMAND at_command, uint8_t at_command_bytes[])
         case TEMPERATURE:
             at_command_bytes[0] = 0x54;
             at_command_bytes[1] = 0x50;
+            return 1;
+            break;
+        case DESTINATION_SET_LOW:
+            at_command_bytes[0] = 0x44;
+            at_command_bytes[1] = 0x54;
             return 1;
             break;
     }
@@ -62,21 +69,73 @@ int XBeeRadio::send_at_command(AT_COMMAND at_command, uint8_t parameters[], uint
 }
 
 
-int XBeeRadio::transmit(uint64_t destination, char *payload) {
+int XBeeRadio::transmit(uint64_t destination, char *payload, int payload_size, uint8_t frameid) {
 
     uint8_t transmit_command[100] = {0};
 
     transmit_command[0] = 0x7E;
-    transmit_command[1] = 0x00; // length msb
-    transmit_command[2] = 0x08; // todo :calculate length
-    transmit_command[3] = 0x00; // frametype 0x00 == transmit request
-    transmit_command[4] = 0x77; // frameid
-    transmit_command[5] = destination; // frameid
-    transmit_command[13] = 0xFF; // reserved
-    transmit_command[14] = 0xEE; // reserved
-    transmit_command[15] = 0x00; // broadcast radius
 
-    return 0;
+    uint16_t packet_length = 11+payload_size;
+    transmit_command[1] = (packet_length & 0xFF00) >> 2; // length msb
+    transmit_command[2] = packet_length & 0x00FF; // length lsb
+    transmit_command[3] = 0x00; // frametype 0x00 == transmit request
+    transmit_command[4] = frameid; // frameid
+    transmit_command[5] = 0x00;
+    transmit_command[6] = 0x00;
+    transmit_command[7] = 0x00;
+    transmit_command[8] = 0x00;
+    transmit_command[9] = 0x00;
+    transmit_command[10] = 0x00;
+    transmit_command[11] = 0xFF;
+    transmit_command[12] = 0xFF;
+    transmit_command[13] = 0x00; // OPTIONS
+    int n = 0;
+    for (n = 0; n < payload_size; n++) {
+        transmit_command[14+n] = payload[n]; // rf-data
+    }
+    transmit_command[14+n] = calculate_checksum(transmit_command + 3, 14+n - 3); // broadcast radius
+    printf("SENT: ");
+    for (int i = 0; i < 15+n; i++) {
+        printf("%02x ", transmit_command[i]);
+    }
+    printf("\n");
+
+    uint8_t resp_buf[100] = {0};
+    cs.write(0);
+    spi.write(transmit_command, 15+n, nullptr, 0);
+    cs.write(1);
+
+    printf("attn: %d\n", spi_attn.read());
+
+    while (spi_attn.read()) {
+        printf("attn: %d\n", spi_attn.read());
+        ThisThread::sleep_for(10ms);
+    }
+    ThisThread::sleep_for(100ms);
+
+
+    printf("attn: %d\n", spi_attn.read());
+    cs.write(0);
+    spi.write(nullptr, 0, resp_buf, sizeof(resp_buf));
+    cs.write(1);
+    printf("attn: %d\n", spi_attn.read());
+    ThisThread::sleep_for(5ms);
+    printf("attn: %d\n", spi_attn.read());
+
+
+    // WAIT FOR TRANSMIT RESPONSE
+    printf("RESPONSE: ");
+    for (int i = 0; i < 30; i++) {
+        printf("%02x ", resp_buf[i]);
+    }
+    printf("\n");
+
+    if (resp_buf[4] != frameid) {
+        return(NO_RESPONSE);
+    }
+
+    return(resp_buf[5]);
+
 }
 
 uint8_t XBeeRadio::calculate_checksum(const uint8_t *data, size_t length) {
