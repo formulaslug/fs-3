@@ -264,13 +264,15 @@ int main() {
         }
         fan_pwm.write(fan_percent / 100.0);
 
+        printf("shutdown state: %x\n", shutdown_measure_pin.read());
+
         status_message.bmsFault = hasBmsFault;
-        status_message.precharging = false; // TODO: this is wrong
-        status_message.shutdownState = false; // TODO: this is wrong
+        status_message.shutdownState = shutdown_measure_pin.read();
         status_message.isBalancing = isBalancing;
         status_message.charging = isCharging;
+        status_message.precharging = !prechargeDone && shutdown_measure_pin.read();
         status_message.prechargeDone = prechargeDone;
-        status_message.imdFault = false; // TODO
+        status_message.imdFault = !imd_status_pin.read();
 
 
         // Current sensor math, look at ACC board (AMP_Curr_Sensor) and datasheet
@@ -312,7 +314,7 @@ int main() {
         state_of_charge = 100 - (100 * capacityDischarged / (CELL_CAPACITY_RATED));
         // printf("state of charge: %d\n", state_of_charge);
 
-        printf("pack voltage: %d\n", packVoltagemV);
+        // printf("pack voltage: %d\n", packVoltagemV);
 
         if (canBus->rderror() > 250 || canBus->tderror() > 250)
         {

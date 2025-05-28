@@ -29,7 +29,7 @@ socLookupTable {{
 // Returns Capacity In mAh
 uint16_t convertLowVoltage(uint32_t voltage) {
     uint32_t cell_voltage = voltage / (BMS_BANK_COUNT * BMS_BANK_CELL_COUNT);
-    printf("cell voltage: %d\n", cell_voltage);
+    // printf("cell voltage: %d\n", cell_voltage);
     for(unsigned int i = 0; i < socLookupTableSize - 1; i++) {
         if(cell_voltage < socLookupTable[i].voltage) {
             if (i == 0)

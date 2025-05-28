@@ -31,43 +31,43 @@ CANMessage ACC_TPDO_SEG0_TEMPS(int8_t *temps) {
         data[i] = temps[i];
     }
 
-    return CANMessage{kACC_TPDO_SEG0_TEMPS, data};
+    return CANMessage{kACC_TPDO_SEG0_TEMPS, data, BMS_BANK_TEMP_COUNT};
 }
 
 CANMessage ACC_TPDO_SEG1_TEMPS(int8_t *temps) {
     char data[BMS_BANK_CELL_COUNT];
     for (int i = 0; i < BMS_BANK_CELL_COUNT; i++) {
-        data[i] = temps[BMS_BANK_COUNT + i];
+        data[i] = temps[BMS_BANK_CELL_COUNT + i];
     }
 
-    return CANMessage{kACC_TPDO_SEG1_TEMPS, data};
+    return CANMessage{kACC_TPDO_SEG1_TEMPS, data, BMS_BANK_TEMP_COUNT};
 }
 
 CANMessage ACC_TPDO_SEG2_TEMPS(int8_t *temps) {
     char data[BMS_BANK_CELL_COUNT];
     for (int i = 0; i < BMS_BANK_CELL_COUNT; i++) {
-        data[i] = temps[2 * BMS_BANK_COUNT + i];
+        data[i] = temps[2 * BMS_BANK_CELL_COUNT + i];
     }
 
-    return CANMessage{kACC_TPDO_SEG2_TEMPS, data};
+    return CANMessage{kACC_TPDO_SEG2_TEMPS, data, BMS_BANK_TEMP_COUNT};
 }
 
 CANMessage ACC_TPDO_SEG3_TEMPS(int8_t *temps) {
     char data[BMS_BANK_CELL_COUNT];
     for (int i = 0; i < BMS_BANK_CELL_COUNT; i++) {
-        data[i] = temps[3 * BMS_BANK_COUNT + i];
+        data[i] = temps[3 * BMS_BANK_CELL_COUNT + i];
     }
 
-    return CANMessage{kACC_TPDO_SEG3_TEMPS, data};
+    return CANMessage{kACC_TPDO_SEG3_TEMPS, data, BMS_BANK_TEMP_COUNT};
 }
 
 CANMessage ACC_TPDO_SEG4_TEMPS(int8_t *temps) {
     char data[BMS_BANK_CELL_COUNT];
     for (int i = 0; i < BMS_BANK_CELL_COUNT; i++) {
-        data[i] = temps[4 * BMS_BANK_COUNT + i];
+        data[i] = temps[4 * BMS_BANK_CELL_COUNT + i];
     }
 
-    return CANMessage{kACC_TPDO_SEG4_TEMPS, data};
+    return CANMessage{kACC_TPDO_SEG4_TEMPS, data, BMS_BANK_TEMP_COUNT};
 }
 
 
@@ -80,44 +80,44 @@ CANMessage ACC_TPDO_SEG0_VOLTS(uint16_t *volts) {
         data[i] = (uint8_t)(volts[i] / 10 - 200);
     }
 
-    return CANMessage{kACC_TPDO_SEG0_VOLTS, data};
+    return CANMessage{kACC_TPDO_SEG0_VOLTS, data, BMS_BANK_CELL_COUNT};
 }
 
 // TODO: make sure that 200 is within the cast
 CANMessage ACC_TPDO_SEG1_VOLTS(uint16_t *volts) {
     uint8_t data[BMS_BANK_CELL_COUNT];
     for (int i = 0; i < BMS_BANK_CELL_COUNT; i++) {
-        data[i] = (uint8_t)(volts[BMS_BANK_COUNT + i] / 10 - 200);
+        data[i] = (uint8_t)(volts[BMS_BANK_CELL_COUNT + i] / 10 - 200);
     }
 
-    return CANMessage{kACC_TPDO_SEG1_VOLTS, data};
+    return CANMessage{kACC_TPDO_SEG1_VOLTS, data, BMS_BANK_CELL_COUNT};
 }
 
 CANMessage ACC_TPDO_SEG2_VOLTS(uint16_t *volts) {
     uint8_t data[BMS_BANK_CELL_COUNT];
     for (int i = 0; i < BMS_BANK_CELL_COUNT; i++) {
-        data[i] = (uint8_t)(volts[2 * BMS_BANK_COUNT + i] / 10 - 200);
+        data[i] = (uint8_t)(volts[2 * BMS_BANK_CELL_COUNT + i] / 10 - 200);
     }
 
-    return CANMessage{kACC_TPDO_SEG2_VOLTS, data};
+    return CANMessage{kACC_TPDO_SEG2_VOLTS, data, BMS_BANK_CELL_COUNT};
 }
 
 CANMessage ACC_TPDO_SEG3_VOLTS(uint16_t *volts) {
     uint8_t data[BMS_BANK_CELL_COUNT];
     for (int i = 0; i < BMS_BANK_CELL_COUNT; i++) {
-        data[i] = (uint8_t)(volts[3 * BMS_BANK_COUNT + i] / 10 - 200);
+        data[i] = (uint8_t)(volts[3 * BMS_BANK_CELL_COUNT + i] / 10 - 200);
     }
 
-    return CANMessage{kACC_TPDO_SEG3_VOLTS, data};
+    return CANMessage{kACC_TPDO_SEG3_VOLTS, data, BMS_BANK_CELL_COUNT};
 }
 
 CANMessage ACC_TPDO_SEG4_VOLTS(uint16_t *volts) {
     uint8_t data[BMS_BANK_CELL_COUNT];
     for (int i = 0; i < BMS_BANK_CELL_COUNT; i++) {
-        data[i] = (uint8_t)(volts[4 * BMS_BANK_COUNT + i] / 10 - 200);
+        data[i] = (uint8_t)(volts[4 * BMS_BANK_CELL_COUNT + i] / 10 - 200);
     }
 
-    return CANMessage{kACC_TPDO_SEG4_VOLTS, data};
+    return CANMessage{kACC_TPDO_SEG4_VOLTS, data, BMS_BANK_CELL_COUNT};
 }
 //--------------------------------------------------------------------------------
 // ACC Power
@@ -131,6 +131,8 @@ CANMessage ACC_TPDO_POWER(uint16_t packVoltage, uint8_t state_of_charge, int16_t
     data[3] = current;
     data[4] = current >> 8;
     data[5] = fan_pwm_duty_cycle;
+    data[6] = 0x0;
+    data[7] = 0x0;
 
     return CANMessage{kACC_TPDO_POWER, data};
 }

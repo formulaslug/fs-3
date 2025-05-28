@@ -248,10 +248,10 @@ void BMSThread::threadWorker() {
     // printf("Fuck: ");
     uint16_t minVoltage = allVoltages[0];
     uint16_t maxVoltage = 0;
-    cell_faults = 0;
+    cell_faults = 0x00000000;
     for (int i = 0; i < BMS_BANK_COUNT * BMS_BANK_CELL_COUNT; i++) {
        if (allVoltages[i] > BMS_FAULT_VOLTAGE_THRESHOLD_HIGH || allVoltages[i] < BMS_FAULT_VOLTAGE_THRESHOLD_LOW) {
-           cell_faults |= (1 << i);
+           cell_faults |= (true << i);
        }
       if (allVoltages[i] < minVoltage) {
         minVoltage = allVoltages[i];
@@ -267,8 +267,8 @@ void BMSThread::threadWorker() {
     int16_t tempSum = 0;
     for (int i = 0; i < BMS_BANK_COUNT * BMS_BANK_TEMP_COUNT; i++) {
       tempSum += allTemps[i];
-        if (allVoltages[i] > BMS_FAULT_TEMP_THRESHOLD_HIGH || allVoltages[i] < BMS_FAULT_TEMP_THRESHOLD_LOW) {
-            cell_faults |= (1 << i);
+        if (allTemps[i] > BMS_FAULT_TEMP_THRESHOLD_HIGH || allTemps[i] < BMS_FAULT_TEMP_THRESHOLD_LOW) {
+            cell_faults |= (true << i);
         }
       if (allTemps[i] < minTemp) {
         minTemp = allTemps[i];
