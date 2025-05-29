@@ -125,7 +125,8 @@ SDFileSystem::SDFileSystem(PinName mosi, PinName miso, PinName sclk, PinName cs,
 
     // Set default to 100kHz for initialisation and 1MHz for data transfer
     _init_sck = 100000;
-    _transfer_sck = 1000000;
+    _transfer_sck = 25*1000000;
+    printf("Transfer clock set to 25mhz");
 }
 
 #define R1_IDLE_STATE           (1 << 0)

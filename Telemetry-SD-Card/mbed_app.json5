@@ -3,6 +3,13 @@
     "*": {
       "platform.stdio-baud-rate": 115200,
       "platform.stdio-buffered-serial": 1,
+//      "target.features_add": ["STORAGE"],
+//      "target.components_add": ["SD"],
+//      "sd.SPI_MOSI": "D2",
+//      "sd.SPI_MISO": "A5",
+//      "sd.SPI_CLK": "A4",
+//      "sd.SPI_CS": "D3",
+//      "sd.INIT_FREQUENCY": 160000 //should be 100khz - 400khz
 
       // Uncomment to use mbed-baremetal instead of mbed-os
       // "target.application-profile": "bare-metal"

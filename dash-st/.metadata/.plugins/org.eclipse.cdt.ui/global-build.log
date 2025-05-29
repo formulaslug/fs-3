@@ -1,0 +1,7 @@
+01:44:56 **** Incremental Build of configuration Release for project sdtest ****
+make -j9 all 
+arm-none-eabi-size  sdtest.elf 
+   text	   data	    bss	    dec	    hex	filename
+  15312	     36	   1876	  17224	   4348	sdtest.elf
+Finished building: default.size.stdout
+ 
