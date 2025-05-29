@@ -105,7 +105,7 @@ extern DigitalOut* chargerControl;
 
 // state of charge time threshold - still dont know what it is (maybe in millisec?)
 #ifndef SOC_TIME_THRESHOLD
-#define SOC_TIME_THRESHOLD 30000  // 30 sec -> 30000 ms
+#define SOC_TIME_THRESHOLD 30  // 30 sec
 #endif
 
 // cell capacity rated

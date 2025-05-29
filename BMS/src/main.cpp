@@ -291,17 +291,24 @@ int main() {
         // printf("Voltage before SoC: %d\n", packVoltagemV);
         // State of Charge calculations
         if (filteredTsCurrent < CURR_SOC_LIMIT && avgCellTemp < TEMP_SOC_LIMIT) { // if the current is low and temp is low
-            if (volt_timer.read_ms() == 0) {
+            if (volt_timer.read() == 0) {
                 volt_timer.start();
-            } else if (volt_timer.read_ms() > SOC_TIME_THRESHOLD) {
+            } else if (volt_timer.read() > SOC_TIME_THRESHOLD) {
                 // LOOKUP table
                 capacityDischarged = convertLowVoltage(packVoltagemV);
+            } else {
+                capacityDischarged += ( (soc_timer.read() / 3600) * (((lastCurrentReadings[lastCurrentReadings.size()-1] * 100) + (lastCurrentReadings[lastCurrentReadings.size()-2] * 100)) / 2));
+                //Note: Multiplied lastCurrentReadings by 100 since filteredTsCurrent is in 100 mAs
+                soc_timer.reset();
+                soc_timer.start();
             }
         } else {
             volt_timer.reset();
+            volt_timer.stop();
             soc_timer.stop();
             if (lastCurrentReadings.size() >= 2) {
-                capacityDischarged += ( soc_timer.read_ms() * (((lastCurrentReadings[lastCurrentReadings.size()-1] * 100) + (lastCurrentReadings[lastCurrentReadings.size()-2] * 100)) / 2));
+                // soc_timer should be in hours here for mAh
+                capacityDischarged += ( (soc_timer.read() / 3600) * (((lastCurrentReadings[lastCurrentReadings.size()-1] * 100) + (lastCurrentReadings[lastCurrentReadings.size()-2] * 100)) / 2));
                 //Note: Multiplied lastCurrentReadings by 100 since filteredTsCurrent is in 100 mAs
                 soc_timer.reset();
                 soc_timer.start();
