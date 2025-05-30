@@ -308,13 +308,10 @@ int main() {
             soc_timer.stop();
             if (lastCurrentReadings.size() >= 2) {
                 // soc_timer should be in hours here for mAh
-                capacityDischarged += ( (soc_timer.read() / 3600) * (((lastCurrentReadings[lastCurrentReadings.size()-1] * 100) + (lastCurrentReadings[lastCurrentReadings.size()-2] * 100)) / 2));
+                capacityDischarged += ( (int32_t)(soc_timer.read() / 3600.0) * (((lastCurrentReadings[lastCurrentReadings.size()-1] * 100) + (lastCurrentReadings[lastCurrentReadings.size()-2] * 100)) / 2));
                 //Note: Multiplied lastCurrentReadings by 100 since filteredTsCurrent is in 100 mAs
                 soc_timer.reset();
                 soc_timer.start();
-            } else
-            {
-
             }
         }
         // printf("capacity discharged: %d\n", capacityDischarged);
@@ -367,8 +364,6 @@ void initIO() {
 }
 
 
-
-
 void canSendMain() {
 
     canSend(&status_message, packVoltagemV / 10, state_of_charge, (int16_t)(filteredTsCurrent / 10), fan_percent, allVoltages, allTemps);
@@ -384,14 +379,13 @@ void sendSync()
 }
 
 
-//
 void checkPrechargeVoltage() {
     if (dcBusVoltage < 20000) {
         prechargeDone = false;
     }
     checkingPrechargeStatus = false;
 }
-//
+
 void checkShutdownStatus() {
     if (!shutdown_measure_pin) {
         prechargeDone = false;
