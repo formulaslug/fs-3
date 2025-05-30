@@ -11,6 +11,7 @@
 #include <math.h>
 
 #include "d6t-8lh.h"
+#include "d6t-1a.h"
 
 // #include "MCP_CAN_lib-master/mcp_can.hpp"
 
@@ -22,6 +23,7 @@ int main() {
     DELAY_milliseconds(100);
 
     d6t_8lh_setup();
+    d6t_1a_setup();
 
     SPI0_OpenConfiguration(MASTER0_CONFIG);
 
@@ -94,11 +96,16 @@ int main() {
 
         // Re-read from the d6t-8lh's pixel buffers
         d6t_8lh_loop();
+        d6t_1a_loop();
 
         // uint8_t degC = (uint8_t)d6t_8lh_ptat;
-        uint8_t pixels[N_PIXEL] = {0};
+        uint8_t pixels8lh[N_PIXEL] = {0};
         for (int i=0; i<N_PIXEL; i++) {
-            pixels[i] = (uint8_t)(d6t_8lh_pix_data[i]);
+            pixels8lh[i] = (uint8_t)(d6t_8lh_pix_data[i]);
+        }
+        uint8_t pixels1a[N_PIXEL] = {0};
+        for (int i=0; i<N_PIXEL; i++) {
+            pixels1a[i] = (uint8_t)(d6t_1a_pix_data[i]);
         }
 
         // char i2c_buf[36] = {0};
@@ -107,7 +114,8 @@ int main() {
         // clang-format off
         //                 WRITE       ADDR        SIDH        SIDL[7:5]   EID8  EID0  DLC         DATA                                          
         // char buf_degC[] = {0b00000010, 0b00110001, 0b10101010, 0b01000000, 0x00, 0x00, 0b00000001, degC};
-        char buf_pixels[] = {0b00000010, 0b00110001, 0b10101010, 0b01000000, 0x00, 0x00, 0b00001000, pixels[0], pixels[1], pixels[2], pixels[3], pixels[4], pixels[5], pixels[6], pixels[7]};
+        char buf_pixels8lh[] = {0b00000010, 0b00110001, 0b10101010, 0b01000000, 0x00, 0x00, 0b00001000, pixels8lh[0], pixels8lh[1], pixels8lh[2], pixels8lh[3], pixels8lh[4], pixels8lh[5], pixels8lh[6], pixels8lh[7]};
+        char buf_pixels1a[] = {0b00000010, 0b00110001, 0b10101010, 0b01000000, 0x00, 0x00, 0b00001000, pixels1a[0], pixels1a[1], pixels1a[2], pixels1a[3], pixels1a[4], pixels1a[5], pixels1a[6], pixels1a[7]};
         // clang-format on
 
         // For some reason this value isn't very good
@@ -120,7 +128,15 @@ int main() {
         // IO_PA4_SetHigh();
 
         IO_PA4_SetLow();
-        SPI0_WriteBlock(buf_pixels, sizeof(buf_pixels));
+        SPI0_WriteBlock(buf_pixels8lh, sizeof(buf_pixels8lh));
+        IO_PA4_SetHigh();
+
+        IO_PA4_SetLow();
+        SPI0_WriteBlock(buf_rts, sizeof(buf_rts));
+        IO_PA4_SetHigh();
+
+        IO_PA4_SetLow();
+        SPI0_WriteBlock(buf_pixels1a, sizeof(buf_pixels1a));
         IO_PA4_SetHigh();
 
         IO_PA4_SetLow();
