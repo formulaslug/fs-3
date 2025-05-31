@@ -96,7 +96,6 @@
 #include <nanoarrow/nanoarrow.h>
 #include <nanoarrow/nanoarrow_ipc.hpp>
 #include <nanoarrow/nanoarrow_ipc.h>
-#include <nanoarrow/ipc/flatcc_generated.h>
 
 namespace na = nanoarrow;
 
