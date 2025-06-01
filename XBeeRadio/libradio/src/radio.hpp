@@ -3,7 +3,6 @@
 
 #include "DigitalIn.h"
 #include "DigitalOut.h"
-#define NETWORK_IDENTIFIER 0x1678
 
 enum AT_RESPONSE {
     AT_OKAY,
@@ -14,7 +13,14 @@ enum AT_RESPONSE {
 
 enum AT_COMMAND {
     TEMPERATURE,
+    MAX_TRANSMIT_SIZE,
     DESTINATION_SET_LOW,
+    BAUD_RATE_SET,
+    BROADCAST_MULTI_TRANSMITS,
+    NETWORK_IDENTIFIER,
+    NETWORK_HOPS,
+    STREAMING_LIMIT,
+    TRANSMIT_OPTIONS,
 };
 
 enum DELIVERY_STATUS {
@@ -29,7 +35,13 @@ class XBeeRadio {
 public:
     XBeeRadio(SPI& spi, DigitalOut& csPin, DigitalIn& attnPin);
 
-    int get_temp(void);
+    int16_t get_temp(void);
+    int baud_rate_set(uint8_t baud_rate);
+    int set_repeat_transmissions(uint8_t repeat_count);
+    int set_network_hops(uint8_t network_hops);
+    int set_streaming_limit(uint8_t streaming_limit);
+    int set_network_identifier(char* network_identifier, int network_identifier_size);
+    int16_t get_max_transmit_size(void);
     int get_at_command(AT_COMMAND at_command, uint8_t* at_command_bytes);
     int send_at_command(AT_COMMAND at_command, uint8_t *parameters, uint parameters_size, uint8_t *resp_buf, uint resp_buf_size);
     int transmit(uint64_t destination, char *payload, int payload_size, uint8_t frameid);

@@ -38,6 +38,7 @@ int main() {
         for (uint i = 15; i < sizeof(resp_buf) - 15; i++) {
             printf("%c", resp_buf[i]);
         }
+        printf("\n");
 
         // TODO: We need to "ack" the data
     }

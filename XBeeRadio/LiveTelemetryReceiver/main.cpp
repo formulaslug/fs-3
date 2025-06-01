@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 #include "mbed.h"
+#include "stdio.h"
 #include "radio.hpp"
 
 SPI spi(PA_7, PA_6, PA_5); // mosi, miso, sclk[, ss]
@@ -12,18 +13,55 @@ DigitalIn spi_attn(PB_1);
 
 int main() {
     spi.format(8, 0);
-    spi.frequency(1000000);
+    spi.frequency(3500000);
     spi.set_default_write_value(0x00);
 
     ThisThread::sleep_for(10ms);
 
     XBeeRadio radio(spi, cs, spi_attn);
-    printf("\n\n\n\n\n\n");
+    printf("HELLO WORLD\n\n\n\n\n\n");
+
+    char network_identifier[] = {'E', 'n', 'd', ' ', 'D', 'e', 'v', 'i', 'c', 'e'};
+
+    radio.set_network_identifier(network_identifier, sizeof(network_identifier));
+
+    // radio.baud_rate_set(0x08);
+    radio.set_repeat_transmissions(0);
+    radio.set_network_hops(0);
+    radio.set_streaming_limit(0);
+    // radio.baud_rate_set(2);
+
+    // while (1) {};
+
+    uint8_t resp_buf[15] = {0};
+
+    uint8_t parameters[] = {0b01000011};
+    radio.send_at_command(TRANSMIT_OPTIONS, parameters, sizeof(parameters), resp_buf, sizeof(resp_buf));
+
+    printf("RESPONSE: ");
+    for (int i = 0; i < 15; i++) {
+        printf("%02x ", resp_buf[i]);
+    }
+    printf("\n");
+
+    printf("Max transmit size: %d\n", radio.get_max_transmit_size());
+
+    // while (1) {};
+
     int i = 0;
     while (1) {
         i++;
 
-        char payload[] = {'T', 'x', 'D', 'a', 't', 'a'};
+        // char payload[240] = {0};
+        //
+        // for (unsigned int i = 0; i < sizeof(payload); i++) {
+        //     payload[i] = 'M';
+        // }
+
+        char payload[100] = { 0 };
+
+        sprintf(payload, "%d HELLO WORLD OJDSAOISJDSAOIDJSAOIDJASOID", i);
+
         int response = radio.transmit(0, payload, sizeof(payload), 52);
 
         switch (response) {
@@ -34,9 +72,10 @@ int main() {
                 printf("No ack received!\n");
                 break;
         }
-        printf("Response: %d\n", response);
+
+        // printf("Response: %d\n", response);
         // printf("%d\n", radio.get_temp());
         // printf("%d\n", 27);
-        ThisThread::sleep_for(9000ms);
+        // ThisThread::sleep_for(9000ms);
     }
 }
