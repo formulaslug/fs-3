@@ -99,33 +99,77 @@
 
 namespace na = nanoarrow;
 
+#define ARROW_ERROR_PRINT(EXPR) \
+  do {                                            \
+    const int code = (EXPR);                                                            \
+    if (code) printf("Nanoarror error: %s: %s\n", #EXPR, error.message);                           \
+  } while (0)
+
 int main(int argc, char *argv[]) {
+    printf("Hello world!\n");
+
     SDFileSystem sd{D2, A5, A4, D3, "sd"}; // Mosi, miso, sclk, cs
     // sd.format();
     mkdir("/sd/arrow", 0777);
-    FILE *fp = fopen("/sd/arrow/test.arrow", "w");
+    FILE *file = fopen("/sd/arrow/test.arrow", "w");
+    
+    // Prepare for error handling of nanoarrow calls
+    ArrowError error;
 
-    // Create an Arrow Array, add one int to it
-    na::UniqueArray tmp;
-    ArrowArrayInitFromType(tmp.get(), NANOARROW_TYPE_INT16);
-    ArrowArrayStartAppending(tmp.get());
+    // Create an Arrow Schema for the array(s)
+    na::UniqueSchema schema_root;
+    // code = ArrowSchemaInitFromType(schema_root.get(), NANOARROW_TYPE_STRUCT);
+    ArrowSchemaInit(schema_root.get());
+    ArrowSchemaSetTypeStruct(schema_root.get(), 2);
 
-    ArrowArrayAppendUInt(tmp.get(), 12345);
+    ArrowSchema *schema_mycoolint16 = schema_root->children[0];
+    ArrowSchema *schema_somebools = schema_root->children[1];
+    ArrowSchemaInitFromType(schema_mycoolint16, NANOARROW_TYPE_INT16);
+    ArrowSchemaInitFromType(schema_somebools, NANOARROW_TYPE_BOOL);
+    ArrowSchemaSetName(schema_mycoolint16, "MyCoolInt16");
+    ArrowSchemaSetName(schema_somebools, "SomeBools");
+
+    // Create one Arrow STRUCT array, which is the main array of children.
+    // Append one INT16 array to it
+    na::UniqueArray array_root;
+    ARROW_ERROR_PRINT(ArrowArrayInitFromSchema(array_root.get(), schema_root.get(), &error));
+    ArrowArrayAllocateChildren(array_root.get(), 2);
+
+    ArrowArray *array_mycoolint16 = array_root->children[0];
+    ArrowArray *array_somebools = array_root->children[1];
+    ARROW_ERROR_PRINT(ArrowArrayInitFromSchema(array_mycoolint16, schema_mycoolint16, &error));
+    ARROW_ERROR_PRINT(ArrowArrayInitFromSchema(array_somebools, schema_somebools, &error));
+    ArrowArrayStartAppending(array_mycoolint16);
+    ArrowArrayStartAppending(array_somebools);
+    ArrowArrayReserve(array_mycoolint16, 5);
+    ArrowArrayReserve(array_somebools, 5);
+    for (int i = 0; i < 1; i++) {
+        ArrowArrayAppendInt(array_mycoolint16, 12340 + i);
+        ArrowArrayAppendUInt(array_somebools, i%2==0);
+    }
+    ARROW_ERROR_PRINT(ArrowArrayFinishBuildingDefault(array_mycoolint16, &error));
+    ARROW_ERROR_PRINT(ArrowArrayFinishBuildingDefault(array_somebools, &error));
 
     na::ipc::UniqueOutputStream out_stream;
-    ArrowIpcOutputStreamInitFile(out_stream.get(), fp, false);
+    ArrowIpcOutputStreamInitFile(out_stream.get(), file, false);
 
-    ArrowError error;
-    int code;
 
-    // Create a view onto the `tmp` array
+    // Create a view onto the int array
     na::UniqueArrayView array_view;
-    ArrowArrayViewInitFromType(array_view.get(), NANOARROW_TYPE_INT16);
-    code = ArrowArrayViewSetArray(array_view.get(), tmp.get(), &error);
-    if (code) printf("%s\n", error.message);
-    // Write to the stream using the view
-    code = ArrowIpcOutputStreamWrite(out_stream.get(), array_view->buffer_views[0], &error);
-    if (code) printf("%s\n", error.message);
+    ARROW_ERROR_PRINT(ArrowArrayViewInitFromSchema(array_view.get(), schema_root.get(), &error));
+    ARROW_ERROR_PRINT(ArrowArrayViewSetArray(array_view.get(), array_root.get(), &error));
 
+    na::ipc::UniqueWriter ipc_writer;
+    ArrowIpcWriterInit(ipc_writer.get(), out_stream.get());
+    ARROW_ERROR_PRINT(ArrowIpcWriterStartFile(ipc_writer.get(), &error));
+    ARROW_ERROR_PRINT(ArrowIpcWriterWriteSchema(ipc_writer.get(), schema_root.get(), &error));
+    ARROW_ERROR_PRINT(ArrowIpcWriterWriteArrayView(ipc_writer.get(), array_view.get(), &error));
+    ARROW_ERROR_PRINT(ArrowIpcWriterWriteArrayView(ipc_writer.get(), array_view.get(), &error));
+    ARROW_ERROR_PRINT(ArrowIpcWriterWriteArrayView(ipc_writer.get(), array_view.get(), &error));
+    ARROW_ERROR_PRINT(ArrowIpcWriterFinalizeFile(ipc_writer.get(), &error));
+
+    fclose(file);
+
+    printf("Goodbye world!\n");
     return 0;
 }
