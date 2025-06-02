@@ -11,7 +11,7 @@ include(mbed_project_setup)
 
 add_subdirectory(../../mbed-os ../../mbed-os-build)
 
-add_library(radio STATIC ../libradio/src/radio.cpp)
+add_library(radio STATIC ../libradio/src/radio.cpp ../libradio/src/packetize.cpp)
 target_link_libraries(radio mbed-os)
 
 add_executable(${PROJECT_NAME} main.cpp)

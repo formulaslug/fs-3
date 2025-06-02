@@ -1,7 +1,10 @@
 #include "radio.hpp"
+#include "packetize.hpp"
 #include "DigitalIn.h"
 #include "DigitalOut.h"
 #include <cstdint>
+
+
 
 XBeeRadio::XBeeRadio(SPI& spi, DigitalOut& csPin, DigitalIn& attnPin)
     : spi(spi), cs(csPin), spi_attn(attnPin) {
@@ -9,16 +12,16 @@ XBeeRadio::XBeeRadio(SPI& spi, DigitalOut& csPin, DigitalIn& attnPin)
 
 int16_t XBeeRadio::get_temp(void) {
 
-    uint8_t resp_buf[11] = {0};
+    uint8_t resp_buf[20] = {0};
     send_at_command(TEMPERATURE, {}, 0, resp_buf, sizeof(resp_buf));
 
     printf("RESPONSE: ");
-    for (int i = 0; i < 11; i++) {
+    for (int i = 0; i < 20; i++) {
         printf("%02x ", resp_buf[i]);
     }
     printf("\n");
 
-    return (resp_buf[8] << 8) | resp_buf[9];
+    return resp_buf[9];
 }
 
 int XBeeRadio::set_repeat_transmissions(uint8_t repeat_count) {
@@ -177,7 +180,7 @@ int XBeeRadio::send_at_command(AT_COMMAND at_command, uint8_t parameters[], uint
 
     // Start checksum
     local_at_command[3] = 0x08; // frametype
-    local_at_command[4] = rand(); // frameid
+    local_at_command[4] = 0x17; // frameid
     local_at_command[5] = at_command_bytes[0]; // at command byte 1
     local_at_command[6] = at_command_bytes[1]; // at command byte 2
 
@@ -188,7 +191,7 @@ int XBeeRadio::send_at_command(AT_COMMAND at_command, uint8_t parameters[], uint
     local_at_command[parameters_size + 7] = calculate_checksum(local_at_command + 3, 4 + parameters_size);
 
     printf("SENT: ");
-    for (unsigned int i = 0; i < parameters_size+9; i++) {
+    for (unsigned int i = 0; i < parameters_size+8; i++) {
         printf("%02x ", local_at_command[i]);
     }
     printf("\n");
@@ -211,8 +214,29 @@ int XBeeRadio::send_at_command(AT_COMMAND at_command, uint8_t parameters[], uint
     return AT_OKAY;
 }
 
+int XBeeRadio::transmit(uint8_t* payload, int payload_size) {
 
-int XBeeRadio::transmit(uint64_t destination, char *payload, int payload_size, uint8_t frameid) {
+    Packet packet;
+    packetize((uint8_t*) payload, payload_size, &packet);
+
+    for (int i = 0; i < packet.total_segments; i++) {
+
+        std::vector<uint8_t> bytes_to_send = serialize(&packet.segments[i]);
+
+        for (unsigned int n = 0; n < bytes_to_send.size(); n++) {
+            // printf("%02x ", bytes_to_send[n]);
+        }
+        // printf("\n");
+
+        transmit_raw(0x0, bytes_to_send.data(), bytes_to_send.size(), 0x69);
+
+    }
+
+    return 1;
+}
+
+
+int XBeeRadio::transmit_raw(uint64_t destination, uint8_t *payload, int payload_size, uint8_t frameid) {
 
     uint8_t transmit_command[300] = {0};
 
@@ -240,11 +264,11 @@ int XBeeRadio::transmit(uint64_t destination, char *payload, int payload_size, u
         transmit_command[17+n] = payload[n]; // rf-data
     }
     transmit_command[17+n] = calculate_checksum(transmit_command + 3, 17+n - 3); // broadcast radius
-    printf("SENT: ");
-    for (int i = 0; i < 18+n; i++) {
-        printf("%02x ", transmit_command[i]);
-    }
-    printf("\n");
+    // printf("SENT: ");
+    // for (int i = 0; i < 18+n; i++) {
+    //     printf("%02x ", transmit_command[i]);
+    // }
+    // printf("\n");
 
     uint8_t resp_buf[300] = {0};
     cs.write(0);
@@ -259,11 +283,11 @@ int XBeeRadio::transmit(uint64_t destination, char *payload, int payload_size, u
     cs.write(1);
 
     // WAIT FOR TRANSMIT RESPONSE
-    printf("RESPONSE: ");
-    for (int i = 0; i < 30; i++) {
-        printf("%02x ", resp_buf[i]);
-    }
-    printf("\n");
+    // printf("RESPONSE: ");
+    // for (int i = 0; i < 30; i++) {
+    //     printf("%02x ", resp_buf[i]);
+    // }
+    // printf("\n");
 
     if (resp_buf[4] != frameid) {
         return(NO_RESPONSE);

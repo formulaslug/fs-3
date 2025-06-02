@@ -44,7 +44,8 @@ public:
     int16_t get_max_transmit_size(void);
     int get_at_command(AT_COMMAND at_command, uint8_t* at_command_bytes);
     int send_at_command(AT_COMMAND at_command, uint8_t *parameters, uint parameters_size, uint8_t *resp_buf, uint resp_buf_size);
-    int transmit(uint64_t destination, char *payload, int payload_size, uint8_t frameid);
+    int transmit(uint8_t *payload, int payload_size);
+    int transmit_raw(uint64_t destination, uint8_t *payload, int payload_size, uint8_t frameid);
     uint8_t calculate_checksum(const uint8_t *data, size_t length);
 
 private:
