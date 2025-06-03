@@ -105,6 +105,9 @@ namespace na = nanoarrow;
     if (code) printf("Nanoarror error: %s: %s\n", #EXPR, error.message);                           \
   } while (0)
 
+#define COLS 200
+#define ROWS 10
+
 int main(int argc, char *argv[]) {
     printf("Hello world!\n");
 
@@ -120,41 +123,36 @@ int main(int argc, char *argv[]) {
     na::UniqueSchema schema_root;
     // code = ArrowSchemaInitFromType(schema_root.get(), NANOARROW_TYPE_STRUCT);
     ArrowSchemaInit(schema_root.get());
-    ArrowSchemaSetTypeStruct(schema_root.get(), 2);
+    ArrowSchemaSetTypeStruct(schema_root.get(), COLS);
 
-    ArrowSchema *schema_mycoolint16 = schema_root->children[0];
-    ArrowSchema *schema_somebools = schema_root->children[1];
-    ArrowSchemaInitFromType(schema_mycoolint16, NANOARROW_TYPE_INT16);
-    ArrowSchemaInitFromType(schema_somebools, NANOARROW_TYPE_BOOL);
-    ArrowSchemaSetName(schema_mycoolint16, "MyCoolInt16");
-    ArrowSchemaSetName(schema_somebools, "SomeBools");
+    for (int i = 0; i < COLS; i++) {
+      ArrowSchema *schema_n = schema_root->children[i];
+      ArrowSchemaInitFromType(schema_n, NANOARROW_TYPE_INT32);
+      ArrowSchemaSetName(schema_n, std::to_string(i).c_str());
+    }
 
     // Create one Arrow STRUCT array, which is the main array of children.
     // Append one INT16 array to it
     na::UniqueArray array_root;
     ARROW_ERROR_PRINT(ArrowArrayInitFromSchema(array_root.get(), schema_root.get(), &error));
-    ArrowArrayAllocateChildren(array_root.get(), 2);
+    ArrowArrayAllocateChildren(array_root.get(), COLS);
 
-    ArrowArray *array_mycoolint16 = array_root->children[0];
-    ArrowArray *array_somebools = array_root->children[1];
-    ARROW_ERROR_PRINT(ArrowArrayInitFromSchema(array_mycoolint16, schema_mycoolint16, &error));
-    ARROW_ERROR_PRINT(ArrowArrayInitFromSchema(array_somebools, schema_somebools, &error));
-    ArrowArrayStartAppending(array_mycoolint16);
-    ArrowArrayStartAppending(array_somebools);
-    ArrowArrayReserve(array_mycoolint16, 5);
-    ArrowArrayReserve(array_somebools, 5);
-    for (int i = 0; i < 1; i++) {
-        ArrowArrayAppendInt(array_mycoolint16, 12340 + i);
-        ArrowArrayAppendUInt(array_somebools, i%2==0);
+    for (int i = 0; i < COLS; i++) {
+      ArrowArray *array_n = array_root->children[i];
+      ARROW_ERROR_PRINT(ArrowArrayInitFromSchema(array_n, schema_root->children[i], &error));
+      ArrowArrayStartAppending(array_n);
+      ArrowArrayReserve(array_n, ROWS);
+      for (int i = 0; i < ROWS; i++) {
+        ArrowArrayAppendInt(array_n, 12340 + i);
+      }
+      ARROW_ERROR_PRINT(ArrowArrayFinishBuildingDefault(array_n, &error));
     }
-    ARROW_ERROR_PRINT(ArrowArrayFinishBuildingDefault(array_mycoolint16, &error));
-    ARROW_ERROR_PRINT(ArrowArrayFinishBuildingDefault(array_somebools, &error));
 
     na::ipc::UniqueOutputStream out_stream;
     ArrowIpcOutputStreamInitFile(out_stream.get(), file, false);
 
 
-    // Create a view onto the int array
+    // Create a view onto the root array (the record batch)
     na::UniqueArrayView array_view;
     ARROW_ERROR_PRINT(ArrowArrayViewInitFromSchema(array_view.get(), schema_root.get(), &error));
     ARROW_ERROR_PRINT(ArrowArrayViewSetArray(array_view.get(), array_root.get(), &error));
@@ -163,9 +161,16 @@ int main(int argc, char *argv[]) {
     ArrowIpcWriterInit(ipc_writer.get(), out_stream.get());
     ARROW_ERROR_PRINT(ArrowIpcWriterStartFile(ipc_writer.get(), &error));
     ARROW_ERROR_PRINT(ArrowIpcWriterWriteSchema(ipc_writer.get(), schema_root.get(), &error));
-    ARROW_ERROR_PRINT(ArrowIpcWriterWriteArrayView(ipc_writer.get(), array_view.get(), &error));
-    ARROW_ERROR_PRINT(ArrowIpcWriterWriteArrayView(ipc_writer.get(), array_view.get(), &error));
-    ARROW_ERROR_PRINT(ArrowIpcWriterWriteArrayView(ipc_writer.get(), array_view.get(), &error));
+
+    Timer t;
+    t.start();
+    // array_view is now a view onto a record batch with COLS columns and ROWS
+    // rows. Write it to the stream a bunch of times, and time it
+    for (int i = 0; i < 10; i++) {
+      ARROW_ERROR_PRINT(ArrowIpcWriterWriteArrayView(ipc_writer.get(), array_view.get(), &error));
+    }
+    printf("Time elapsed: %lld\n", t.elapsed_time().count()/1000);
+
     ARROW_ERROR_PRINT(ArrowIpcWriterFinalizeFile(ipc_writer.get(), &error));
 
     fclose(file);
