@@ -1,8 +1,34 @@
+import os
 import cantools
 import pyarrow as pa
 import numpy as np
 
+# See choose_float_type() for explanation
 DEFAULT_FLOAT_TOLERANCE = 0.1
+# NOTE: This mapping is NOT exhuastive
+PYARROW_TO_NANOARROW: dict[pa.DataType, str] = {
+    pa.null(): "NANOARROW_TYPE_NA",
+    pa.bool_(): "NANOARROW_TYPE_BOOL",
+    pa.int8(): "NANOARROW_TYPE_INT8",
+    pa.uint8(): "NANOARROW_TYPE_UINT8",
+    pa.int16(): "NANOARROW_TYPE_INT16",
+    pa.uint16(): "NANOARROW_TYPE_UINT16",
+    pa.int32(): "NANOARROW_TYPE_INT32",
+    pa.uint32(): "NANOARROW_TYPE_UINT32",
+    pa.int64(): "NANOARROW_TYPE_INT64",
+    pa.uint64(): "NANOARROW_TYPE_UINT64",
+    pa.float16(): "NANOARROW_TYPE_HALF_FLOAT",
+    pa.float32(): "NANOARROW_TYPE_FLOAT",
+    pa.float64(): "NANOARROW_TYPE_DOUBLE",
+    pa.float64(): "NANOARROW_TYPE_DOUBLE",
+    pa.date32(): "NANOARROW_TYPE_DATE32",
+    pa.date64(): "NANOARROW_TYPE_DATE64",
+    pa.time32("ms"): "NANOARROW_TYPE_TIME32",
+    pa.time64("ns"): "NANOARROW_TYPE_TIME64",
+    pa.timestamp("ms"): "NANOARROW_TYPE_TIMESTAMP",
+    pa.duration("ms"): "NANOARROW_TYPE_DURATION",
+}
+
 
 # Find the appropriate type to represent a given signal.
 # - If length==1, bool is used
@@ -80,31 +106,85 @@ def choose_float_type(s: cantools.db.Signal, tolerance: float):
     return pa.float64()
 
 
+def generate_nanoarrow_code(signal_to_datatype: dict[str, pa.DataType]):
+    with open("./nanoarrow_generated_from_dbc.cpp", "w") as f:
+        cols = len(signal_to_datatype)
+
+        f.writelines(
+            [
+                f"#include <nanoarrow/nanoarrow.hpp>\n",
+                f"#include <nanoarrow/nanoarrow.h>\n",
+                f"#include <nanoarrow/nanoarrow_ipc.hpp>\n",
+                f"#include <nanoarrow/nanoarrow_ipc.h>\n",
+                f"\n"
+                f"na::UniqueSchema make_nanoarrow_schema() {{\n"
+                f"  na::UniqueSchema schema_root;\n"
+                f"  ArrowSchemaInit(schema_root.get());\n"
+                f"  ArrowSchemaSetTypeStruct(schema_root.get(), {cols});\n"
+                f"  for (int i = 0; i < {cols}; i++) {{\n",
+            ]
+        )
+        for name, datatype in signal_to_datatype.items():
+            nanoarrow_type_macro = PYARROW_TO_NANOARROW[datatype]
+            f.write(
+                f"    ArrowSchemaInitFromType(schema_root->children[i], {nanoarrow_type_macro});\n"
+            )
+            f.write(f'    ArrowSchemaSetName(schema_root->children[i], "{name}");\n')
+        f.writelines(
+            [
+                "  }\n",
+                "}\n",
+            ]
+        )
+
+        f.writelines(
+            [
+                f"na::UniqueArray make_nanoarrow_array() {{\n"
+                f"  na::UniqueSchema schema_root;\n"
+                f"  ArrowSchemaInit(schema_root.get());\n"
+                f"  ArrowSchemaSetTypeStruct(schema_root.get(), {cols});\n"
+                f"  for (int i = 0; i < {cols}; i++) {{\n",
+            ]
+        )
+        f.writelines(
+            [
+                "  }\n",
+                "}\n",
+            ]
+        )
+
+
 if __name__ == "__main__":
     # for debugging purposes
-    np.set_printoptions(formatter={'float_kind':"{:.8f}".format})
+    np.set_printoptions(formatter={"float_kind": "{:.8f}".format})
 
     db = cantools.db.Database()
 
     db.add_dbc_file("../CANbus.dbc")
 
-    # signal_to_datatype: dict[str, pa.DataType] = {}
-    signal_to_datatype = {}
+    signal_to_datatype: dict[str, pa.DataType] = {}
 
     for msg in db.messages:
         for signal in msg.signals:
-            signal_to_datatype[signal.name] = (
-                get_arrow_type_for_signal(signal),
-                # signal.length,
-                # signal.offset,
-                # signal.scale,
-                # signal.minimum,
-                # signal.maximum,
-            )
+            signal_to_datatype[signal.name] = get_arrow_type_for_signal(signal)
+            # signal_to_datatype[signal.name] = (
+            #     get_arrow_type_for_signal(signal),
+            #     signal.length,
+            #     signal.offset,
+            #     signal.scale,
+            #     signal.minimum,
+            #     signal.maximum,
+            # )
 
-    # __import__("pprint").pprint(signal_to_datatype)
-    for k, v in signal_to_datatype.items():
-        v: str = str(v)
-        v = v.removeprefix("(DataType(")
-        v = v.removesuffix("),)")
-        print("{:33s} {}".format(k, v))
+    # sum = 0
+    # for o in signal_to_datatype.values():
+    #     o: pa.DataType
+    #     sum += o.bit_width
+    # print(sum / len(signal_to_datatype))
+
+    # for k, v in signal_to_datatype.items():
+    #     v = str(v).removeprefix("(DataType(")
+    #     v = v.removesuffix("),)")
+    #     print("{:33s} {}".format(k, v))
+
+    generate_nanoarrow_code(signal_to_datatype)
