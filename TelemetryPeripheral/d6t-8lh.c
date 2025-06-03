@@ -14,7 +14,7 @@ uint8_t rbuf[N_READ];
 double d6t_8lh_ptat;
 double d6t_8lh_pix_data[N_PIXEL];
 
-uint8_t calc_crc(uint8_t data) {
+uint8_t d6t_8lh_calc_crc(uint8_t data) {
     int index;
     uint8_t temp;
     for (index = 0; index < 8; index++) {
@@ -31,11 +31,11 @@ uint8_t calc_crc(uint8_t data) {
  * calculate the data sequence,
  * from an I2C Read client address (8bit) to thermal data end.
  */
-bool D6T_checkPEC(uint8_t buf[], int n) {
+bool d6t_8lh_checkPEC(uint8_t buf[], int n) {
     int i;
-    uint8_t crc = calc_crc((D6T_ADDR << 1) | 1); // I2C Read address (8bit)
+    uint8_t crc = d6t_8lh_calc_crc((D6T_ADDR << 1) | 1); // I2C Read address (8bit)
     for (i = 0; i < n; i++) {
-        crc = calc_crc(buf[i] ^ crc);
+        crc = d6t_8lh_calc_crc(buf[i] ^ crc);
     }
     bool ret = crc != buf[n];
     // Attiny doesn't have easy serial debug :/
@@ -50,7 +50,7 @@ bool D6T_checkPEC(uint8_t buf[], int n) {
 }
 
 /* convert a 16bit data from the byte stream. */
-int16_t conv8us_s16_le(uint8_t *buf, int n) {
+int16_t d6t_8lh_conv8us_s16_le(uint8_t *buf, int n) {
     uint16_t ret;
     ret = (uint16_t)buf[n];
     ret += ((uint16_t)buf[n + 1]) << 8;
@@ -97,13 +97,13 @@ void d6t_8lh_loop() {
 
     I2C0_example_readDataBlock(D6T_ADDR, D6T_CMD, rbuf, N_READ);
 
-    D6T_checkPEC(rbuf, N_READ - 1);
+    d6t_8lh_checkPEC(rbuf, N_READ - 1);
 
     // Convert to temperature data (degC)
-    d6t_8lh_ptat = (double)conv8us_s16_le(rbuf, 0) / 10.0;
+    d6t_8lh_ptat = (double)d6t_8lh_conv8us_s16_le(rbuf, 0) / 10.0;
 
     for (i = 0; i < N_PIXEL; i++) {
-        itemp = conv8us_s16_le(rbuf, 2 + 2 * i);
+        itemp = d6t_8lh_conv8us_s16_le(rbuf, 2 + 2 * i);
         d6t_8lh_pix_data[i] = (double)itemp / 5.0;
     }
 

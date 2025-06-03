@@ -7,16 +7,16 @@
 double d6t_1a_ptat;
 double d6t_1a_pix_data[N_PIXEL];
 
-uint8_t calc_crc(uint8_t data);
+uint8_t d6t_1a_calc_crc(uint8_t data);
 
 /* D6T PEC(Packet Error Check) calculation.
  * calculate the data sequence,
  * from an I2C Read client address (8bit) to thermal data end.
  */
-bool D6T_checkPEC(uint8_t buf[], int n);
+bool d6t_1a_checkPEC(uint8_t buf[], int n);
 
 /* convert a 16bit data from the byte stream. */
-int16_t conv8us_s16_le(uint8_t *buf, int n);
+int16_t d6t_1a_conv8us_s16_le(uint8_t *buf, int n);
 
 /* setup:
  * 1. Initialize
