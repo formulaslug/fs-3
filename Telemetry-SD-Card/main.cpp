@@ -127,7 +127,7 @@ int main(int argc, char *argv[]) {
 
     for (int i = 0; i < COLS; i++) {
       ArrowSchema *schema_n = schema_root->children[i];
-      ArrowSchemaInitFromType(schema_n, NANOARROW_TYPE_TIMESTAMP);
+      ArrowSchemaInitFromType(schema_n, NANOARROW_TYPE_INT16);
       ArrowSchemaSetName(schema_n, std::to_string(i).c_str());
     }
 
