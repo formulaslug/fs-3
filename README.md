@@ -6,3 +6,5 @@ Projects in this repo require different build toolchains. To make sure that you 
 __FOR ALL TEAM MEMBERS:__ Create a fork on your personal github and start pull requests when you are ready to submit your work.
 
 
+## Requirements
+Python 3.10 or below.
