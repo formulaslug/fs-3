@@ -1,0 +1,19 @@
+# ninja log v6
+1	332	1748922306391098018	CMakeFiles/TelemetryPeripheral_default_default_AVR_GCC_compile.dir/Users/novamondal/Documents/FS/fs-3/TelemetryPeripheral/main.c.o	6451bb3c9151d32c
+520	602	1748922306991177903	/Users/novamondal/Documents/FS/fs-3/TelemetryPeripheral/out/TelemetryPeripheral/default.elf	86e6e3cb9aa2cdf0
+520	602	1748922306991177903	TelemetryPeripheral_default_default.elf	86e6e3cb9aa2cdf0
+287	468	1748922306677056374	CMakeFiles/TelemetryPeripheral_default_default_AVR_GCC_compile.dir/Users/novamondal/Documents/FS/fs-3/TelemetryPeripheral/mcc_generated_files/src/spi0.c.o	76c7334c5cbe9c04
+213	376	1748922306602889465	CMakeFiles/TelemetryPeripheral_default_default_AVR_GCC_compile.dir/Users/novamondal/Documents/FS/fs-3/TelemetryPeripheral/mcc_generated_files/src/cpuint.c.o	1ea10b2cae6a841e
+1	342	1748922306390923144	CMakeFiles/TelemetryPeripheral_default_default_AVR_GCC_compile.dir/Users/novamondal/Documents/FS/fs-3/TelemetryPeripheral/d6t-8lh.c.o	51574bc2c07571bb
+1	233	1748922306391429976	CMakeFiles/TelemetryPeripheral_default_default_AVR_GCC_compile.dir/Users/novamondal/Documents/FS/fs-3/TelemetryPeripheral/mcc_generated_files/device_config.c.o	e66bd415c8c90e39
+3	317	1748922306392557433	CMakeFiles/TelemetryPeripheral_default_default_AVR_GCC_compile.dir/Users/novamondal/Documents/FS/fs-3/TelemetryPeripheral/mcc_generated_files/examples/twi0_master_example.c.o	d5b2b9439867d1ca
+0	213	1748922306390467102	CMakeFiles/TelemetryPeripheral_default_default_AVR_GCC_assembleWithPreprocess.dir/Users/novamondal/Documents/FS/fs-3/TelemetryPeripheral/mcc_generated_files/src/protected_io.S.o	16a7a5ce60fa62a
+233	420	1748922306622632858	CMakeFiles/TelemetryPeripheral_default_default_AVR_GCC_compile.dir/Users/novamondal/Documents/FS/fs-3/TelemetryPeripheral/mcc_generated_files/src/pin_manager.c.o	78e045bcc25a8f55
+1	351	1748922306390698727	CMakeFiles/TelemetryPeripheral_default_default_AVR_GCC_compile.dir/Users/novamondal/Documents/FS/fs-3/TelemetryPeripheral/d6t-1a.c.o	1da3d9a8c0332126
+2	352	1748922306392023642	CMakeFiles/TelemetryPeripheral_default_default_AVR_GCC_compile.dir/Users/novamondal/Documents/FS/fs-3/TelemetryPeripheral/mcc_generated_files/drivers/i2c_simple_master.c.o	5dc85abc5d20f660
+3	289	1748922306392758141	CMakeFiles/TelemetryPeripheral_default_default_AVR_GCC_compile.dir/Users/novamondal/Documents/FS/fs-3/TelemetryPeripheral/mcc_generated_files/mcc.c.o	836b6f5dba282a67
+3	308	1748922306393128807	CMakeFiles/TelemetryPeripheral_default_default_AVR_GCC_compile.dir/Users/novamondal/Documents/FS/fs-3/TelemetryPeripheral/mcc_generated_files/src/adc0.c.o	f4cc356ce0d5a4cb
+3	321	1748922306393308765	CMakeFiles/TelemetryPeripheral_default_default_AVR_GCC_compile.dir/Users/novamondal/Documents/FS/fs-3/TelemetryPeripheral/mcc_generated_files/src/adc1.c.o	4faed3c1810fce6d
+1	301	1748922306391277893	CMakeFiles/TelemetryPeripheral_default_default_AVR_GCC_compile.dir/Users/novamondal/Documents/FS/fs-3/TelemetryPeripheral/mcc_generated_files/delay.c.o	dc98e3155758c596
+289	520	1748922306679089621	CMakeFiles/TelemetryPeripheral_default_default_AVR_GCC_compile.dir/Users/novamondal/Documents/FS/fs-3/TelemetryPeripheral/mcc_generated_files/src/twi0_master.c.o	fc034396e4b1963
+2	287	1748922306392257267	CMakeFiles/TelemetryPeripheral_default_default_AVR_GCC_compile.dir/Users/novamondal/Documents/FS/fs-3/TelemetryPeripheral/mcc_generated_files/drivers/spi_master.c.o	52c2b840c69b3a62

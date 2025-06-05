@@ -31,6 +31,10 @@ struct EvePanel {
   uint8_t pclk;     // pixel‑clock divisor (0 = off, n = PLL/n)
 };
 
+#define success true
+#define failure false
+typedef bool Result;
+
 /**
  * @brief Handy pre-defined panel timings.
  *
@@ -88,7 +92,7 @@ public:
 
   // Public facing API
   void init(const EvePanel &panel);
-  void startFrame();                           // CMD_DLSTART + CLEAR
+  Result startFrame();                         // CMD_DLSTART + CLEAR
   void clear(uint8_t r, uint8_t g, uint8_t b); // CLEAR_COLOR + CLEAR
 
   void drawText(int16_t x,
@@ -309,7 +313,7 @@ private:
   uint32_t read32(uint32_t addr);
   void cmd(uint32_t word);
   void cmdString(const char *s);
-  void cmdWait();
+  Result cmdWait(); // success = true
   void cmdLoadRomFonts(uint8_t handle, uint8_t font);
 
   // Internal data

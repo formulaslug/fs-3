@@ -59,7 +59,9 @@ void Layouts::drawStandardLayout(Faults faults,
                                  float brake_demand,
                                  std::chrono::milliseconds time,
                                  double delta_time_seconds) {
-  startFrame();
+  if (failure == startFrame()) {
+    return;
+  }
   clear(255, 255, 255); // black background for frame
   setMainColor(black);
   drawProgressBar(Point{220, 10},

@@ -1,0 +1,371 @@
+{
+	"artifacts" : 
+	[
+		{
+			"path" : "CMakeFiles/TelemetryPeripheral_default_default_AVR_GCC_compile.dir/./Users/novamondal/Documents/FS/fs-3/TelemetryPeripheral/d6t-1a.c.o"
+		},
+		{
+			"path" : "CMakeFiles/TelemetryPeripheral_default_default_AVR_GCC_compile.dir/./Users/novamondal/Documents/FS/fs-3/TelemetryPeripheral/d6t-8lh.c.o"
+		},
+		{
+			"path" : "CMakeFiles/TelemetryPeripheral_default_default_AVR_GCC_compile.dir/./Users/novamondal/Documents/FS/fs-3/TelemetryPeripheral/main.c.o"
+		},
+		{
+			"path" : "CMakeFiles/TelemetryPeripheral_default_default_AVR_GCC_compile.dir/./Users/novamondal/Documents/FS/fs-3/TelemetryPeripheral/mcc_generated_files/delay.c.o"
+		},
+		{
+			"path" : "CMakeFiles/TelemetryPeripheral_default_default_AVR_GCC_compile.dir/./Users/novamondal/Documents/FS/fs-3/TelemetryPeripheral/mcc_generated_files/device_config.c.o"
+		},
+		{
+			"path" : "CMakeFiles/TelemetryPeripheral_default_default_AVR_GCC_compile.dir/./Users/novamondal/Documents/FS/fs-3/TelemetryPeripheral/mcc_generated_files/drivers/i2c_simple_master.c.o"
+		},
+		{
+			"path" : "CMakeFiles/TelemetryPeripheral_default_default_AVR_GCC_compile.dir/./Users/novamondal/Documents/FS/fs-3/TelemetryPeripheral/mcc_generated_files/drivers/spi_master.c.o"
+		},
+		{
+			"path" : "CMakeFiles/TelemetryPeripheral_default_default_AVR_GCC_compile.dir/./Users/novamondal/Documents/FS/fs-3/TelemetryPeripheral/mcc_generated_files/examples/twi0_master_example.c.o"
+		},
+		{
+			"path" : "CMakeFiles/TelemetryPeripheral_default_default_AVR_GCC_compile.dir/./Users/novamondal/Documents/FS/fs-3/TelemetryPeripheral/mcc_generated_files/mcc.c.o"
+		},
+		{
+			"path" : "CMakeFiles/TelemetryPeripheral_default_default_AVR_GCC_compile.dir/./Users/novamondal/Documents/FS/fs-3/TelemetryPeripheral/mcc_generated_files/src/adc0.c.o"
+		},
+		{
+			"path" : "CMakeFiles/TelemetryPeripheral_default_default_AVR_GCC_compile.dir/./Users/novamondal/Documents/FS/fs-3/TelemetryPeripheral/mcc_generated_files/src/adc1.c.o"
+		},
+		{
+			"path" : "CMakeFiles/TelemetryPeripheral_default_default_AVR_GCC_compile.dir/./Users/novamondal/Documents/FS/fs-3/TelemetryPeripheral/mcc_generated_files/src/cpuint.c.o"
+		},
+		{
+			"path" : "CMakeFiles/TelemetryPeripheral_default_default_AVR_GCC_compile.dir/./Users/novamondal/Documents/FS/fs-3/TelemetryPeripheral/mcc_generated_files/src/pin_manager.c.o"
+		},
+		{
+			"path" : "CMakeFiles/TelemetryPeripheral_default_default_AVR_GCC_compile.dir/./Users/novamondal/Documents/FS/fs-3/TelemetryPeripheral/mcc_generated_files/src/spi0.c.o"
+		},
+		{
+			"path" : "CMakeFiles/TelemetryPeripheral_default_default_AVR_GCC_compile.dir/./Users/novamondal/Documents/FS/fs-3/TelemetryPeripheral/mcc_generated_files/src/twi0_master.c.o"
+		}
+	],
+	"backtrace" : 3,
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"add_library",
+			"include",
+			"target_compile_options",
+			"TelemetryPeripheral_default_default_AVR_GCC_compile_rule",
+			"target_compile_definitions",
+			"add_definitions",
+			"target_include_directories"
+		],
+		"files" : 
+		[
+			".generated/main.cmake",
+			"CMakeLists.txt",
+			".generated/rule.cmake",
+			"user.cmake"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 1
+			},
+			{
+				"command" : 1,
+				"file" : 1,
+				"line" : 19,
+				"parent" : 0
+			},
+			{
+				"file" : 0,
+				"parent" : 1
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 22,
+				"parent" : 2
+			},
+			{
+				"command" : 3,
+				"file" : 0,
+				"line" : 23,
+				"parent" : 2
+			},
+			{
+				"command" : 2,
+				"file" : 2,
+				"line" : 55,
+				"parent" : 4
+			},
+			{
+				"command" : 4,
+				"file" : 2,
+				"line" : 56,
+				"parent" : 4
+			},
+			{
+				"command" : 1,
+				"file" : 1,
+				"line" : 8,
+				"parent" : 0
+			},
+			{
+				"file" : 3,
+				"parent" : 7
+			},
+			{
+				"command" : 5,
+				"file" : 3,
+				"line" : 31,
+				"parent" : 8
+			},
+			{
+				"command" : 6,
+				"file" : 2,
+				"line" : 59,
+				"parent" : 4
+			}
+		]
+	},
+	"compileGroups" : 
+	[
+		{
+			"compileCommandFragments" : 
+			[
+				{
+					"backtrace" : 5,
+					"fragment" : "-g"
+				},
+				{
+					"backtrace" : 5,
+					"fragment" : "-gdwarf-2"
+				},
+				{
+					"backtrace" : 5,
+					"fragment" : "-mmcu=attiny1616"
+				},
+				{
+					"backtrace" : 5,
+					"fragment" : "-B/Users/novamondal/.mchp_packs/Microchip/ATtiny_DFP/3.2.268/gcc/dev/attiny1616"
+				},
+				{
+					"backtrace" : 5,
+					"fragment" : "-x"
+				},
+				{
+					"backtrace" : 5,
+					"fragment" : "c"
+				},
+				{
+					"backtrace" : 5,
+					"fragment" : "-c"
+				},
+				{
+					"backtrace" : 5,
+					"fragment" : "-funsigned-char"
+				},
+				{
+					"backtrace" : 5,
+					"fragment" : "-funsigned-bitfields"
+				},
+				{
+					"backtrace" : 5,
+					"fragment" : "-O1"
+				},
+				{
+					"backtrace" : 5,
+					"fragment" : "-ffunction-sections"
+				},
+				{
+					"backtrace" : 5,
+					"fragment" : "-fdata-sections"
+				},
+				{
+					"backtrace" : 5,
+					"fragment" : "-fpack-struct"
+				},
+				{
+					"backtrace" : 5,
+					"fragment" : "-fshort-enums"
+				},
+				{
+					"backtrace" : 5,
+					"fragment" : "-Wall"
+				}
+			],
+			"defines" : 
+			[
+				{
+					"backtrace" : 6,
+					"define" : "__ATtiny1616__"
+				},
+				{
+					"backtrace" : 9,
+					"define" : "__AVR_DEVICE_NAME__=attiny1616"
+				},
+				{
+					"backtrace" : 9,
+					"define" : "__AVR_DEV_LIB_NAME__=tn1616"
+				},
+				{
+					"backtrace" : 6,
+					"define" : "default=default"
+				}
+			],
+			"includes" : 
+			[
+				{
+					"backtrace" : 10,
+					"path" : "/Users/novamondal/.mchp_packs/Microchip/ATtiny_DFP/3.2.268/include"
+				}
+			],
+			"language" : "C",
+			"sourceIndexes" : 
+			[
+				0,
+				1,
+				2,
+				3,
+				4,
+				5,
+				6,
+				7,
+				8,
+				9,
+				10,
+				11,
+				12,
+				13,
+				14
+			]
+		}
+	],
+	"id" : "TelemetryPeripheral_default_default_AVR_GCC_compile::@6890427a1f51a3e7e1df",
+	"name" : "TelemetryPeripheral_default_default_AVR_GCC_compile",
+	"paths" : 
+	{
+		"build" : ".",
+		"source" : "."
+	},
+	"sourceGroups" : 
+	[
+		{
+			"name" : "Source Files",
+			"sourceIndexes" : 
+			[
+				0,
+				1,
+				2,
+				3,
+				4,
+				5,
+				6,
+				7,
+				8,
+				9,
+				10,
+				11,
+				12,
+				13,
+				14
+			]
+		}
+	],
+	"sources" : 
+	[
+		{
+			"backtrace" : 3,
+			"compileGroupIndex" : 0,
+			"path" : "/Users/novamondal/Documents/FS/fs-3/TelemetryPeripheral/d6t-1a.c",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 3,
+			"compileGroupIndex" : 0,
+			"path" : "/Users/novamondal/Documents/FS/fs-3/TelemetryPeripheral/d6t-8lh.c",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 3,
+			"compileGroupIndex" : 0,
+			"path" : "/Users/novamondal/Documents/FS/fs-3/TelemetryPeripheral/main.c",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 3,
+			"compileGroupIndex" : 0,
+			"path" : "/Users/novamondal/Documents/FS/fs-3/TelemetryPeripheral/mcc_generated_files/delay.c",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 3,
+			"compileGroupIndex" : 0,
+			"path" : "/Users/novamondal/Documents/FS/fs-3/TelemetryPeripheral/mcc_generated_files/device_config.c",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 3,
+			"compileGroupIndex" : 0,
+			"path" : "/Users/novamondal/Documents/FS/fs-3/TelemetryPeripheral/mcc_generated_files/drivers/i2c_simple_master.c",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 3,
+			"compileGroupIndex" : 0,
+			"path" : "/Users/novamondal/Documents/FS/fs-3/TelemetryPeripheral/mcc_generated_files/drivers/spi_master.c",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 3,
+			"compileGroupIndex" : 0,
+			"path" : "/Users/novamondal/Documents/FS/fs-3/TelemetryPeripheral/mcc_generated_files/examples/twi0_master_example.c",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 3,
+			"compileGroupIndex" : 0,
+			"path" : "/Users/novamondal/Documents/FS/fs-3/TelemetryPeripheral/mcc_generated_files/mcc.c",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 3,
+			"compileGroupIndex" : 0,
+			"path" : "/Users/novamondal/Documents/FS/fs-3/TelemetryPeripheral/mcc_generated_files/src/adc0.c",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 3,
+			"compileGroupIndex" : 0,
+			"path" : "/Users/novamondal/Documents/FS/fs-3/TelemetryPeripheral/mcc_generated_files/src/adc1.c",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 3,
+			"compileGroupIndex" : 0,
+			"path" : "/Users/novamondal/Documents/FS/fs-3/TelemetryPeripheral/mcc_generated_files/src/cpuint.c",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 3,
+			"compileGroupIndex" : 0,
+			"path" : "/Users/novamondal/Documents/FS/fs-3/TelemetryPeripheral/mcc_generated_files/src/pin_manager.c",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 3,
+			"compileGroupIndex" : 0,
+			"path" : "/Users/novamondal/Documents/FS/fs-3/TelemetryPeripheral/mcc_generated_files/src/spi0.c",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 3,
+			"compileGroupIndex" : 0,
+			"path" : "/Users/novamondal/Documents/FS/fs-3/TelemetryPeripheral/mcc_generated_files/src/twi0_master.c",
+			"sourceGroupIndex" : 0
+		}
+	],
+	"type" : "OBJECT_LIBRARY"
+}

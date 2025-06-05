@@ -225,21 +225,31 @@ void BT817Q::cmdString(const char *s) {
   _cs = 1;
 }
 
-void BT817Q::cmdWait() {
-  while (read32(REG_CMD_READ) != _cmd_wp) {
-  }
+// void BT817Q::cmdWait() {
+//   while (read32(REG_CMD_READ) != _cmd_wp) {
+//   }
+// }
+
+Result BT817Q::cmdWait() {
+  if (read32(REG_CMD_READ) != _cmd_wp)
+    return failure;
+  return success;
 }
 
-void BT817Q::startFrame() {
-  _cmd_wp = 0;
-  write32(REG_CMD_WRITE, 0);
-  cmd(CMD_DLSTART);
+Result BT817Q::startFrame() {
+  if (cmdWait() == success) {
+    _cmd_wp = 0;
+    write32(REG_CMD_WRITE, 0);
+    cmd(CMD_DLSTART);
+    return success;
+  }
+  return failure;
 }
 
 void BT817Q::endFrame() {
   cmd(DISPLAY);
   cmd(CMD_SWAP);
-  cmdWait();
+  // cmdWait();
 
   // Start pixel clock *once* (enabled forever after first swap)
   if (read32(REG_PCLK) == 0) {
