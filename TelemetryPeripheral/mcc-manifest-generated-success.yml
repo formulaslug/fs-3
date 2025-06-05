@@ -2,13 +2,13 @@
 
 manifest_file_version: 1.0.0
 project: N/A
-creation_date: 2025-05-22T21:57:46.729-07:00[America/Los_Angeles]
-operating_system: Linux
+creation_date: 2025-06-02T20:49:42.377-07:00[America/Los_Angeles]
+operating_system: Windows 11
 mcc_mode: Standalone
-mcc_mode_version: 5.5.1
+mcc_mode_version: 5.5.3
 device_name: ATtiny1616
 compiler: N/A
-mcc_version: 5.5.1
+mcc_version: 5.5.3
 mcc_core_version: 5.7.1
 content_manager_version: 5.0.1
 is_mcc_offline: false

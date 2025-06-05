@@ -3,6 +3,7 @@ set(TelemetryPeripheral_default_default_AVR_GCC_FILE_TYPE_assemble)
 set(TelemetryPeripheral_default_default_AVR_GCC_FILE_TYPE_assembleWithPreprocess "${CMAKE_CURRENT_SOURCE_DIR}/../../../mcc_generated_files/src/protected_io.S")
 set_source_files_properties(${TelemetryPeripheral_default_default_AVR_GCC_FILE_TYPE_assembleWithPreprocess} PROPERTIES LANGUAGE C)
 set(TelemetryPeripheral_default_default_AVR_GCC_FILE_TYPE_compile
+    "${CMAKE_CURRENT_SOURCE_DIR}/../../../d6t-1a.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/../../../d6t-8lh.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/../../../main.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/../../../mcc_generated_files/delay.c"

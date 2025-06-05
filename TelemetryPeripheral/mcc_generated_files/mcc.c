@@ -43,8 +43,8 @@ void SYSTEM_Initialize(void)
     WDT_Initialize();
     CLKCTRL_Initialize();
     SLPCTRL_Initialize();
-    SPI0_Initialize();
     I2C0_Initialize();
+    SPI0_Initialize();
     ADC1_Initialize();
     ADC0_Initialize();
     CPUINT_Initialize();

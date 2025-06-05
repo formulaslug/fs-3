@@ -67,8 +67,8 @@
       </entry>
    </usedClasses>
    <usedLibraries class="java.util.ArrayList">
-      <ILibraryFile class="com.microchip.mcc.core.library.BaseLibraryFile" libraryClass="com.microchip.mcc.mcu8.Mcu8AVRPeripheralLibrary" version="2.9.1"/>
       <ILibraryFile class="com.microchip.mcc.core.library.BaseLibraryFile" libraryClass="com.microchip.mcc.foundationservices.library.FoundationServicesLibrary" version="0.2.3"/>
+      <ILibraryFile class="com.microchip.mcc.core.library.BaseLibraryFile" libraryClass="com.microchip.mcc.mcu8.Mcu8AVRPeripheralLibrary" version="2.9.1"/>
    </usedLibraries>
    <tokenMap class="java.util.TreeMap">
       <entry>
@@ -129,7 +129,7 @@
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="ADC0" name="PIN_AIN9"/>
-         <value></value>
+         <value>AIN9</value>
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="ADC0" name="adcClkPer"/>
@@ -177,7 +177,7 @@
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="ADC0" name="selectedChannels"/>
-         <value>{&quot;type&quot;:&quot;table&quot;,&quot;key&quot;:&quot;selectedChannels&quot;,&quot;dataArray&quot;: [{&quot;Pin&quot;:&quot;Internal Channel&quot;,&quot;Channel&quot;:&quot;Temp_sensor/DAC1&quot;,&quot;Custom Name&quot;:&quot;channel_Temp sensor/DAC1&quot;},{&quot;Pin&quot;:&quot;Internal Channel&quot;,&quot;Channel&quot;:&quot;GND&quot;,&quot;Custom Name&quot;:&quot;channel_GND&quot;},{&quot;Pin&quot;:&quot;Internal Channel&quot;,&quot;Channel&quot;:&quot;DAC0/DAC0&quot;,&quot;Custom Name&quot;:&quot;channel_DAC0/DAC0&quot;},{&quot;Pin&quot;:&quot;Internal Channel&quot;,&quot;Channel&quot;:&quot;Internal_Ref&quot;,&quot;Custom Name&quot;:&quot;channel_Internal Ref&quot;},{&quot;Pin&quot;:&quot;Internal Channel&quot;,&quot;Channel&quot;:&quot;PTC/DAC2&quot;,&quot;Custom Name&quot;:&quot;channel_PTC/DAC2&quot;}] }</value>
+         <value>{&quot;type&quot;:&quot;table&quot;,&quot;key&quot;:&quot;selectedChannels&quot;,&quot;dataArray&quot;: [{&quot;Pin&quot;:&quot;PIN_AIN9&quot;,&quot;Channel&quot;:&quot;PIN_AIN9&quot;,&quot;Custom Name&quot;:&quot;channel_PIN_AIN9&quot;},{&quot;Pin&quot;:&quot;Internal Channel&quot;,&quot;Channel&quot;:&quot;Temp_sensor/DAC1&quot;,&quot;Custom Name&quot;:&quot;channel_Temp sensor/DAC1&quot;},{&quot;Pin&quot;:&quot;Internal Channel&quot;,&quot;Channel&quot;:&quot;GND&quot;,&quot;Custom Name&quot;:&quot;channel_GND&quot;},{&quot;Pin&quot;:&quot;Internal Channel&quot;,&quot;Channel&quot;:&quot;Internal_Ref&quot;,&quot;Custom Name&quot;:&quot;channel_Internal Ref&quot;},{&quot;Pin&quot;:&quot;Internal Channel&quot;,&quot;Channel&quot;:&quot;PTC/DAC2&quot;,&quot;Custom Name&quot;:&quot;channel_PTC/DAC2&quot;},{&quot;Pin&quot;:&quot;Internal Channel&quot;,&quot;Channel&quot;:&quot;DAC0/DAC0&quot;,&quot;Custom Name&quot;:&quot;channel_DAC0/DAC0&quot;}] }</value>
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="ADC0" name="smpAcmNumber"/>
@@ -689,11 +689,11 @@
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="ADC1" name="PIN_AIN2"/>
-         <value></value>
+         <value>AIN2</value>
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="ADC1" name="PIN_AIN3"/>
-         <value></value>
+         <value>AIN3</value>
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="ADC1" name="PIN_AIN6"/>
@@ -701,11 +701,11 @@
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="ADC1" name="PIN_AIN7"/>
-         <value></value>
+         <value>AIN7</value>
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="ADC1" name="PIN_AIN8"/>
-         <value></value>
+         <value>AIN8</value>
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="ADC1" name="PIN_AIN9"/>
@@ -757,7 +757,7 @@
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="ADC1" name="selectedChannels"/>
-         <value>{&quot;type&quot;:&quot;table&quot;,&quot;key&quot;:&quot;selectedChannels&quot;,&quot;dataArray&quot;: [{&quot;Pin&quot;:&quot;PIN_AIN6&quot;,&quot;Channel&quot;:&quot;PIN_AIN6&quot;,&quot;Custom Name&quot;:&quot;channel_PIN_AIN6&quot;},{&quot;Pin&quot;:&quot;PIN_AIN1&quot;,&quot;Channel&quot;:&quot;PIN_AIN1&quot;,&quot;Custom Name&quot;:&quot;channel_PIN_AIN1&quot;},{&quot;Pin&quot;:&quot;Internal Channel&quot;,&quot;Channel&quot;:&quot;GND&quot;,&quot;Custom Name&quot;:&quot;channel_GND&quot;},{&quot;Pin&quot;:&quot;Internal Channel&quot;,&quot;Channel&quot;:&quot;Internal_Ref&quot;,&quot;Custom Name&quot;:&quot;channel_Internal Ref&quot;},{&quot;Pin&quot;:&quot;Internal Channel&quot;,&quot;Channel&quot;:&quot;Temp_sensor/DAC1&quot;,&quot;Custom Name&quot;:&quot;channel_Temp sensor/DAC1&quot;},{&quot;Pin&quot;:&quot;Internal Channel&quot;,&quot;Channel&quot;:&quot;DAC0/DAC0&quot;,&quot;Custom Name&quot;:&quot;channel_DAC0/DAC0&quot;},{&quot;Pin&quot;:&quot;Internal Channel&quot;,&quot;Channel&quot;:&quot;PTC/DAC2&quot;,&quot;Custom Name&quot;:&quot;channel_PTC/DAC2&quot;}] }</value>
+         <value>{&quot;type&quot;:&quot;table&quot;,&quot;key&quot;:&quot;selectedChannels&quot;,&quot;dataArray&quot;: [{&quot;Pin&quot;:&quot;PIN_AIN3&quot;,&quot;Channel&quot;:&quot;PIN_AIN3&quot;,&quot;Custom Name&quot;:&quot;channel_PIN_AIN3&quot;},{&quot;Pin&quot;:&quot;PIN_AIN2&quot;,&quot;Channel&quot;:&quot;PIN_AIN2&quot;,&quot;Custom Name&quot;:&quot;channel_PIN_AIN2&quot;},{&quot;Pin&quot;:&quot;PIN_AIN7&quot;,&quot;Channel&quot;:&quot;PIN_AIN7&quot;,&quot;Custom Name&quot;:&quot;channel_PIN_AIN7&quot;},{&quot;Pin&quot;:&quot;PIN_AIN6&quot;,&quot;Channel&quot;:&quot;PIN_AIN6&quot;,&quot;Custom Name&quot;:&quot;channel_PIN_AIN6&quot;},{&quot;Pin&quot;:&quot;PIN_AIN8&quot;,&quot;Channel&quot;:&quot;PIN_AIN8&quot;,&quot;Custom Name&quot;:&quot;channel_PIN_AIN8&quot;},{&quot;Pin&quot;:&quot;PIN_AIN1&quot;,&quot;Channel&quot;:&quot;PIN_AIN1&quot;,&quot;Custom Name&quot;:&quot;channel_PIN_AIN1&quot;},{&quot;Pin&quot;:&quot;Internal Channel&quot;,&quot;Channel&quot;:&quot;GND&quot;,&quot;Custom Name&quot;:&quot;channel_GND&quot;},{&quot;Pin&quot;:&quot;Internal Channel&quot;,&quot;Channel&quot;:&quot;DAC0/DAC0&quot;,&quot;Custom Name&quot;:&quot;channel_DAC0/DAC0&quot;},{&quot;Pin&quot;:&quot;Internal Channel&quot;,&quot;Channel&quot;:&quot;Internal_Ref&quot;,&quot;Custom Name&quot;:&quot;channel_Internal Ref&quot;},{&quot;Pin&quot;:&quot;Internal Channel&quot;,&quot;Channel&quot;:&quot;Temp_sensor/DAC1&quot;,&quot;Custom Name&quot;:&quot;channel_Temp sensor/DAC1&quot;},{&quot;Pin&quot;:&quot;Internal Channel&quot;,&quot;Channel&quot;:&quot;PTC/DAC2&quot;,&quot;Custom Name&quot;:&quot;channel_PTC/DAC2&quot;}] }</value>
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="ADC1" name="smpAcmNumber"/>
@@ -1825,11 +1825,11 @@
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="I2CSIMPLE" name="pubSubI2CSIMPLE_I2CMASTER/Functions"/>
-         <value>9750.008082943115</value>
+         <value>2131.1873056467257</value>
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="I2CSIMPLE" name="useCaseComboBoxSettings"/>
-         <value>Communication with EEPROM 24LC256</value>
+         <value>None</value>
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="Interrupt Manager" name="interruptLevelPriority"/>
@@ -3521,7 +3521,7 @@
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.RegisterKey" moduleName="Pin Module" registerAlias="PORTA.PIN6CTRL"/>
-         <value>0</value>
+         <value>4</value>
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.RegisterKey" moduleName="Pin Module" registerAlias="PORTA.PIN7CTRL"/>
@@ -3585,7 +3585,7 @@
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.RegisterKey" moduleName="Pin Module" registerAlias="PORTB.PIN4CTRL"/>
-         <value>0</value>
+         <value>4</value>
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.RegisterKey" moduleName="Pin Module" registerAlias="PORTB.PIN5CTRL"/>
@@ -3645,11 +3645,11 @@
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.RegisterKey" moduleName="Pin Module" registerAlias="PORTC.PIN1CTRL"/>
-         <value>0</value>
+         <value>4</value>
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.RegisterKey" moduleName="Pin Module" registerAlias="PORTC.PIN2CTRL"/>
-         <value>0</value>
+         <value>4</value>
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.RegisterKey" moduleName="Pin Module" registerAlias="PORTC.PIN3CTRL"/>
@@ -3853,7 +3853,7 @@
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.SettingKey" moduleName="Pin Module" registerAlias="PORTA.PIN6CTRL" settingAlias="ISC"/>
-         <value>INTDISABLE</value>
+         <value>INPUT_DISABLE</value>
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.SettingKey" moduleName="Pin Module" registerAlias="PORTA.PIN6CTRL" settingAlias="PULLUPEN"/>
@@ -3965,7 +3965,7 @@
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.SettingKey" moduleName="Pin Module" registerAlias="PORTB.PIN4CTRL" settingAlias="ISC"/>
-         <value>INTDISABLE</value>
+         <value>INPUT_DISABLE</value>
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.SettingKey" moduleName="Pin Module" registerAlias="PORTB.PIN4CTRL" settingAlias="PULLUPEN"/>
@@ -4065,7 +4065,7 @@
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.SettingKey" moduleName="Pin Module" registerAlias="PORTC.PIN1CTRL" settingAlias="ISC"/>
-         <value>INTDISABLE</value>
+         <value>INPUT_DISABLE</value>
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.SettingKey" moduleName="Pin Module" registerAlias="PORTC.PIN1CTRL" settingAlias="PULLUPEN"/>
@@ -4077,7 +4077,7 @@
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.SettingKey" moduleName="Pin Module" registerAlias="PORTC.PIN2CTRL" settingAlias="ISC"/>
-         <value>INTDISABLE</value>
+         <value>INPUT_DISABLE</value>
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.SettingKey" moduleName="Pin Module" registerAlias="PORTC.PIN2CTRL" settingAlias="PULLUPEN"/>
@@ -4809,11 +4809,11 @@
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="SPIMASTER" name="pubSubSPIMASTERConfigurations"/>
-         <value>7948.099625981464</value>
+         <value>6868.272368965921</value>
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="SPIMASTER" name="pubSubspiSubscriber"/>
-         <value>3277.2216287106125</value>
+         <value>6541.3546642550655</value>
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="SPIMASTER" name="spiSubscriber"/>
@@ -4825,7 +4825,7 @@
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="SPIMASTER" name="validate"/>
-         <value>0.98452691081473</value>
+         <value>0.6015196605996197</value>
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.PropertyTokenKey" moduleName="SPIMASTER" name="spiConfigurations%0%dataInputSample"/>
@@ -6174,167 +6174,167 @@
          <hash>ad6433d2c98b42e7128f2ebaca15eb375df8a83f923bb0a884d7b0373577396a</hash>
       </entry>
       <entry>
-         <file>mcc_generated_files/config/clock_config.h</file>
+         <file>mcc_generated_files\config\clock_config.h</file>
          <hash>0eef55377da22021f94443d2ed2dc3a7fc65dc18ea9316108a625d6eb3ada96d</hash>
       </entry>
       <entry>
-         <file>mcc_generated_files/delay.c</file>
+         <file>mcc_generated_files\delay.c</file>
          <hash>af652206ea697459b5368c63f1c35cf478272404e79f1cbe903a83cc5ff8a055</hash>
       </entry>
       <entry>
-         <file>mcc_generated_files/delay.h</file>
+         <file>mcc_generated_files\delay.h</file>
          <hash>dda77102dba9adc0f9aef1c8c542cfee6d6cccc96446f4cd1bf07be2150a4d95</hash>
       </entry>
       <entry>
-         <file>mcc_generated_files/device_config.c</file>
+         <file>mcc_generated_files\device_config.c</file>
          <hash>271b142b99b41a0ed6b7de73ac249563d8fff98b3398824e4eb54a43d55cb738</hash>
       </entry>
       <entry>
-         <file>mcc_generated_files/docs/delay.dox</file>
+         <file>mcc_generated_files\docs\delay.dox</file>
          <hash>13d4874d789b563dd4499efacd71882cbc38f8459da91ac17f13fa76079be93b</hash>
       </entry>
       <entry>
-         <file>mcc_generated_files/docs/i2c_simple.dox</file>
+         <file>mcc_generated_files\docs\i2c_simple.dox</file>
          <hash>1192d1c2a9473538887a2fae1d9c6e67d9d7833010dccb831311a503f3a29da6</hash>
       </entry>
       <entry>
-         <file>mcc_generated_files/docs/spi.dox</file>
+         <file>mcc_generated_files\docs\spi.dox</file>
          <hash>518908892e2d8bc846cfc4b846e70d96c4f59fab7dbddc55fadee679aeaa9697</hash>
       </entry>
       <entry>
-         <file>mcc_generated_files/docs/spi_basic.dox</file>
+         <file>mcc_generated_files\docs\spi_basic.dox</file>
          <hash>a44690903480f96ed2a8a1605d29c339aca8ac9770e946ae77260a559aa40a6a</hash>
       </entry>
       <entry>
-         <file>mcc_generated_files/drivers/i2c_simple_master.c</file>
+         <file>mcc_generated_files\drivers\i2c_simple_master.c</file>
          <hash>4934131287d96972c82479efb388d8bd4746d5961343b8d4fc6c56588e196c2c</hash>
       </entry>
       <entry>
-         <file>mcc_generated_files/drivers/i2c_simple_master.h</file>
+         <file>mcc_generated_files\drivers\i2c_simple_master.h</file>
          <hash>d268c6dab66cb1c4549b92cb2f6a6f64b7ac1d953ce4c3fd765ec69ca7bdd2f9</hash>
       </entry>
       <entry>
-         <file>mcc_generated_files/drivers/spi_master.c</file>
+         <file>mcc_generated_files\drivers\spi_master.c</file>
          <hash>b7e5385c3c80b718143fac505e1b97da896f5e7a5ea269652a92ef8096c1d6fc</hash>
       </entry>
       <entry>
-         <file>mcc_generated_files/drivers/spi_master.h</file>
+         <file>mcc_generated_files\drivers\spi_master.h</file>
          <hash>48531d4d878cc73a58ea2a2c567c30d046fd6337dd3a57937b3677cd5de97975</hash>
       </entry>
       <entry>
-         <file>mcc_generated_files/examples/twi0_master_example.c</file>
+         <file>mcc_generated_files\examples\twi0_master_example.c</file>
          <hash>411ac92380fbee0d6e1811c4fb328206454b687266067a2ee7c64238945ec87c</hash>
       </entry>
       <entry>
-         <file>mcc_generated_files/examples/twi0_master_example.h</file>
+         <file>mcc_generated_files\examples\twi0_master_example.h</file>
          <hash>02898479c3945bf2c96bdb80fe183ef68161725d4823d952b9a6db2ad4ebd7cc</hash>
       </entry>
       <entry>
-         <file>mcc_generated_files/include/adc0.h</file>
+         <file>mcc_generated_files\include\adc0.h</file>
          <hash>5d385b77496a32395b6baf2b5c8723319b82121749f86543e5934ca06a97d4b0</hash>
       </entry>
       <entry>
-         <file>mcc_generated_files/include/adc1.h</file>
+         <file>mcc_generated_files\include\adc1.h</file>
          <hash>745410a18970845307f71e61cb8421b2f6b3caaf33a64c9e4fa2dd7ae7de52ee</hash>
       </entry>
       <entry>
-         <file>mcc_generated_files/include/ccp.h</file>
+         <file>mcc_generated_files\include\ccp.h</file>
          <hash>60059cb974788916ec20d13197b009f4436b347f7eed014aa44aaebf6c516ff1</hash>
       </entry>
       <entry>
-         <file>mcc_generated_files/include/cpuint.h</file>
+         <file>mcc_generated_files\include\cpuint.h</file>
          <hash>802591ef9a8f76d82a9ebdd96dac4c62c9a3c56d991188efaebd5ec3ca4228e2</hash>
       </entry>
       <entry>
-         <file>mcc_generated_files/include/pin_manager.h</file>
-         <hash>f45dd318ecee06119f55bbd7263aee8dd7677b1eb71cf8a48b607c74fe0cd04e</hash>
+         <file>mcc_generated_files\include\pin_manager.h</file>
+         <hash>29372058ca8d0c851fedb3ed3e3dece8c04d7f2cda80f28f6ba273d0996ee34c</hash>
       </entry>
       <entry>
-         <file>mcc_generated_files/include/port.h</file>
+         <file>mcc_generated_files\include\port.h</file>
          <hash>ec36cbe1b794a19f6f116963b634f9609ffb79e1169a46faa7849485e9817c9c</hash>
       </entry>
       <entry>
-         <file>mcc_generated_files/include/protected_io.h</file>
+         <file>mcc_generated_files\include\protected_io.h</file>
          <hash>1dd02ce5af5c0f4624172e0ef0bb52d6c8bacb87beabf9d7129d684def52db23</hash>
       </entry>
       <entry>
-         <file>mcc_generated_files/include/rstctrl.h</file>
+         <file>mcc_generated_files\include\rstctrl.h</file>
          <hash>3aaf94dcc7f4f51ce811c4b290f1dbcd29748fb231cb4d3e7f27f49586651c83</hash>
       </entry>
       <entry>
-         <file>mcc_generated_files/include/spi0.h</file>
+         <file>mcc_generated_files\include\spi0.h</file>
          <hash>74b9c215f02e00d0e913c81a03d813c5bd5879c6ecd96bed4a33e9b0467f7570</hash>
       </entry>
       <entry>
-         <file>mcc_generated_files/include/twi0_master.h</file>
+         <file>mcc_generated_files\include\twi0_master.h</file>
          <hash>7bdf02c982b14ff6b82ca56b02a4fdee4e44c5d7f3fa1a32973f77a121284a14</hash>
       </entry>
       <entry>
-         <file>mcc_generated_files/mcc.c</file>
-         <hash>11030c91b4d521e343e9030ad98e03d55bd409ae30bf3b27193583701546d4f7</hash>
+         <file>mcc_generated_files\mcc.c</file>
+         <hash>c5e651fd26de7b64aea30ea0ebb7e89d66df9ced5012e4e0ec3a342f9e22e660</hash>
       </entry>
       <entry>
-         <file>mcc_generated_files/mcc.h</file>
-         <hash>f240eda98e3193e26bcde5a4032dd3ee3bad734847ce7cefd677f9f79f8a9783</hash>
+         <file>mcc_generated_files\mcc.h</file>
+         <hash>2e70db419c43560e86044f0ea5ee95c47e8ea46a6fe2f663ad52d8a257635f77</hash>
       </entry>
       <entry>
-         <file>mcc_generated_files/src/adc0.c</file>
+         <file>mcc_generated_files\src\adc0.c</file>
          <hash>664f24ee7a30653188cb102b7f1ad0b00e70c03a621a5fb7a648044736b53d92</hash>
       </entry>
       <entry>
-         <file>mcc_generated_files/src/adc1.c</file>
+         <file>mcc_generated_files\src\adc1.c</file>
          <hash>ec4649fe04869582028fd61fd02146a40c9f58623537c2a1239183335a520e86</hash>
       </entry>
       <entry>
-         <file>mcc_generated_files/src/cpuint.c</file>
+         <file>mcc_generated_files\src\cpuint.c</file>
          <hash>caeb52768999d91897f0ac3b19f4b61e8089d3306ffface466d36a3b680d875d</hash>
       </entry>
       <entry>
-         <file>mcc_generated_files/src/pin_manager.c</file>
-         <hash>3968de51acc260474ea6546c90b8db6669c5164548d53820cda686e5499f14ea</hash>
+         <file>mcc_generated_files\src\pin_manager.c</file>
+         <hash>ce4e68b76c5a5c922b7fe7341c748a88174af2ef6d968e32c2343b58e57eb86b</hash>
       </entry>
       <entry>
-         <file>mcc_generated_files/src/protected_io.S</file>
+         <file>mcc_generated_files\src\protected_io.S</file>
          <hash>69d7d2c54bccf38027e4950b66dadc2d9c0be7a2523ffbe4648ec79e87f33522</hash>
       </entry>
       <entry>
-         <file>mcc_generated_files/src/spi0.c</file>
+         <file>mcc_generated_files\src\spi0.c</file>
          <hash>6ee138c259f0d490a4a733a634e14d7ea0f8b004fe8daed007cdbfa2a076fba5</hash>
       </entry>
       <entry>
-         <file>mcc_generated_files/src/twi0_master.c</file>
+         <file>mcc_generated_files\src\twi0_master.c</file>
          <hash>66f65a0483d1a70e7806c0b70437562b7b4b455cd112823bfd3d54e1d32772b0</hash>
       </entry>
       <entry>
-         <file>mcc_generated_files/utils/assembler.h</file>
+         <file>mcc_generated_files\utils\assembler.h</file>
          <hash>90b346ff1c59de9e2d44827ebdb0d696965fdfc8a741bc69a880a8ebc2bf61cc</hash>
       </entry>
       <entry>
-         <file>mcc_generated_files/utils/assembler/gas.h</file>
+         <file>mcc_generated_files\utils\assembler\gas.h</file>
          <hash>6fac20a6e59d9458cc34007cdb9727d244bdc11df5fe1b3b6d17948ab26809c3</hash>
       </entry>
       <entry>
-         <file>mcc_generated_files/utils/assembler/iar.h</file>
+         <file>mcc_generated_files\utils\assembler\iar.h</file>
          <hash>02efe91f6b4b8b31e5d6141c604f6f918f641f26433ffc12de9de3106df36a2e</hash>
       </entry>
       <entry>
-         <file>mcc_generated_files/utils/atomic.h</file>
+         <file>mcc_generated_files\utils\atomic.h</file>
          <hash>80e018fe02cd0c54394bb9a54dcf927d346410567dc6dded62bea9b49e322acf</hash>
       </entry>
       <entry>
-         <file>mcc_generated_files/utils/compiler.h</file>
+         <file>mcc_generated_files\utils\compiler.h</file>
          <hash>3f2d7b47b12f2ecbd4c3971644ea7ecd10d2562fc8605a4495bd597eb0f59750</hash>
       </entry>
       <entry>
-         <file>mcc_generated_files/utils/interrupt_avr8.h</file>
+         <file>mcc_generated_files\utils\interrupt_avr8.h</file>
          <hash>98adc596175f2e76d4d918685cf050032a3efb605901edb6be0a35dda05a57e9</hash>
       </entry>
       <entry>
-         <file>mcc_generated_files/utils/utils.h</file>
+         <file>mcc_generated_files\utils\utils.h</file>
          <hash>38ff19ccdabdd432c321983f3c9190d1767c6e2ac0dc1bba384fc36c62989559</hash>
       </entry>
       <entry>
-         <file>mcc_generated_files/utils/utils_assert.h</file>
+         <file>mcc_generated_files\utils\utils_assert.h</file>
          <hash>002db199835943a5e634d5e9904119d0f50eb94af5300454791a93c81c5353b7</hash>
       </entry>
    </generatedFileHashHistoryMap>
