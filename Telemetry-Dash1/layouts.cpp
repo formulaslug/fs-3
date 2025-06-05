@@ -16,7 +16,9 @@ Layouts::Layouts(PinName mosi,
 void Layouts::drawTestLayout(int var) {
   uint8_t alpha = std::floor(double(var) / 800.0 * 255);
 
-  startFrame();
+  if (failure == startFrame()) {
+    return;
+  }
   clear(255, 255, 255);
   uint8_t alpha2 = 255 - alpha;
   drawRect(Point{400, 200}, Point{600, 350}, Color{0, 255, 255, alpha2}, 64);
@@ -167,22 +169,25 @@ void Layouts::drawStandardLayout(Faults faults,
   drawRect(Point{750, brake_bar_h}, Point{782, 480}, red);
   endFrame();
 }
+
 void Layouts::drawStandardLayout2(Faults faults,
-                                 uint8_t speed,
-                                 uint8_t soc,
-                                 uint8_t acc_temp,
-                                 uint8_t ctrl_tmp,
-                                 uint8_t mtr_tmp,
-                                 float mtr_volt,
-                                 float glv,
-                                 float brake_balance,
-                                 float throttle_demand,
-                                 float brake_demand,
-                                 std::chrono::milliseconds time,
-                                 double delta_time_seconds,
-                                 bool rtds,
-                                 uint16_t rpm) {
-  startFrame();
+                                  uint8_t speed,
+                                  uint8_t soc,
+                                  uint8_t acc_temp,
+                                  uint8_t ctrl_tmp,
+                                  uint8_t mtr_tmp,
+                                  float mtr_volt,
+                                  float glv,
+                                  float brake_balance,
+                                  float throttle_demand,
+                                  float brake_demand,
+                                  std::chrono::milliseconds time,
+                                  double delta_time_seconds,
+                                  bool rtds,
+                                  uint16_t rpm) {
+  if (failure == startFrame()) {
+    return;
+  }
   clear(255, 255, 255); // black background for frame
   setMainColor(black);
   drawProgressBar(Point{220, 10},
@@ -216,25 +221,27 @@ void Layouts::drawStandardLayout2(Faults faults,
     drawFormattedText(400, 100, "%03d", 1, OPT_CENTER, speed);
 
     drawText(185, 235, "TACH", 21);
-    uint16_t tachPos = 211 + 426*(rpm/7500);
+    uint16_t tachPos = 211 + 426 * (rpm / 7500);
     drawRect(Point{211, 207}, Point{589, 260}, mid_gray);
     drawRect(Point{211, 207}, Point{tachPos, 260}, green);
-    drawText(406, 270,"0        1        2        3        4        5        6        7        ", 23);
+    drawText(406,
+             270,
+             "0        1        2        3        4        5        6        7 "
+             "       ",
+             23);
 
     drawText(638, 30, "SOC", 24);
     drawFormattedText(637, 79, "%02d", 2, OPT_CENTER, soc);
 
     for (int i = 1; i <= 25; i++) {
       // segmented soc
-      uint16_t segTopLeftY = 490 - i*19;
+      uint16_t segTopLeftY = 490 - i * 19;
       uint16_t segBotRightY = segTopLeftY - 10;
-      if (soc > i*4) {
+      if (soc > i * 4) {
         drawRect(Point{700, segTopLeftY}, Point{795, segBotRightY}, orange);
-      }
-      else if (soc > (i-1)*4) {
+      } else if (soc > (i - 1) * 4) {
         drawRect(Point{700, segTopLeftY}, Point{795, segBotRightY}, red);
-      }
-      else {
+      } else {
         drawRect(Point{700, segTopLeftY}, Point{795, segBotRightY}, mid_gray);
       }
     }
@@ -258,7 +265,8 @@ void Layouts::drawStandardLayout2(Faults faults,
     drawFormattedText(70, 210, "ACC    %03dC", 24, OPT_CENTER, acc_temp);
     drawFormattedText(70, 240, "CTRL  %03dC", 24, OPT_CENTER, ctrl_tmp);
     drawFormattedText(70, 270, "MTR    %03dC", 24, OPT_CENTER, mtr_tmp);
-    drawFormattedText(70, 300, "MC       %03.1fV  ", 24, OPT_CENTER, mtr_volt); // voltages
+    drawFormattedText(
+        70, 300, "MC       %03.1fV  ", 24, OPT_CENTER, mtr_volt); // voltages
     drawFormattedText(70, 330, "GLV     %03.1fV  ", 24, OPT_CENTER, glv);
 
     drawRect(Point{614, 127}, Point{637, 310}, mid_gray);

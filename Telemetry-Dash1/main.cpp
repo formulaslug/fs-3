@@ -15,7 +15,8 @@ int main() {
   // eve.drawText(400, 240, 31, "Hello World", BT817Q::OPT_CENTER);
   // eve.endFrame();
 
-  Layouts::StandardLayoutParams p{.faults = Faults{0, 0, 1}, .soc = 60, .acc_temp = 80};
+  Layouts::StandardLayoutParams p{
+      .faults = Faults{0, 0, 1}, .soc = 60, .acc_temp = 80};
   ThisThread::sleep_for(10ms);
   eve.startFrame();
   eve.clear(0, 0, 0);
@@ -23,7 +24,7 @@ int main() {
   ThisThread::sleep_for(10ms);
 
   while (true) {
-    //eve.drawStandardLayout(p);
+    // eve.drawStandardLayout(p);
     eve.drawStandardLayout2(p);
     // eve.drawTestLayout(var);
     // eve.drawStandardLayout(Layouts::StandardLayoutParams{.faults =

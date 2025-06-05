@@ -231,8 +231,9 @@ void BT817Q::cmdString(const char *s) {
 // }
 
 Result BT817Q::cmdWait() {
-  if (read32(REG_CMD_READ) != _cmd_wp)
+  if (read32(REG_CMD_READ) != _cmd_wp) {
     return failure;
+  }
   return success;
 }
 
