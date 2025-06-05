@@ -1,0 +1,36 @@
+cmake_minimum_required(VERSION 3.19)
+cmake_policy(VERSION 3.19...3.22)
+
+set(MBED_APP_JSON_PATH mbed_app.json5)
+set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
+
+include(../mbed-os/tools/cmake/mbed_toolchain_setup.cmake)
+project(TelemetryMain
+        LANGUAGES C CXX ASM)
+include(../mbed-os/tools/cmake/mbed_project_setup.cmake)
+
+add_subdirectory(../mbed-os ../mbed-os-build)
+
+add_library(FATFileSystem STATIC ../Telemetry-SD-Card/FATFileSystem/FATDirHandle.cpp ../Telemetry-SD-Card/FATFileSystem/FATFileHandle.cpp ../Telemetry-SD-Card/FATFileSystem/FATFileSystem.cpp ../Telemetry-SD-Card/FATFileSystem/ChaN/ccsbcs.cpp ../Telemetry-SD-Card/FATFileSystem/ChaN/diskio.cpp ../Telemetry-SD-Card/FATFileSystem/ChaN/ff.cpp)
+target_include_directories(FATFileSystem
+        PUBLIC ../Telemetry-SD-Card/FATFileSystem
+        PUBLIC ../Telemetry-SD-Card/FATFileSystem/ChaN)
+target_link_libraries(FATFileSystem PUBLIC mbed-core-flags) # This is needed so that the library can access Mbed includes
+
+add_library(BT817Q STATIC ../Telemetry-Dash1/BT817Q.cpp
+        ../Telemetry-Dash1/ui.h
+        ../Telemetry-Dash1/layouts.cpp
+        ../Telemetry-Dash1/layouts.h)
+target_include_directories(BT817Q
+        PUBLIC ../Telemetry-Dash1/)
+target_link_libraries(FATFileSystem PUBLIC mbed-core-flags) # This is needed so that the library can access Mbed includes
+target_link_libraries(BT817Q mbed-os)
+
+add_library(SDFileSystem STATIC ../Telemetry-SD-Card/SDFileSystem/SDFileSystem.cpp)
+target_include_directories(SDFileSystem INTERFACE SDFileSystem)
+target_link_libraries(SDFileSystem PUBLIC mbed-core-flags) # This is needed so that the library can access Mbed includes
+target_link_libraries(SDFileSystem PUBLIC FATFileSystem)
+
+add_executable(${PROJECT_NAME} main.cpp)
+target_link_libraries(${PROJECT_NAME} mbed-os FATFileSystem SDFileSystem BT817Q) # Can also link to mbed-baremetal here
+mbed_set_post_build(${PROJECT_NAME})
