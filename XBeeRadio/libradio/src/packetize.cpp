@@ -1,6 +1,7 @@
 #include <cstdint>
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
 #include <packetize.hpp>
 #include <vector>
 
@@ -9,17 +10,16 @@ int unpacketize(uint8_t *data, Packet *packet) {
     if (packet->initialized == false) {
         packet->total_segments = data[0];
         packet->initialized = true;
+        packet->id = data[3];
         packet->segments.reserve(packet->total_segments);
     }
 
     Segment *segment = &packet->segments[data[1]];
 
-    segment->total_segments = data[0];
-    segment->segment_number = data[1];
-    segment->data_size = data[2];
-
-    for (int i = 3; i < segment->data_size + 3; i++) {
-        segment->data[i - 3] = data[i];
+    memcpy(segment->segment_data, data, segment->data_size+4);
+    if (segment->packet_id != packet->id) {
+        printf("WARNING: Packets came out of order, data loss expected (ID %02x != %02x)\n", segment->packet_id, packet->id);
+        return INVALID_PACKET;
     }
 
     return PACKETIZE_SUCCESS;
@@ -30,6 +30,7 @@ int packetize(uint8_t *data, int data_size, Packet *packet) {
     packet->total_segments =
         (data_size + (MAX_SEGMENT_DATA_LENGTH - 1)) / MAX_SEGMENT_DATA_LENGTH;
     packet->segments.reserve(packet->total_segments);
+    packet->id = rand();
 
 
     int data_index = 0;
@@ -39,6 +40,8 @@ int packetize(uint8_t *data, int data_size, Packet *packet) {
         Segment *segment = &packet->segments[current_segment];
         segment->total_segments = packet->total_segments;
         segment->segment_number = current_segment;
+        printf("Setting packet id for %d to %02x!\n", current_segment, packet->id);
+        segment->packet_id = packet->id;
         int segment_data_size = 0;
 
         if (data_index >= data_size) {
@@ -64,16 +67,18 @@ int packetize(uint8_t *data, int data_size, Packet *packet) {
 
 std::vector<uint8_t> serialize(Segment *segment) {
 
-    std::vector<uint8_t> bytes_to_send(segment->data_size + 4);
-    bytes_to_send = {segment->total_segments, segment->segment_number, segment->data_size};
+    return std::vector<uint8_t>(segment->segment_data, segment->segment_data + segment->data_size + 4);
 
-    // printf("data size: %d\n", segment->data_size);
-    for (int i = 0; i < segment->data_size; i++) {
-        bytes_to_send.push_back(segment->data[i]);
-    }
-
-    return bytes_to_send;
-
+    // std::vector<uint8_t> bytes_to_send(segment->data_size + 4);
+    // bytes_to_send = {segment->total_segments, segment->segment_number, segment->data_size};
+    //
+    // // printf("data size: %d\n", segment->data_size);
+    // for (int i = 0; i < segment->data_size; i++) {
+    //     bytes_to_send.push_back(segment->data[i]);
+    // }
+    //
+    // return bytes_to_send;
+    //
 }
 
 bool is_complete_packet(Packet *packet) {

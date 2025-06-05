@@ -58,7 +58,7 @@ int XBeeRadio::set_streaming_limit(uint8_t streaming_limit) {
     uint8_t resp_buf[15] = {0};
 
     uint8_t parameters[] = {streaming_limit};
-    send_at_command(STREAMING_LIMIT, parameters, sizeof(parameters), resp_buf, sizeof(resp_buf));
+    send_at_command(MAC_MODE, parameters, sizeof(parameters), resp_buf, sizeof(resp_buf));
 
     printf("RESPONSE: ");
     for (int i = 0; i < 15; i++) {
@@ -161,6 +161,16 @@ int XBeeRadio::get_at_command(AT_COMMAND at_command, uint8_t at_command_bytes[])
             at_command_bytes[1] = 'O';
             return 1;
             break;
+        case CCE_THRESHOLD:
+            at_command_bytes[0] = 'C';
+            at_command_bytes[1] = 'A';
+            return 1;
+            break;
+        case MAC_MODE:
+            at_command_bytes[0] = 'M';
+            at_command_bytes[1] = 'M';
+            return 1;
+            break;
 
         }
 }
@@ -200,11 +210,20 @@ int XBeeRadio::send_at_command(AT_COMMAND at_command, uint8_t parameters[], uint
     spi.write(local_at_command, parameters_size+8, nullptr, 0);
     cs.write(1);
 
-    while (spi_attn.read()) {
-    }
+    while (spi_attn.read()) {}
 
     cs.write(0);
-    spi.write(nullptr, 0, resp_buf, resp_buf_size);
+    uint8_t start_buf[1] = { 0 };
+    do {
+        spi.write(nullptr, 0, start_buf, 1);
+        printf("%02x\n", start_buf[0]);
+    } while (start_buf[0] != 0x7E);
+    cs.write(1);
+
+    resp_buf[0] = 0x7E;
+
+    cs.write(0);
+    spi.write(nullptr, 0, resp_buf + 1, resp_buf_size - 1);
     cs.write(1);
 
     if (resp_buf[resp_buf_size - 1] != calculate_checksum(resp_buf, resp_buf_size - 1)) {
@@ -224,9 +243,9 @@ int XBeeRadio::transmit(uint8_t* payload, int payload_size) {
         std::vector<uint8_t> bytes_to_send = serialize(&packet.segments[i]);
 
         for (unsigned int n = 0; n < bytes_to_send.size(); n++) {
-            // printf("%02x ", bytes_to_send[n]);
+            printf("%02x ", bytes_to_send[n]);
         }
-        // printf("\n");
+        printf("\n");
 
         transmit_raw(0x0, bytes_to_send.data(), bytes_to_send.size(), 0x69);
 
@@ -238,7 +257,7 @@ int XBeeRadio::transmit(uint8_t* payload, int payload_size) {
 
 int XBeeRadio::transmit_raw(uint64_t destination, uint8_t *payload, int payload_size, uint8_t frameid) {
 
-    uint8_t transmit_command[300] = {0};
+    uint8_t transmit_command[1000] = {0};
 
     transmit_command[0] = 0x7E;
 

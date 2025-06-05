@@ -14,7 +14,11 @@ SPI spi(PA_7, PA_6, PA_5);
 
 void test_packetize() {
 
-    uint8_t data[] = "This data will need to split into multiple segments1";
+    uint8_t data[600] = { 0 };
+
+    for (unsigned int i = 0; i < sizeof(data); i++) {
+        data[i] = 'X';
+    }
 
     Packet packet;
     packetize(data, sizeof(data), &packet);
@@ -43,7 +47,8 @@ void test_packetize() {
         }
         printf("\n");
 
-        unpacketize(bytes_to_send.data(), &deserialized_packet);
+        int status = unpacketize(bytes_to_send.data(), &deserialized_packet);
+        printf("status (%d)", status);
     }
     for (int i = 0; i < deserialized_packet.total_segments; i++) {
         printf("Segment %d (datasize: %d): ", i, deserialized_packet.segments[i].data_size);
@@ -92,15 +97,25 @@ int main() {
         } while (start_buf[0] != 0x7E);
         cs.write(1);
 
-        uint8_t resp_buf[300] = {0x7E, 0};
+        uint8_t resp_buf[200] = {0x7E, 0};
         cs.write(0);
         spi.write(nullptr, 0, resp_buf + 1, sizeof(resp_buf));
         cs.write(1);
 
-        unpacketize(resp_buf+8, &deserialized_packet);
+        // printf("-%d dBm ", resp_buf[6]);
+        int status = unpacketize(resp_buf+8, &deserialized_packet);
+        if (status == INVALID_PACKET) {
+            printf("Partial packet received!\n");
+            // We should treat this as an entirely new packet
+            deserialized_packet = {};
+            received_segment_count = 0;
+            unpacketize(resp_buf+8, &deserialized_packet);
+        }
         received_segment_count++;
+        printf("-%d-", received_segment_count);
 
         if (received_segment_count >= deserialized_packet.total_segments) {
+            printf("Total segments %d", deserialized_packet.total_segments);
             for (int i = 0; i < deserialized_packet.total_segments; i++) {
                 for (int n = 0; n < deserialized_packet.segments[i].data_size; n++) {
 
@@ -113,9 +128,10 @@ int main() {
                         t.start();
                     }
                     
-                    // printf("%c", deserialized_packet.segments[i].data[n]);
+                    printf("%c", deserialized_packet.segments[i].data[n]);
                 }
             }
+            printf("\n");
             deserialized_packet = {};
             received_segment_count = 0;
         }
@@ -129,7 +145,6 @@ int main() {
         //     printf("%c", resp_buf[i]);
         // }
 
-        // printf("RSSI: -%d dBm", resp_buf[6]);
 
         // TODO: We need to "ack" the data
     }
