@@ -27,6 +27,8 @@ class CANWrapper {
     Ticker throttleTicker;
     /** Ticker to send regular sync messages. */
     Ticker syncTicker;
+    /** Ticker to send regular current limits messages. */
+    Ticker limitsTicker;
     /** Ticker to send regular ETC state summary messages. */
     Ticker stateTicker;
 

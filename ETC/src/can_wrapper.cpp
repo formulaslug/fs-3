@@ -24,7 +24,7 @@ CANWrapper::CANWrapper(ETCController& etcController, EventFlags& events)
         this->globalEvents.set(CANWrapper::STATE_FLAG);
     }), 100ms);
 
-    this->stateTicker.attach(callback([this]() {
+    this->limitsTicker.attach(callback([this]() {
         this->globalEvents.set(CANWrapper::LIMITS_FLAG);
     }), 100ms);
 
@@ -55,6 +55,7 @@ void CANWrapper::sendThrottle() {
     throttleMessage.data[7] = 0x00;
 
     this->bus->write(throttleMessage);
+    ThisThread::sleep_for(1ms);
 }
 
 
@@ -63,6 +64,7 @@ void CANWrapper::sendSync() {
     CANMessage syncMessage(0x80, data, 0);
 
     this->bus->write(syncMessage);
+    ThisThread::sleep_for(1ms);
 }
 
 
@@ -81,7 +83,7 @@ void CANWrapper::sendState() {
     stateMessage.data[4] = static_cast<uint8_t>(static_cast<int16_t>(state.brakes_read * 1000) & 0xFF);
     stateMessage.data[5] = static_cast<uint8_t>(static_cast<int16_t>(state.brakes_read * 1000) >> 8);
 
-    stateMessage.data[6] = static_cast<uint8_t>(state.pedal_travel * 255);
+    stateMessage.data[6] = static_cast<uint8_t>(state.pedal_travel * 100);
 
     stateMessage.data[7] =
         (state.cockpit) |
@@ -93,6 +95,7 @@ void CANWrapper::sendState() {
         (state.ts_ready << 6);
 
     this->bus->write(stateMessage);
+    ThisThread::sleep_for(1ms);
 }
 
 
@@ -113,7 +116,8 @@ void CANWrapper::sendCurrentLimits() {
     currentMessage.data[6] = 0x00;
     currentMessage.data[7] = 0x00;
 
-    this->bus->write(currentMessage);    
+    this->bus->write(currentMessage);
+    ThisThread::sleep_for(1ms);
 }
 
 
