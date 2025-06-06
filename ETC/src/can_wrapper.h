@@ -40,12 +40,18 @@ public:
 
     /** The flag bit indicating a throttle message needs to be sent. */
     static constexpr int32_t THROTTLE_FLAG = (1UL << 0);
+
     /** The flag bit indicating a sync message needs to be sent. */
     static constexpr int32_t SYNC_FLAG = (1UL << 1);
+
     /** The flag bit indicating a state message needs to be sent. */
     static constexpr int32_t STATE_FLAG = (1UL << 2);
+
+    /** The flag bit indicating a current limits flag needs to be sent. */
+    static constexpr int32_t LIMITS_FLAG = (1UL << 3);
+
     /** The flag bit indicating received messages need to be processed. */
-    static constexpr int32_t RX_FLAG = (1UL << 3);
+    static constexpr int32_t RX_FLAG = (1UL << 4);
 
 
     /**

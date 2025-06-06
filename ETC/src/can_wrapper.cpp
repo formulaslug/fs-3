@@ -9,6 +9,7 @@ CANWrapper::CANWrapper(ETCController& etcController, EventFlags& events)
       etc(etcController)
 {
     this->bus = new CAN(CANWrapper::CAN_RX_PIN, CANWrapper::CAN_TX_PIN, CANWrapper::CAN_FREQUENCY);
+    this->bus->filter(0x186, 0xFFFF, CANAny);
 
     // Start regular ISR routine for sending
     this->throttleTicker.attach(callback([this]() {
@@ -21,6 +22,10 @@ CANWrapper::CANWrapper(ETCController& etcController, EventFlags& events)
 
     this->stateTicker.attach(callback([this]() {
         this->globalEvents.set(CANWrapper::STATE_FLAG);
+    }), 100ms);
+
+    this->stateTicker.attach(callback([this]() {
+        this->globalEvents.set(CANWrapper::LIMITS_FLAG);
     }), 100ms);
 
     // Set up CAN receive ISR
@@ -86,19 +91,6 @@ void CANWrapper::sendState() {
         (state.motor_enabled << 4) |
         (this->etc.hasImplausibility() << 5) |
         (state.ts_ready << 6);
-    
-
-    stateMessage.data[0] =
-        (0x01 & state.ts_ready) |
-        ((0x01 & state.motor_enabled) << 1) |
-        ((0x01 & state.cockpit << 4));
-    stateMessage.data[1] = static_cast<int8_t>(state.brakes_read * 100);
-    stateMessage.data[2] = static_cast<int8_t>(state.he1_travel * 100);
-    stateMessage.data[3] = static_cast<int8_t>(state.he2_travel * 100);
-    stateMessage.data[4] = static_cast<int8_t>(state.pedal_travel * 100);
-    stateMessage.data[5] = 0x00;
-    stateMessage.data[6] = 0x00;
-    stateMessage.data[7] = 0x00;
 
     this->bus->write(stateMessage);
 }
@@ -113,8 +105,8 @@ void CANWrapper::sendCurrentLimits() {
     currentMessage.data[1] = 0x00;
 
     // Constant discharge current = 400A (split into little endian order)
-    currentMessage.data[2] = 0b10010000;
-    currentMessage.data[3] = 0b00000001;
+    currentMessage.data[2] = static_cast<uint8_t>(400);
+    currentMessage.data[3] = static_cast<uint8_t>(400 >> 8);
 
     currentMessage.data[4] = 0x00;
     currentMessage.data[5] = 0x00;
@@ -129,5 +121,12 @@ void CANWrapper::processCANRx() {
     CANMessage rx;
     if (this->bus->read(rx)) {
         /** TODO: process the received message... */
+        switch (rx.id) {
+            case 0x188: // ACC_TPDO_STATUS
+                ETCState state = this->etc.getState();
+                state.ts_ready = rx.data[0] & 0x08;
+                this->etc.updateStateFromCAN(state);
+                break;
+        }
     }
 }

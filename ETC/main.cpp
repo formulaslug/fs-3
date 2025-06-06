@@ -53,6 +53,10 @@ void do_can_processing() {
             can_handle->sendSync();
             global_events.clear(can_handle->SYNC_FLAG);
         }
+        if (triggered_flags & can_handle->LIMITS_FLAG) {
+            can_handle->sendCurrentLimits();
+            global_events.clear(can_handle->LIMITS_FLAG)
+        }
         if (triggered_flags & can_handle->RX_FLAG) {
             //            DPRINT("Flag: CAN RX\n");
             can_handle->processCANRx();
