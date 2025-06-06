@@ -107,7 +107,7 @@ def choose_float_type(s: cantools.db.Signal, tolerance: float):
 
 
 def generate_nanoarrow_code(signal_to_datatype: dict[str, pa.DataType]):
-    with open("./nanoarrow_generated_from_dbc.cpp", "w") as f:
+    with open("./nanoarrow_generated_from_dbc.hpp", "w") as f:
         cols = len(signal_to_datatype)
 
         f.writelines(
@@ -118,37 +118,49 @@ def generate_nanoarrow_code(signal_to_datatype: dict[str, pa.DataType]):
                 f"#include <nanoarrow/nanoarrow_ipc.h>\n",
                 f"\n"
                 f"na::UniqueSchema make_nanoarrow_schema() {{\n"
-                f"  na::UniqueSchema schema_root;\n"
-                f"  ArrowSchemaInit(schema_root.get());\n"
-                f"  ArrowSchemaSetTypeStruct(schema_root.get(), {cols});\n"
-                f"  for (int i = 0; i < {cols}; i++) {{\n",
+                f"    na::UniqueSchema schema_root;\n"
+                f"    ArrowSchemaInit(schema_root.get());\n"
+                f"    ArrowSchemaSetTypeStruct(schema_root.get(), {cols});\n"
+                f"\n",
             ]
         )
-        for name, datatype in signal_to_datatype.items():
+        for i, (name, datatype) in enumerate(signal_to_datatype.items()):
             nanoarrow_type_macro = PYARROW_TO_NANOARROW[datatype]
-            f.write(
-                f"    ArrowSchemaInitFromType(schema_root->children[i], {nanoarrow_type_macro});\n"
+            f.writelines(
+                [
+                    f"    ArrowSchemaInitFromType(schema_root->children[{i}], {nanoarrow_type_macro});\n",
+                    f'    ArrowSchemaSetName(schema_root->children[{i}], "{name}");\n',
+                ]
             )
-            f.write(f'    ArrowSchemaSetName(schema_root->children[i], "{name}");\n')
         f.writelines(
             [
-                "  }\n",
+                "    return schema_root;\n"
                 "}\n",
             ]
         )
 
         f.writelines(
             [
-                f"na::UniqueArray make_nanoarrow_array() {{\n"
-                f"  na::UniqueSchema schema_root;\n"
-                f"  ArrowSchemaInit(schema_root.get());\n"
-                f"  ArrowSchemaSetTypeStruct(schema_root.get(), {cols});\n"
-                f"  for (int i = 0; i < {cols}; i++) {{\n",
+                f"na::UniqueArray make_nanoarrow_array(ArrowSchema *schema_root, int batch_rows) {{\n",
+                f"    ArrowError error;\n",
+                f"\n",
+                f"    na::UniqueArray array_root;\n",
+                f"    ARROW_ERROR_PRINT(ArrowArrayInitFromSchema(array_root.get(), schema_root, &error));\n",
+                f"    ArrowArrayAllocateChildren(array_root.get(), {cols});\n",
+                f"    for (int i = 0; i < {cols}; i++) {{\n",
+                f"        ARROW_ERROR_PRINT(ArrowArrayInitFromSchema(array_root->children[i], schema_root->children[i], &error));\n",
+                # f"        ArrowArrayStartAppending(array_root->children[i]);",
+                f"        ArrowArrayReserve(array_root->children[i], batch_rows);\n",
+                # f"    for (int i = 0; i < ROWS; i++) {{",
+                # f"      ArrowArrayAppendInt(array_root->children[i], 12340 + i);",
+                # f"    }}",
+                # f"    ARROW_ERROR_PRINT(ArrowArrayFinishBuildingDefault(array_root->children[i], &error));",
             ]
         )
         f.writelines(
             [
-                "  }\n",
+                "    }\n",
+                "    return array_root;\n",
                 "}\n",
             ]
         )
