@@ -55,7 +55,7 @@ void do_can_processing() {
         }
         if (triggered_flags & can_handle->LIMITS_FLAG) {
             can_handle->sendCurrentLimits();
-            global_events.clear(can_handle->LIMITS_FLAG)
+            global_events.clear(can_handle->LIMITS_FLAG);
         }
         if (triggered_flags & can_handle->RX_FLAG) {
             //            DPRINT("Flag: CAN RX\n");
