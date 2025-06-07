@@ -106,11 +106,22 @@ int main(){
     printf("entering main\n");
 
     can = new CAN(PA_11, PA_12, 500000);
+    can->filter(0x188, 0xFF, CANAny); //ACC_TPDO_STATUS TODO: does this even work?
 
     queue.call_every(200ms, send_PDB_TPDO_POWER_A);
     queue.call_every(200ms, send_PDB_TPDO_POWER_B);
 
     while (true) {
+
+        CANMessage msg;
+        while (can->read(msg)) {
+            if (msg.id == 0x188) // ACC_TPDO_STATUS
+            {
+                bool precharge_done = msg.data[0] & 0x08;
+                dcdc_ctrl.write(precharge_done);
+            }
+        }
+
         for (int i = 0; i < 16; i++)
         {
             S0.write(i & 0x1);
