@@ -3,7 +3,7 @@
 #include <numeric>
 #include <map>
 
-// DigitalOut dcdc_ctrl(PB_5);
+DigitalOut dcdc_ctrl(PB_5);
 DigitalOut reset_ctrl(PA_1);
 AnalogIn lv_batt(PA_0);
 DigitalOut S0(PB_6);
@@ -14,170 +14,165 @@ AnalogIn viout(PB_0);
 
 CAN* can;
 
-std::map<std::string, std::array<int, 4>> mux;
+EventQueue queue(32* EVENTS_EVENT_SIZE);
 
-vector<float> viout_buffer;
+uint16_t glv;
 
-float glv;
-float glv_trunc;
-float rtm_curr;
-float bps_curr;
-float bspd_curr;
-float pdb_curr;
-float telem_curr;
-float shutdown_curr;
-float tractive_curr;
-float ex2_curr;
-float acc_curr;
-float dash_curr;
-float ex1_curr;
-float etc_curr;
+vector<uint8_t> rtm_curr_vec;
+vector<uint8_t> bps_curr_vec;
+vector<uint8_t> bspd_curr_vec;
+vector<uint8_t> pdb_curr_vec;
+vector<uint8_t> telem_curr_vec;
+vector<uint8_t> shutdown_curr_vec;
+vector<uint8_t> tractive_curr_vec;
+vector<uint8_t> ex2_curr_vec;
+vector<uint8_t> acc_curr_vec;
+vector<uint8_t> dash_curr_vec;
+vector<uint8_t> ex1_curr_vec;
+vector<uint8_t> etc_curr_vec;
+
+
+uint8_t rtm_curr;
+uint8_t bps_curr;
+uint8_t bspd_curr;
+uint8_t pdb_curr;
+uint8_t telem_curr;
+uint8_t shutdown_curr;
+uint8_t tractive_curr;
+uint8_t ex2_curr;
+uint8_t acc_curr;
+uint8_t dash_curr;
+uint8_t ex1_curr;
+uint8_t etc_curr;
+
+
+enum DEVICES {
+    RTM = 1,
+    BPS = 2,
+    BSPD = 3,
+    PDB = 4,
+    TELEM = 5,
+    SHUTDOWN = 7,
+    TRACTIVE = 8,
+    EX2 = 9,
+    ACC = 10,
+    DASH = 11,
+    EX1 = 13,
+    ETC = 14
+};
+
+
+void send_PDB_TPDO_POWER_A();
+void send_PDB_TPDO_POWER_B();
+
+uint8_t read_current();
+
+uint8_t process_current(std::vector<uint8_t> vec);
+
 
 void send_PDB_TPDO_POWER_A() {
     CANMessage msg;
     msg.id = 0x19a;
-    msg.data[0] = glv*1000;
-    msg.data[1] = (uint16_t)(glv*1000) >> 8;
-    msg.data[2] = (uint8_t)(shutdown_curr * 10);
-    msg.data[3] = (uint8_t)(acc_curr * 10);
-    msg.data[4] = (uint8_t)(etc_curr * 10);
-    msg.data[5] = (uint8_t)(bps_curr*10);
-    msg.data[6] = (uint8_t)(tractive_curr*10);
-    msg.data[7] = (uint8_t)(bspd_curr*10);
+    msg.data[0] = glv;
+    msg.data[1] = glv >> 8;
+    msg.data[2] = shutdown_curr;
+    msg.data[3] = acc_curr;
+    msg.data[4] = etc_curr;
+    msg.data[5] = bps_curr;
+    msg.data[6] = tractive_curr;
+    msg.data[7] = bspd_curr;
     can->write(msg);
-    printf("CAN A sent\n");
+    ThisThread::sleep_for(1ms);
+    // printf("CAN A sent\n");
 }
 
 void send_PDB_TPDO_POWER_B() {
     CANMessage msg;
     msg.id = 0x29a;
-    msg.data[0] = (uint8_t)(telem_curr*10);
-    msg.data[1] = (uint8_t)(pdb_curr*10);
-    msg.data[2] = (uint8_t)(dash_curr*10);
-    msg.data[3] = (uint8_t)(rtm_curr*10);
-    msg.data[4] = (uint8_t)(ex1_curr*10);
-    msg.data[5] = (uint8_t)(ex2_curr*10);
+    msg.data[0] = telem_curr;
+    msg.data[1] = pdb_curr;
+    msg.data[2] = dash_curr;
+    msg.data[3] = rtm_curr;
+    msg.data[4] = ex1_curr;
+    msg.data[5] = ex2_curr;
     can->write(msg);
-    printf("CAN B sent\n");
+    ThisThread::sleep_for(1ms);
+    // printf("CAN B sent\n");
 }
+
+
 
 int main(){
     printf("entering main\n");
 
     can = new CAN(PA_11, PA_12, 500000);
 
-    mux["rtm"] = {0,0,0,1};
-    mux["bps"] = {0,0,1,0};
-    mux["bspd"] = {0,0,1,1};
-    mux["pdb"] = {0,1,0,0};
-    mux["telem"] = {0,1,0,1};
-    mux["shutdown"] = {0,1,1,1};
-    mux["tractive"] = {1,0,0,0};
-    mux["ex2"] = {1,0,0,1};
-    mux["acc"] = {1,0,1,0};
-    mux["dash"] = {1,0,1,1};
-    mux["ex1"] = {1,1,0,1};
-    mux["etc"] = {1,1,1,0};
+    queue.call_every(200ms, send_PDB_TPDO_POWER_A);
+    queue.call_every(200ms, send_PDB_TPDO_POWER_B);
 
     while (true) {
-        glv = lv_batt.read();
-        glv_trunc = round(glv * 100 + 0.5) / 100;
-        printf("glv battery = %f\n", glv_trunc);
-        int canAcounter = 1;
-        int canBcounter = 0;
-        for (auto[sensor, sBits] : mux) {
-            reset_ctrl = 0;
-            int i = 0;
-            float viout_avg;
-            while (i < 10) {
-                S0 = sBits[3];
-                S1 = sBits[2];
-                S2 = sBits[1];
-                S3 = sBits[0];
-
-                viout_buffer.push_back((viout.read()*3.3-1.65)/0.132);
-                if (viout_buffer.size() > 10) {
-                    viout_buffer.erase(viout_buffer.begin());
-                }
-                ThisThread::sleep_for(60ms);
-                i += 1;
-            }
-
-            viout_avg = std::reduce(viout_buffer.begin(), viout_buffer.end()) / viout_buffer.size();
-            float viout_avg_trunc = round(viout_avg * 100 + 0.5) / 100;
-
-
-            if (sensor == "rtm"){
-                rtm_curr = viout_avg_trunc;
-                printf("rtm current = %f\n", rtm_curr);
-                canBcounter++;
-
-            } else if (sensor == "bps") {
-                bps_curr = viout_avg_trunc;
-                printf("bps current = %f\n", bps_curr);
-                canAcounter += 1;
-
-            } else if (sensor == "bspd") {
-                bspd_curr = viout_avg_trunc;
-                printf("bspd current = %f\n", bspd_curr);
-                canAcounter += 1;
-
-            } else if (sensor == "pdb") {
-                pdb_curr = viout_avg_trunc;
-                printf("pdb current = %f\n", pdb_curr);
-                canBcounter++;
-
-            } else if (sensor == "telem") {
-                telem_curr = viout_avg_trunc;
-                printf("telem current = %f\n", telem_curr);
-                canBcounter++;
-
-            } else if (sensor == "shutdown") {
-                shutdown_curr = viout_avg_trunc;
-                printf("shutdown current = %f\n", shutdown_curr);
-                canAcounter+=1;
-
-            } else if (sensor == "tractive") {
-                tractive_curr = viout_avg_trunc;
-                printf("tractive current = %f\n", tractive_curr);
-                canAcounter+=1;
-
-            } else if (sensor == "ex2") {
-                ex2_curr = viout_avg_trunc;
-                printf("extra 2 current = %f\n", ex2_curr);
-                canBcounter+=1;
-
-            } else if (sensor == "acc") {
-                acc_curr = viout_avg_trunc;
-                printf("acc current = %f\n", acc_curr);
-                canAcounter+=1;
-
-            } else if (sensor == "dash") {
-                dash_curr = viout_avg_trunc;
-                printf("dash current = %f\n", dash_curr);
-                canBcounter+=1;
-
-            } else if (sensor == "ex1") {
-                ex1_curr = viout_avg_trunc;
-                printf("extra 1 current = %f\n", ex1_curr);
-                canBcounter+=1;
-
-            } else if (sensor == "etc") {
-                etc_curr = viout_avg_trunc;
-                printf("etc current = %f\n", etc_curr);
-                canAcounter+=1;
+        for (int i = 0; i < 16; i++)
+        {
+            S0.write(i & 0x1);
+            S1.write(i & 0x2);
+            S2.write(i & 0x4);
+            S2.write(i & 0x8);
+            ThisThread::sleep_for(1ms);
+            switch (i)
+            {
+            case RTM:
+                rtm_curr = process_current(rtm_curr_vec);
+                break;
+            case BPS:
+                bps_curr = process_current(bps_curr_vec);
+                break;
+            case BSPD:
+                bspd_curr = process_current(bspd_curr_vec);
+                break;
+            case PDB:
+                pdb_curr = process_current(pdb_curr_vec);
+                break;
+            case TELEM:
+                telem_curr = process_current(telem_curr_vec);
+                break;
+            case SHUTDOWN:
+                shutdown_curr = process_current(shutdown_curr_vec);
+                break;
+            case TRACTIVE:
+                tractive_curr = process_current(tractive_curr_vec);
+                break;
+            case EX2:
+                ex2_curr = process_current(ex2_curr_vec);
+                break;
+            case ACC:
+                acc_curr = process_current(acc_curr_vec);
+                break;
+            case DASH:
+                dash_curr = process_current(dash_curr_vec);
+                break;
+            case EX1:
+                ex1_curr = process_current(ex1_curr_vec);
+                break;
+            case ETC:
+                etc_curr = process_current(etc_curr_vec);
+                break;
             }
         }
-        if (canAcounter == 7) {
-            send_PDB_TPDO_POWER_A();
-        } else {
-            printf("canAcounter = %d\n", canAcounter);
-        }
-
-        if (canBcounter == 6) {
-            send_PDB_TPDO_POWER_B();
-        } else {
-            printf("canBcounter = %d\n", canBcounter);
-        }
+        queue.dispatch_once();
+        ThisThread::sleep_for(1ms);
     }
+}
+
+uint8_t process_current(std::vector<uint8_t> vec) {
+    vec.push_back(read_current());
+    if (vec.size() > 5)
+    {
+        vec.erase(vec.begin());
+    }
+    return std::accumulate(vec.begin(), vec.end(), 0)/vec.size();
+}
+
+uint8_t read_current() {
+    double current_A = ((viout.read() * 3.3) - 1.65) / 0.055;
+    return clamp(static_cast<int>(current_A / 10), 0, 255);
 }
