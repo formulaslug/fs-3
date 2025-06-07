@@ -44,6 +44,8 @@ FetchContent_MakeAvailable(nanoarrow)
 set(CMAKE_CXX_STANDARD 20)
 add_executable(${PROJECT_NAME} main.cpp)
 
+target_include_directories(${PROJECT_NAME} PUBLIC include)
 target_link_libraries(${PROJECT_NAME} mbed-os FATFileSystem SDFileSystem nanoarrow nanoarrow_ipc)
+# target_link_libraries(${PROJECT_NAME} mbed-os FATFileSystem SDFileSystem)
 
 mbed_set_post_build(${PROJECT_NAME})
