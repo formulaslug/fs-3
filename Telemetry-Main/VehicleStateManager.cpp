@@ -149,6 +149,11 @@ void VehicleStateManager::processCANMessage() {
                 break;
             }
             // VDM Messages
+            //
+            // 
+            // (TODO: REVERSE ORDER)
+            // 
+            //
             case CAN_ID::VDM_GPS_LAT_LONG: {
                 const VDM_GPS_LAT_LONG_t* data = reinterpret_cast<const VDM_GPS_LAT_LONG_t*>(msg.data);
                 _vehicleState.vdmGpsLatLong = *data;
