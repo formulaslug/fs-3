@@ -54,18 +54,18 @@ namespace CAN_ID {
 }
 
 struct ACC_STATUS_t {
-    uint8_t BMS_FAULT           : 1;   // bit 0
-    uint8_t IMD_FAULT           : 1;   // bit 1
-    uint8_t SHUTDOWN_STATE      : 1;   // bit 2
-    uint8_t PRECHARGE_DONE      : 1;   // bit 3
-    uint8_t PRECHARGING         : 1;   // bit 4
-    uint8_t CHARGING            : 1;   // bit 5
-    uint8_t padding_6_7         : 2;   // bits 6-7 (padding for gaps)
-    uint8_t CELL_TOO_LOW        : 1;   // bit 8
-    uint8_t CELL_TOO_HIGH       : 1;   // bit 9
-    uint8_t TEMP_TOO_LOW        : 1;   // bit 10
-    uint8_t TEMP_TOO_HIGH       : 1;   // bit 11
-    uint8_t TEMP_TOO_HIGH_CRG   : 1;   // bit 12
+    bool BMS_FAULT           : 1;   // bit 0
+    bool IMD_FAULT           : 1;   // bit 1
+    bool SHUTDOWN_STATE      : 1;   // bit 2
+    bool PRECHARGE_DONE      : 1;   // bit 3
+    bool PRECHARGING         : 1;   // bit 4
+    bool CHARGING            : 1;   // bit 5
+    bool padding_6_7         : 2;   // bits 6-7 (padding for gaps)
+    bool CELL_TOO_LOW        : 1;   // bit 8
+    bool CELL_TOO_HIGH       : 1;   // bit 9
+    bool TEMP_TOO_LOW        : 1;   // bit 10
+    bool TEMP_TOO_HIGH       : 1;   // bit 11
+    bool TEMP_TOO_HIGH_CRG   : 1;   // bit 12
     uint8_t padding_13_15       : 3;   // bits 13-15 (padding to complete byte)
     uint16_t GLV_VOLTAGE;              // bits 16-31
     uint32_t CELL_FAULT_INDEX;         // bits 32-63
