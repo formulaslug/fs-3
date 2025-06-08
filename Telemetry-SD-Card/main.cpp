@@ -91,15 +91,16 @@ void arrow_flatcc_encode_record_batch_message(flatcc_builder_t *b) {
 
     int64_t offset = 0;
     for (uint i = 0; i < COLS; i++) {
-        // We can assume each node has no null's for now. In that case the
-        // validity buffer can either be all 1s, or be left out entirely
+        // We can assume each node has no null's for now. In that case we can
+        // chose to omit the validity buffer entirely (saves >=8 bytes per column)
         nodes[i] = {.length = ROWS, .null_count = 0};
     }
     for (uint i = 0; i < COLS*2; i+=2) {
         // Every time we add a buffer, the next buffer's offset increases by the
         // number of bytes in the previous buffer
-        const uint length_validity = (int)(ceil(ROWS / 8.0f));
-        buffers[i] = {.offset = offset, .length = length_validity};
+
+        const uint length_validity = 0; // (int)(ceil(ROWS / 8.0f));
+        buffers[i] = {.offset = offset, .length = 0};
         offset += round_up_to_multiple_of_8(length_validity);
 
         const uint length_values = ROWS * sizeof(int32_t);
@@ -193,19 +194,13 @@ int main(int argc, char *argv[]) {
     maybe_pad_to_next_8_bytes(file, record_batch_size);
 
     // Write actual record batch data buffers (message_body)
-    uint8_t col1validity[] = {0xFF}; // all non-null
     int32_t col1values[ROWS] = {0,1,2,3,4,5,6,7,8};
-    uint8_t col2validity[] = {0xFF}; // all non-null
     int32_t col2values[ROWS] = {1,2,3,4,5,6,7,8,9};
-    fwrite(col1validity, sizeof(col1validity), 1, file);
-    maybe_pad_to_next_8_bytes(file, sizeof(col1validity));
     fwrite(col1values, sizeof(col1values), 1, file);
     maybe_pad_to_next_8_bytes(file, sizeof(col1values));
-    fwrite(col2validity, sizeof(col2validity), 1, file);
-    maybe_pad_to_next_8_bytes(file, sizeof(col2validity));
     fwrite(col2values, sizeof(col2values), 1, file);
     maybe_pad_to_next_8_bytes(file, sizeof(col2values));
-    const int message_body_size = round_up_to_multiple_of_8(sizeof(col1values)) + round_up_to_multiple_of_8(sizeof(col2values)) + round_up_to_multiple_of_8(sizeof(col1validity)) + round_up_to_multiple_of_8(sizeof(col2validity));
+    const int message_body_size = round_up_to_multiple_of_8(sizeof(col1values)) + round_up_to_multiple_of_8(sizeof(col2values));
 
     // Pad record batch data buffers to 8-byte alignment
     maybe_pad_to_next_8_bytes(file, message_body_size);
