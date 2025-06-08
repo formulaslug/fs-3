@@ -11,30 +11,31 @@ include(../mbed-os/tools/cmake/mbed_project_setup.cmake)
 
 add_subdirectory(../mbed-os ../mbed-os-build)
 
-add_library(FATFileSystem STATIC ../FATFileSystem/FATDirHandle.cpp ../FATFileSystem/FATFileHandle.cpp ../FATFileSystem/FATFileSystem.cpp ../FATFileSystem/ChaN/ccsbcs.cpp ../FATFileSystem/ChaN/diskio.cpp ../FATFileSystem/ChaN/ff.cpp)
+add_library(FATFileSystem STATIC
+        FATFileSystem/FATDirHandle.cpp
+        FATFileSystem/FATFileHandle.cpp
+        FATFileSystem/FATFileSystem.cpp
+        FATFileSystem/ChaN/ccsbcs.cpp
+        FATFileSystem/ChaN/diskio.cpp
+        FATFileSystem/ChaN/ff.cpp)
 target_include_directories(FATFileSystem
-        PUBLIC ../FATFileSystem
-        PUBLIC ../FATFileSystem/ChaN)
-target_link_libraries(FATFileSystem PUBLIC mbed-core-flags) # This is needed so that the library can access Mbed includes
+        PUBLIC FATFileSystem
+        PUBLIC FATFileSystem/ChaN)
+target_link_libraries(FATFileSystem PUBLIC mbed-core-flags) # Needed so that the library can access Mbed includes
 
-add_library(radio STATIC ../XBeeRadio/libradio/src/radio.cpp)
-target_include_directories(radio PUBLIC ../XBeeRadio/libradio/src/)
-target_link_libraries(radio mbed-os)
+add_library(libradio STATIC ../XBeeRadio/libradio/src/radio.cpp)
+target_include_directories(libradio PUBLIC ../XBeeRadio/libradio/src/)
+target_link_libraries(libradio mbed-os)
 
-add_library(BT817Q STATIC ../Telemetry-Dash1/BT817Q.cpp
-        ../Telemetry-Dash1/ui.h
-        ../Telemetry-Dash1/layouts.cpp
-        ../Telemetry-Dash1/layouts.h)
-target_include_directories(BT817Q
-        PUBLIC ../Telemetry-Dash1/)
-target_link_libraries(FATFileSystem PUBLIC mbed-core-flags) # This is needed so that the library can access Mbed includes
-target_link_libraries(BT817Q mbed-os)
+add_library(BT817Q STATIC ../Telemetry-Dash1/BT817Q.cpp ../Telemetry-Dash1/layouts.cpp)
+target_include_directories(BT817Q PUBLIC ../Telemetry-Dash1/)
+target_link_libraries(BT817Q mbed-core-flags)
 
 add_library(SDFileSystem STATIC ../SDFileSystem/SDFileSystem.cpp)
 target_include_directories(SDFileSystem INTERFACE SDFileSystem)
-target_link_libraries(SDFileSystem PUBLIC mbed-core-flags) # This is needed so that the library can access Mbed includes
 target_link_libraries(SDFileSystem PUBLIC FATFileSystem)
+target_link_libraries(SDFileSystem PUBLIC mbed-core-flags) # Needed so that the library can access Mbed includes
 
 add_executable(${PROJECT_NAME} main.cpp VehicleStateManager.cpp)
-target_link_libraries(${PROJECT_NAME} mbed-os radio FATFileSystem SDFileSystem BT817Q) # Can also link to mbed-baremetal here
+target_link_libraries(${PROJECT_NAME} mbed-os libradio FATFileSystem SDFileSystem BT817Q)
 mbed_set_post_build(${PROJECT_NAME})

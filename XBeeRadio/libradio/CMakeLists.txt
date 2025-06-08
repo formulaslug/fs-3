@@ -1,14 +1,10 @@
 cmake_minimum_required(VERSION 3.19)
-project(libradio)
 
-add_library(libradio STATIC
-        src/radio.cpp
-)
+project(libradio LANGUAGES C CXX ASM)
 
-# include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/radio.hpp)
+add_library(libradio STATIC src/radio.cpp)
 
-# target_include_directories(libradio PUBLIC
-#     ${CMAKE_CURRENT_SOURCE_DIR}/include
-# )
+target_link_libraries(libradio mbed-core-flags)
 
-target_link_libraries(libradio mbed-os)
+target_include_directories(libradio PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
+
