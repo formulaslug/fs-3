@@ -1,123 +1,93 @@
-//
-// Created by wangd on 1/14/2025.
-//
+/**
+ * @file can_wrapper.h
+ *
+ * Provides utility functions on top of the MbedOS CAN interface.
+ */
+
 
 #ifndef CAN_WRAPPER_H
 #define CAN_WRAPPER_H
 
-#include "../mbed-os/mbed.h"
 #include "etc_controller.h"
-#include "module.h"
+#include "mbed.h"
+#include <cstdint>
+
 
 /**
- * Holds motor and main CAN bus, composes and handles routine CAN message, handles CAN Rx as well
+ * Manages reading and writing of CAN messages that concern the ETC.
  */
-class CANWrapper : public Module {
-    CAN* mainBus;   // to be initialized
-    CAN* motorBus;  // to be initialized
-    EventFlags& Global_Events;
+class CANWrapper {
+    /** The main CAN bus on the car. */
+    CAN* bus;
+    /** MARK: what is this */
+    EventFlags& globalEvents;
+    /** The ETC controller and state to interface with when reading and writing messages. */
     ETCController& etc;
+    /** Ticker to send regular throttle status messages. */
     Ticker throttleTicker;
-    // Ticker syncTicker;
-    // Ticker stateTicker;
-
-    const int32_t CAN_FREQ = 500000;
-
-    constexpr static PinName MAIN_BUS_RD = PB_5;
-    constexpr static PinName MAIN_BUS_TD = PB_6;
-    constexpr static PinName MOTOR_BUS_RD = PA_11;
-    constexpr static PinName MOTOR_BUS_TD = PA_12;
+    /** Ticker to send regular sync messages. */
+    Ticker syncTicker;
+    /** Ticker to send regular ETC state summary messages. */
+    Ticker stateTicker;
 
 public:
-    const int32_t THROTTLE_FLAG = (1UL << 0);
-    const int32_t SYNC_FLAG = (1UL << 1);
-    const int32_t STATE_FLAG = (1UL << 2);
-    const int32_t RX_FLAG = (1UL << 3);
+    /** The frequency of messages on the CAN bus, in Hz. */
+    static constexpr int32_t CAN_FREQUENCY = 500000;
+    /** The microcontroller pin to read messages on. */
+    static constexpr PinName CAN_RX_PIN = PA_11;
+    /** The microcontroller pin to write messages on. */
+    static constexpr PinName CAN_TX_PIN = PA_12;
 
-    CANWrapper(ETCController& etcController, EventFlags& events)
-        : Global_Events(events),
-          etc(etcController) {
-        /* Attempt CAN connections */
+    /** The flag bit indicating a throttle message needs to be sent. */
+    static constexpr int32_t THROTTLE_FLAG = (1UL << 0);
+    /** The flag bit indicating a sync message needs to be sent. */
+    static constexpr int32_t SYNC_FLAG = (1UL << 1);
+    /** The flag bit indicating a state message needs to be sent. */
+    static constexpr int32_t STATE_FLAG = (1UL << 2);
+    /** The flag bit indicating received messages need to be processed. */
+    static constexpr int32_t RX_FLAG = (1UL << 3);
 
-        // TODO add fail code for failed CAN instantiation
-        mainBus = new CAN(MAIN_BUS_RD, MAIN_BUS_TD, CAN_FREQ);
-        motorBus = new CAN(MOTOR_BUS_RD, MOTOR_BUS_TD, CAN_FREQ);
 
-        /* start regular ISR routine for sending*/
-        throttleTicker.attach(callback([this]() {
-                                  // NOTE that we do 1 sec interval for testing it should rly be
-                                  // 100ms
-                                  Global_Events.set(THROTTLE_FLAG);
-                              }),
-                              1s);
-        //
-        // syncTicker.attach(callback([this]() {
-        //     Global_Events.set(THROTTLE_FLAG);
-        //     }), 100ms);
-        //
-        // stateTicker.attach(callback([this]() {
-        //     Global_Events.set(THROTTLE_FLAG);
-        //     }), 100ms);
-
-        /* Set up CAN RX ISR */
-        mainBus->attach(callback([this]() { Global_Events.set(RX_FLAG); }));
-        motorBus->attach(callback([this]() { Global_Events.set(RX_FLAG); }));
-    }
-
-    // TODO move definitions to .cpp file
     /**
-     * Sends throttle data to the CANBus
+     * Class constructor for CANWrapper
      *
-     * NOTE* Sends 0 for torque demand until start conditions are met
+     * Holds motor and main CAN bus, composes and handles routine CAN message, handles CAN RX as
+     * well.
+     *
+     * @param etcController  The ETC controller object to interface with and collect data from.
+     * @param events         The event flags to listen to (to use as markers to send messages).
      */
-    void sendThrottle() {
-        etc.updateMBBAlive();
-
-        auto [mbb_alive, he1_read, he2_read, he1_travel, he2_travel, pedal_travel, brakes_read,
-              ts_ready, motor_enabled, motor_forward, cockpit, torque_demand] = etc.getState();
-
-        CANMessage throttleMessage;
-        throttleMessage.id = 0x186;
-
-        throttleMessage.data[0] = torque_demand;
-        throttleMessage.data[1] = torque_demand >> 8;
-        throttleMessage.data[2] = etc.getMaxSpeed();
-        throttleMessage.data[3] = etc.getMaxSpeed() >> 8;
-        throttleMessage.data[4] = 0x00 | (0x01 & motor_forward) | ((0x01 & !motor_forward) << 1) |
-                                  ((0x01 & motor_enabled) << 3);
-        throttleMessage.data[5] = 0x00 | (0x0f & mbb_alive);
-        throttleMessage.data[6] = 0x00;
-        throttleMessage.data[7] = 0x00;
-
-        // motorBus->write(throttleMessage);
-        printf("Sending Throttle...");
-    }
-
-    void sendSync() {
-        unsigned char data[0];
-        CANMessage syncMessage(0x80, data, 0);
-        // send syncMessage
-    }
-
-    void sendState() {
-        ETCState state = etc.getState();
-
-        CANMessage stateMessage;
-        stateMessage.id = 0x1A1;
-
-        stateMessage.data[0] = 0x00 | (0x01 & etc.isTSReady()) |
-                               ((0x01 & etc.isMotorEnabled()) << 1) | ((0x01 & state.cockpit << 4));
-        stateMessage.data[1] = static_cast<int8_t>(state.brakes_read * 100);
-        stateMessage.data[2] = static_cast<int8_t>(state.he1_read * 100);
-        stateMessage.data[3] = static_cast<int8_t>(state.he2_read * 100);
-        stateMessage.data[4] = static_cast<int8_t>(state.he1_travel * 100);
-        stateMessage.data[5] = static_cast<int8_t>(state.he2_travel * 100);
-        stateMessage.data[6] = static_cast<int8_t>(state.pedal_travel * 100);
-        stateMessage.data[7] = 0x00;
-    }
+    CANWrapper(ETCController& etcController, EventFlags& events);
 
     /**
-     * Parse CAN msg and then run ETC updateStateFromCAN and provide parameters
+     * Sends throttle data to the CAN bus.
+     *
+     * NOTE: Sends 0 for torque demand until start conditions are met.
+     */
+    void sendThrottle();
+
+
+    /**
+     * Sends sync message via CAN.
+     */
+    void sendSync();
+
+
+    /**
+     * Sends ETC State via CAN.
+     *
+     * TODO: Update based on DBC...
+     */
+    void sendState();
+
+
+    void sendCurrentLimits();
+
+
+    /**
+     * Reads a CAN message and updates the state of {@code tihs->etc}.
+     *
+     * TODO: implement
      */
     void processCANRx();
 };

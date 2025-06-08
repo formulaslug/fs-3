@@ -100,13 +100,13 @@ struct ETC_STATUS_t {
     uint16_t HE2;                      // bits 16-31
     uint16_t BRAKE_SENSE_VOLTAGE;      // bits 32-47
     uint8_t PEDAL_TRAVEL;              // bits 48-55
-    uint8_t RTD_BUTTON     : 1;        // bit 56
-    uint8_t RTDS           : 1;        // bit 57
-    uint8_t REVERSE        : 1;        // bit 58
-    uint8_t BRAKELIGHT     : 1;        // bit 59
-    uint8_t RTD            : 1;        // bit 60
-    uint8_t IMPLAUSIBILITY : 1;        // bit 61
-    uint8_t TS_ACTIVE      : 1;        // bit 62
+    bool RTD_BUTTON     : 1;        // bit 56
+    bool RTDS           : 1;        // bit 57
+    bool REVERSE        : 1;        // bit 58
+    bool BRAKELIGHT     : 1;        // bit 59
+    bool RTD            : 1;        // bit 60
+    bool IMPLAUSIBILITY : 1;        // bit 61
+    bool TS_ACTIVE      : 1;        // bit 62
 };
 
 struct PDB_POWER_A_t {
