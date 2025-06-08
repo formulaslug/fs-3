@@ -11,10 +11,10 @@ include(../mbed-os/tools/cmake/mbed_project_setup.cmake)
 
 add_subdirectory(../mbed-os ../mbed-os-build)
 
-add_library(FATFileSystem STATIC ../Telemetry-SD-Card/FATFileSystem/FATDirHandle.cpp ../Telemetry-SD-Card/FATFileSystem/FATFileHandle.cpp ../Telemetry-SD-Card/FATFileSystem/FATFileSystem.cpp ../Telemetry-SD-Card/FATFileSystem/ChaN/ccsbcs.cpp ../Telemetry-SD-Card/FATFileSystem/ChaN/diskio.cpp ../Telemetry-SD-Card/FATFileSystem/ChaN/ff.cpp)
+add_library(FATFileSystem STATIC ../FATFileSystem/FATDirHandle.cpp ../FATFileSystem/FATFileHandle.cpp ../FATFileSystem/FATFileSystem.cpp ../FATFileSystem/ChaN/ccsbcs.cpp ../FATFileSystem/ChaN/diskio.cpp ../FATFileSystem/ChaN/ff.cpp)
 target_include_directories(FATFileSystem
-        PUBLIC ../Telemetry-SD-Card/FATFileSystem
-        PUBLIC ../Telemetry-SD-Card/FATFileSystem/ChaN)
+        PUBLIC ../FATFileSystem
+        PUBLIC ../FATFileSystem/ChaN)
 target_link_libraries(FATFileSystem PUBLIC mbed-core-flags) # This is needed so that the library can access Mbed includes
 
 add_library(radio STATIC ../XBeeRadio/libradio/src/radio.cpp)
@@ -30,7 +30,7 @@ target_include_directories(BT817Q
 target_link_libraries(FATFileSystem PUBLIC mbed-core-flags) # This is needed so that the library can access Mbed includes
 target_link_libraries(BT817Q mbed-os)
 
-add_library(SDFileSystem STATIC ../Telemetry-SD-Card/SDFileSystem/SDFileSystem.cpp)
+add_library(SDFileSystem STATIC ../SDFileSystem/SDFileSystem.cpp)
 target_include_directories(SDFileSystem INTERFACE SDFileSystem)
 target_link_libraries(SDFileSystem PUBLIC mbed-core-flags) # This is needed so that the library can access Mbed includes
 target_link_libraries(SDFileSystem PUBLIC FATFileSystem)

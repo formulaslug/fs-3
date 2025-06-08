@@ -7,8 +7,8 @@
 #include "CANProtocol.hpp"
 #include "mbed.h"
 
-VehicleStateManager::VehicleStateManager(ICAN* ican)
-    : _ican(ican)
+VehicleStateManager::VehicleStateManager(MbedCAN* mbedCAN)
+    : _ican(mbedCAN)
 {
     _vehicleState = {};
 

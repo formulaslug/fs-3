@@ -32,9 +32,9 @@ public:
     virtual bool isReady() const = 0;
 };
 
-/**
- * @brief Real CAN implementation using mbed CAN
- */
+// /**
+//  * @brief Real CAN implementation using mbed CAN
+//  */
 class MbedCAN : public ICAN {
 private:
     CAN& _can;

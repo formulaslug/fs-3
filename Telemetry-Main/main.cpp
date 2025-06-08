@@ -2,10 +2,11 @@
 #include "Ticker.h"
 #include "layouts.h"
 #include "radio.hpp"
+#include "VehicleStateManager.hpp"
 
 #define ENABLE_RADIO true
 #define ENABLE_SD true
-#define ENABLE_DASH false
+#define ENABLE_DASH true
 
 #define TICKS_PER_SECOND 200
 
@@ -49,6 +50,9 @@ void update_dash(void) {
 
 int main() {
     printf("Hello world\n");
+    auto mbed_can = CAN(PB_8, PB_9, 500000);
+    auto can = MbedCAN(mbed_can);
+    VehicleStateManager vsm = VehicleStateManager(&can);
 
     ticker.attach([&]() {
         state.tick++;
