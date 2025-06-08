@@ -158,8 +158,8 @@ void error_quit(std::string msg) {
 int main(int argc, char *argv[]) {
     printf("Hello world!\n");
 
-    // SDFileSystem sd{D2, A5, A4, D3, "sd"}; // Mosi, miso, sclk, cs // L423KC
-    SDFileSystem sd{D11, D12, D13, D10, "sd"}; // Mosi, miso, sclk, cs // F446RE
+    SDFileSystem sd{D2, A5, A4, D3, "sd"}; // Mosi, miso, sclk, cs // L423KC
+    // SDFileSystem sd{D11, D12, D13, D10, "sd"}; // Mosi, miso, sclk, cs // F446RE
     if (sd.disk_initialize() != 0)
         error_quit("Failed to initialize SD card!");
 
