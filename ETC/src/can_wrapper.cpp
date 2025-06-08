@@ -9,7 +9,7 @@ CANWrapper::CANWrapper(ETCController& etcController, EventFlags& events)
       etc(etcController)
 {
     this->bus = new CAN(CANWrapper::CAN_RX_PIN, CANWrapper::CAN_TX_PIN, CANWrapper::CAN_FREQUENCY);
-    this->bus->filter(0x186, 0xFFFF, CANAny);
+    this->bus->filter(0x188, 0xFFFF, CANAny);
 
     // Start regular ISR routine for sending
     this->throttleTicker.attach(callback([this]() {
@@ -122,9 +122,11 @@ void CANWrapper::sendCurrentLimits() {
 
 
 void CANWrapper::processCANRx() {
+    // printf("rxerr: %d\n", this->bus->rderror());
+    // printf("txerr: %d\n", this->bus->tderror());
+    // printf("rx\n");
     CANMessage rx;
-    if (this->bus->read(rx)) {
-        /** TODO: process the received message... */
+    while (this->bus->read(rx)) {
         switch (rx.id) {
             case 0x188: // ACC_TPDO_STATUS
                 ETCState state = this->etc.getState();

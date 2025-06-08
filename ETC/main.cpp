@@ -36,7 +36,7 @@ void do_can_processing() {
         uint32_t triggered_flags =
             global_events.wait_any(can_handle->THROTTLE_FLAG | can_handle->STATE_FLAG |
                                    can_handle->SYNC_FLAG | can_handle->RX_FLAG | can_handle->LIMITS_FLAG);
-
+        can_handle->processCANRx();
         /* Check for every event, process and then clear the corresponding flag */
         if (triggered_flags & can_handle->THROTTLE_FLAG) {
             //            DPRINT("Flag Trigger: Throttle\n");

@@ -222,7 +222,7 @@ bool ETCController::isCockpitSwitchSet() const {
 
 
 void ETCController::switchReverseMotor() {
-    this->state.motor_forward = false;
+    // this->state.motor_forward = false;
 }
 
 
