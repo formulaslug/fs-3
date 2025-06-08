@@ -17,6 +17,10 @@ target_include_directories(FATFileSystem
         PUBLIC ../Telemetry-SD-Card/FATFileSystem/ChaN)
 target_link_libraries(FATFileSystem PUBLIC mbed-core-flags) # This is needed so that the library can access Mbed includes
 
+add_library(radio STATIC ../XBeeRadio/libradio/src/radio.cpp)
+target_include_directories(radio PUBLIC ../XBeeRadio/libradio/src/)
+target_link_libraries(radio mbed-os)
+
 add_library(BT817Q STATIC ../Telemetry-Dash1/BT817Q.cpp
         ../Telemetry-Dash1/ui.h
         ../Telemetry-Dash1/layouts.cpp
@@ -32,5 +36,5 @@ target_link_libraries(SDFileSystem PUBLIC mbed-core-flags) # This is needed so t
 target_link_libraries(SDFileSystem PUBLIC FATFileSystem)
 
 add_executable(${PROJECT_NAME} main.cpp)
-target_link_libraries(${PROJECT_NAME} mbed-os FATFileSystem SDFileSystem BT817Q) # Can also link to mbed-baremetal here
+target_link_libraries(${PROJECT_NAME} mbed-os radio FATFileSystem SDFileSystem BT817Q) # Can also link to mbed-baremetal here
 mbed_set_post_build(${PROJECT_NAME})
