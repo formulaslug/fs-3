@@ -34,15 +34,15 @@ Layouts eve(PC_12, PC_11, PC_10, PD_2, PB_7, PC_13, EvePresets::CFA800480E3);
 Ticker ticker;
 
 void update_radio(void) {
-    printf("RADIO!\n");
+    // printf("RADIO!\n");
 }
 
 void update_sd(void) {
-    printf("SD!\n");
+    // printf("SD!\n");
 }
 
 void update_dash(void) {
-    printf("DASH!\n");
+    // printf("DASH!\n");
     Layouts::StandardLayoutParams p{
         .faults = Faults{0, 0, 1}, .soc = 60, .acc_temp = 80};
     eve.drawStandardLayout2(p);
@@ -80,6 +80,7 @@ int main() {
     }
 
     while (true) {
+        vsm.update();
 
         if (state.radio_event) {
             state.radio_event = false;

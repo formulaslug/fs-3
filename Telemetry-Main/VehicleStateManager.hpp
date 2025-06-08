@@ -51,7 +51,7 @@ struct VehicleState {
 class VehicleStateManager {
 
 public:
-    explicit VehicleStateManager(ICAN* ican);
+    explicit VehicleStateManager(MbedCAN* mbedCAN);
     
     VehicleState getState() const;
     void update();
@@ -59,7 +59,7 @@ public:
     const char* getLapTime() const;
 
 private:
-    ICAN* _ican;
+    MbedCAN* _mbedCAN;
 
     VehicleState _vehicleState;
     char _lapTime[16];

@@ -35,6 +35,6 @@ target_include_directories(SDFileSystem INTERFACE SDFileSystem)
 target_link_libraries(SDFileSystem PUBLIC mbed-core-flags) # This is needed so that the library can access Mbed includes
 target_link_libraries(SDFileSystem PUBLIC FATFileSystem)
 
-add_executable(${PROJECT_NAME} main.cpp)
+add_executable(${PROJECT_NAME} main.cpp VehicleStateManager.cpp)
 target_link_libraries(${PROJECT_NAME} mbed-os radio FATFileSystem SDFileSystem BT817Q) # Can also link to mbed-baremetal here
 mbed_set_post_build(${PROJECT_NAME})

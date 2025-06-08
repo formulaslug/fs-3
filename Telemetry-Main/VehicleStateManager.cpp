@@ -8,7 +8,7 @@
 #include "mbed.h"
 
 VehicleStateManager::VehicleStateManager(MbedCAN* mbedCAN)
-    : _ican(mbedCAN)
+    : _mbedCAN(mbedCAN)
 {
     _vehicleState = {};
 
@@ -16,17 +16,19 @@ VehicleStateManager::VehicleStateManager(MbedCAN* mbedCAN)
 }
 
 void VehicleStateManager::update() {
+    // printf("Updating CAN\n");
     processCANMessage();
     updateLapTime();
 }
 
 void VehicleStateManager::processCANMessage() {
-    if (!_ican || !_ican->isReady()) { return; }
+    if (!_mbedCAN || !_mbedCAN->isReady()) { return; }
 
     CANMessage msg;
-    while (_ican->read(msg)) {
+    while (_mbedCAN->read(msg)) {
+        printf("%d", msg.id);
         switch (msg.id) {
-            // ACC Messages
+            // ACC Message
             case CAN_ID::ACC_STATUS: {
                 const ACC_STATUS_t* data = reinterpret_cast<const ACC_STATUS_t*>(msg.data);
                 _vehicleState.accStatus = *data;
