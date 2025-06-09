@@ -1,13 +1,34 @@
-//
-// Created by wangd on 1/14/2025.
-//
+/**
+ * @file etc_controller.h
+ *
+ * Representation of the state of the ETC with methods to set, reset, and modify state attributes.
+ */
+
 
 #ifndef ETC_CONTROLLER_H
 #define ETC_CONTROLLER_H
 
-#include "../mbed-os/mbed.h"
-#include "module.h"
 
+#include "mbed.h"
+#include <cstdint>
+
+
+/**
+ * Represents the current state of the ETC.
+ *
+ * @field mbb_alive      A counter on [0, 15] that updates to indicate a "live" ping from the ETC.
+ * @field he1_read       The hall-effect 1 sensor voltage scaled to the interval [0, 1].
+ * @field he2_read       The hall-effect 2 sensor voltage scaled to the interval [0, 1].
+ * @field he1_travel     The percent travel of the hall-effect 1 sensor toward its stop.
+ * @field he2_travel     The percent travel of the hall-effect 2 sensor toward its stop.
+ * @field pedal_travel   The pedal travel percentage, which is the average of the HE travels.
+ * @field brakes_read    The brake pressure voltage scaled to the interval [0, 1].
+ * @field ts_ready       Whether the tractive system is ready.
+ * @field motor_enabled  Whether the motor is currently running.
+ * @field motor_forward  Whether the motor is in forward drive mode (as opposed to reverse).
+ * @field cockpit        Whether the cockpit switch is in the ON position.
+ * @field torque_demand  The current torque demand in RPM.
+ */
 struct ETCState {
     uint8_t mbb_alive;
     float he1_read;
@@ -23,115 +44,246 @@ struct ETCState {
     int16_t torque_demand;
 };
 
+
+/**
+ * Controller for the parameters around an {@code ETCState} structure.
+ */
 class ETCController {
-    // Digital and Analog Inputs/Outputs
-    AnalogIn HE1;
-    AnalogIn HE2;
-    AnalogIn Brakes;
-    InterruptIn Cockpit;
-    InterruptIn Reverse;
-    DigitalOut BrakesOut;
-    DigitalOut RTDS;
+    /** The pin connected to the hall-effect 1 sensor. */
+    AnalogIn he1Input;
+    /** The pin connected to the hall-effect 2 sensor. */
+    AnalogIn he2Input;
+    /** The pin connected to the brake pedal sensor. */
+    AnalogIn brakePedalInput;
+    /** Interrupt to trigger when the cockpit switch is set. */
+    InterruptIn cockpitSwitchInterrupt;
+    /** Interrupt to trigger when the reverse switch is set. */
+    InterruptIn reverseSwitchInterrupt;
+    /** Output pin for the ready-to-drive buzzer. */
+    DigitalOut rtdsOutput;
+    /** Output pin to turn on the brake light. */
+    DigitalOut brakeLightOutput;
 
-    // State Variables
-    ETCState state{0};
+    /** Timer for implausibility via HE sensor travel percent mismatch. */
+    Timer implausTravelTimer;
+    /** Whether the implausibility travel percent mismatch timer is active. */
+    bool implausTravelTimerRunning;
+    /** Timer for implausibility via HE sensor invalid voltages. */
+    Timer implausBoundsTimer;
+    /** Whether the implausibility invalid voltage timer is active. */
+    bool implausBoundsTimerRunning;
 
-    Ticker brakeSignalTicker;
+    /** Timer for the RTDS activation. */
+    Ticker rtdsTicker;
+
+    /** State of the ETC. */
+    ETCState state;
 
 public:
-    // Constants
-    const int16_t MAX_SPEED = 7500;
-    const int16_t MAX_TORQUE = 30000;
-    const float MAX_V = 3.3;
-    const float BRAKE_TOL = 0.1;
+    /** The maximum motor speed in RPM. */
+    static constexpr int16_t MAX_SPEED = 7500;
+    /** The maximum motor torque in Nm. */
+    static constexpr int16_t MAX_TORQUE = 30000;
+    /** The maximum microcontroller pin voltage in volts. */
+    static constexpr float MAX_VOLTAGE = 3.3f;
 
-    // Constructor
-    ETCController()
-        : HE1(PA_0),
-          HE2(PB_0),
-          Brakes(PC_0),
-          Cockpit(PH_1),
-          Reverse(PC_15),
-          BrakesOut(PC_14),
-          RTDS(PC_13) {
-        resetState();
+    /** The percentage tolerance for the brake pedal to be considered pressed. */
+    static constexpr float BRAKE_TOLERANCE = 0.382f;
 
-        // Update the status of the brake light periodically.
-        this->brakeSignalTicker.attach(callback([this]() {
-            this->updateBrakeSignal();
-        }), 100ms);
+    /** The voltage divider slope for the hall-effect 1 sensor. */
+    static constexpr float HE1_SCALE = 330.0f / 480.0f;
+    /** The voltage for HE1 corresponding to 0% pedal travel. */
+    static constexpr float HE1_LOW_VOLTAGE = 2.4000000f;
+    /** The voltage for HE1 corresponding to 100% pedal travel. */
+    static constexpr float HE1_HIGH_VOLTAGE = 2.8000000f;
+    /** The difference between the maximum and minimum voltages (100% and 0% travel) for HE1. */
+    static constexpr float HE1_RANGE =
+        ETCController::HE1_HIGH_VOLTAGE - ETCController::HE1_LOW_VOLTAGE;
+    /** The voltage divider slope for the hall-effect 2 sensor. */
+    static constexpr float HE2_SCALE = 1.0f / 2.0f;
+    /** The voltage for HE2 corresponding to 0% pedal travel. */
+    static constexpr float HE2_LOW_VOLTAGE = 1.900000f;
+    /** The voltage for HE2 corresponding to 100% pedal travel. */
+    static constexpr float HE2_HIGH_VOLTAGE = 2.2290114f;
+    /** The difference between the maximum and minimum voltages (100% and 0% travel) for HE2. */
+    static constexpr float HE2_RANGE =
+        ETCController::HE2_HIGH_VOLTAGE - ETCController::HE2_LOW_VOLTAGE;
 
-        /* ADD ISR for Cockpit and Reverse */
-        Cockpit.rise(callback([this]() { turnOffMotor(); }));
-        Cockpit.fall(callback([this]() { checkStartConditions(); }));
-        Reverse.rise(callback([this]() { switchForwardMotor(); }));
-        Reverse.fall(callback([this]() { switchReverseMotor(); }));
-    }
-
-    // Member Functions
 
     /**
-     * Read Hall Effect Sensors and then update ETC State. Checks implausibility also and starts
-     * timer.
+     * Constructs a new {@code ETCController} object with a reset state.
+     *
+     * ISRs are added for the cockpit and reverse switch at construction time.
      */
-    void updatePedalTravel();
+    ETCController();
+
 
     /**
-     * Add to state.mbbalive and then %= 16
+     * Updates the state of the ETC from the current values read off the hall-effect sensors.
+     *
+     * After updating the state, this function checks the conditions for implausibility and
+     * starts or resets the appropriate timers. If an implausibility is detected, the motor
+     * is turned off.
+     */
+    void updateState();
+
+
+    /**
+     * Increments the {@code mmb_alive} field of the ETC state, wrapping after 15.
      */
     void updateMBBAlive();
 
+
     /**
-     * Update state given ETCState struct
-     * @param new_state
+     * Sets the current state to the provided state.
+     *
+     * @param new_state  The new state to set.
      */
     void updateStateFromCAN(const ETCState& new_state);
 
-    /**
-     * Updates the digital output signal on the brake light pin based on the current ETC state.
-     */
-    void updateBrakeSignal();
 
     /**
-     * Reset state to default values
-     */
-    void resetState();
-
-    /**
-     *  Runs on falling cockpit switch, checks if brakes are pressed and TS is ready, then switches
-     * motor_enabled to true
+     * Checks the start conditions for the motor and sets {@code motor_enabled} if they are met.
+     *
+     * The conditions for start are:
+     * - The brake pedal is depressed.
+     * - The tractive system is ready.
+     * - The cockpit switch is ON (this method is called on a falling cockpit switch).
      */
     void checkStartConditions();
 
+
     /**
-     *  Runs RTDS for 3 seconds
+     * Runs the RTDS buzzer for 3 seconds.
      */
     void runRTDS();
 
-    // Accessors
-    [[nodiscard]] uint8_t getMBBAlive() const { return state.mbb_alive; }
-    [[nodiscard]] float getBrakes() const { return state.brakes_read; }
-    [[nodiscard]] float getHE1Read() const { return state.he1_read; }
-    [[nodiscard]] float getHE2Read() const { return state.he2_read; }
-    [[nodiscard]] float getHE1Travel() const { return state.he1_travel; }
-    [[nodiscard]] float getHE2Travel() const { return state.he2_travel; }
-    [[nodiscard]] float getPedalTravel() const { return state.pedal_travel; }
-    [[nodiscard]] int16_t getTorqueDemand() const {
-        return state.motor_enabled ? state.torque_demand : 0;
-    }
-    [[nodiscard]] int16_t getMaxSpeed() const { return MAX_SPEED; }
 
-    [[nodiscard]] bool isMotorForward() const { return state.motor_forward; }
-    [[nodiscard]] bool isMotorEnabled() const { return state.motor_enabled; }
-    [[nodiscard]] bool isTSReady() const { return state.ts_ready; }
-    [[nodiscard]] bool isCockpit() const { return state.cockpit; }
+    /**
+     * Quiets the RTDS buzzer.
+     */
+    void stopRTDS();
 
-    [[nodiscard]] ETCState getState() const { return state; }
 
-    void switchReverseMotor() { state.motor_forward = false; }
-    void switchForwardMotor() { state.motor_forward = true; }
+    /**
+     * Reset state to default values.
+     */
+    void resetState();
 
-    void turnOffMotor() { state.motor_enabled = false; }
+
+    /**
+     * Returns the state of the ETC.
+     */
+    ETCState getState() const;
+
+
+    /**
+     * Returns {@code state.mbb_alive}.
+     */
+    uint8_t getMBBAlive() const;
+
+
+    /**
+     * Returns {@code state.brakes_read}.
+     */
+    float getBrakes() const;
+
+
+    /**
+     * Returns {@code state.he1_read}.
+     */
+    float getHE1Read() const;
+
+
+    /**
+     * Returns {@code state.he2_read}.
+     */
+    float getHE2Read() const;
+
+
+    /**
+     * Returns {@code state.he1_travel}.
+     */
+    float getHE1Travel() const;
+
+
+    /**
+     * Returns {@code state.he2_travel}.
+     */
+    float getHE2Travel() const;
+
+
+    /**
+     * Returns {@code state.pedal_travel}.
+     */
+    float getPedalTravel() const;
+
+
+    /**
+     * Returns {@code state.torque_demand} if the motor is enabled, otherwise {@code 0}.
+     */
+    int16_t getTorqueDemand() const;
+
+
+    /**
+     * Returns {@code state.motor_forward}.
+     */
+    bool isMotorForward() const;
+
+
+    /**
+     * Returns {@code state.motor_enabled}.
+     */
+    bool isMotorEnabled() const;
+
+
+    /**
+     * Returns {@code state.ts_ready}.
+     */
+    bool isTractiveSystemReady() const;
+
+
+    /**
+     * Returns {@code state.cockpit}.
+     */
+    bool isCockpitSwitchSet() const;
+
+
+    /**
+     * Sets the motor to reverse mode.
+     */
+    void switchReverseMotor();
+
+
+    /**
+     * Sets the motor to forward mode.
+     */
+    void switchForwardMotor();
+
+
+    /**
+     * Disables the motor.
+     */
+    void turnOffMotor();
+
+
+    /**
+     * Whether the RTDS buzzer is running.
+     */
+    bool getRTDS();
+
+
+    /**
+     * Whether the brake pedal is being pressed.
+     */
+    bool isBraking();
+
+
+    /**
+     * Whether an implausibility is currently detected.
+     */
+    bool hasImplausibility();
 };
+
 
 #endif  // ETC_CONTROLLER_H
