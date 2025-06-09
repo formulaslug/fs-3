@@ -56,7 +56,10 @@ with open (args.input_file, "rb" ) as f:
             # if(len(data) < (col_byte_len)):
             #     df.write_csv(args.output_file)
             #     exit(0)
-            col_bit = np.frombuffer(data[pos:pos+col_byte_len], dtype=col_type, count=n)
+            if col_type != bool:
+                col_bit = np.frombuffer(data[pos:pos+col_byte_len], dtype=col_type, count=n)
+            else:
+                col_bit = np.frombuffer(np.unpackbits(data[pos:pos+col_byte_len]), dtype=bool, count=n)
             frame_piece_series = pl.Series(colTitles[i], col_bit)
             frame_pieces.append(frame_piece_series)
             pos += col_byte_len
