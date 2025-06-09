@@ -23,10 +23,10 @@ void VehicleStateManager::update() {
 
 void VehicleStateManager::processCANMessage() {
     if (!_mbedCAN || !_mbedCAN->isReady()) { return; }
-
+    // printf("Here\n");
     CANMessage msg;
     while (_mbedCAN->read(msg)) {
-        printf("%d", msg.id);
+        printf("%x\n", msg.id);
         switch (msg.id) {
             // ACC Message
             case CAN_ID::ACC_STATUS: {

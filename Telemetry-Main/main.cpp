@@ -4,8 +4,8 @@
 #include "radio.hpp"
 #include "VehicleStateManager.hpp"
 
-#define ENABLE_RADIO true
-#define ENABLE_SD true
+#define ENABLE_RADIO false
+#define ENABLE_SD false
 #define ENABLE_DASH true
 
 #define TICKS_PER_SECOND 200
@@ -29,7 +29,8 @@ DigitalOut cs(PC_8);
 SPI spi(PA_7, PA_6, PA_5);
 XBeeRadio radio(spi, cs, spi_attn);
 
-Layouts eve(PC_12, PC_11, PC_10, PD_2, PB_7, PC_13, EvePresets::CFA800480E3);
+
+// Layouts eve(PC_12, PC_11, PC_10, PD_2, PB_7, PC_13, EvePresets::CFA800480E3);
 
 Ticker ticker;
 
@@ -41,12 +42,12 @@ void update_sd(void) {
     // printf("SD!\n");
 }
 
-void update_dash(void) {
-    // printf("DASH!\n");
-    Layouts::StandardLayoutParams p{
-        .faults = Faults{0, 0, 1}, .soc = 60, .acc_temp = 80};
-    eve.drawStandardLayout2(p);
-}
+// void update_dash(void) {
+//     // printf("DASH!\n");
+//     Layouts::StandardLayoutParams p{
+//         .faults = Faults{0, 0, 1}, .soc = 60, .acc_temp = 80};
+//     eve.drawStandardLayout2(p);
+// }
 
 int main() {
     printf("Hello world\n");
@@ -64,41 +65,41 @@ int main() {
         }
     }, 1000ms / TICKS_PER_SECOND);
 
-    if (state.dash_on) {
-        eve.init(EvePresets::CFA800480E3);
-        ThisThread::sleep_for(10ms);
-        eve.startFrame();
-        eve.clear(0, 0, 0);
-        eve.endFrame();
-        ThisThread::sleep_for(10ms);
-    }
+    // if (state.dash_on) {
+    //     eve.init(EvePresets::CFA800480E3);
+    //     ThisThread::sleep_for(10ms);
+    //     eve.startFrame();
+    //     eve.clear(0, 0, 0);
+    //     eve.endFrame();
+    //     ThisThread::sleep_for(10ms);
+    // }
 
-    int radio_temp = radio.get_temp();
-    if (radio_temp >= 50 || radio_temp <= 20) {
-        printf("Radio temperature returned an unrealistic value. Disabling.\n");
-        state.radio_on = false;
-    }
+    // int radio_temp = radio.get_temp();
+    // if (radio_temp >= 70 || radio_temp <= 10) {
+    //     printf("Radio temperature returned an unrealistic value. Disabling.\n");
+    //     state.radio_on = false;
+    // }
 
     while (true) {
         vsm.update();
 
-        if (state.radio_event) {
-            state.radio_event = false;
-            if (state.radio_on) {
-                update_radio();
-            }
-        }
+        // if (state.radio_event) {
+        //     state.radio_event = false;
+        //     if (state.radio_on) {
+        //         update_radio();
+        //     }
+        // }
+        //
+        // if (state.sd_event) {
+        //     state.sd_event = false;
+        //     if (state.sd_on) {
+        //         update_sd();
+        //     }
+        // }
 
-        if (state.sd_event) {
-            state.sd_event = false;
-            if (state.sd_on) {
-                update_sd();
-            }
-        }
-
-        if (state.dash_on) {
-            update_dash();
-        }
+        // if (state.dash_on) {
+        //     update_dash();
+        // }
 
         // printf("CAN!\n");
 
