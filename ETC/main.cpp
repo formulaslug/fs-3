@@ -35,8 +35,8 @@ void do_can_processing() {
         // Wait for any event flag to be set (defined in the can wrapper class)
         uint32_t triggered_flags =
             global_events.wait_any(can_handle->THROTTLE_FLAG | can_handle->STATE_FLAG |
-                                   can_handle->SYNC_FLAG | can_handle->RX_FLAG);
-
+                                   can_handle->SYNC_FLAG | can_handle->RX_FLAG | can_handle->LIMITS_FLAG);
+        can_handle->processCANRx();
         /* Check for every event, process and then clear the corresponding flag */
         if (triggered_flags & can_handle->THROTTLE_FLAG) {
             //            DPRINT("Flag Trigger: Throttle\n");
@@ -52,6 +52,10 @@ void do_can_processing() {
             //            DPRINT("Flag Trigger: Sync\n");
             can_handle->sendSync();
             global_events.clear(can_handle->SYNC_FLAG);
+        }
+        if (triggered_flags & can_handle->LIMITS_FLAG) {
+            can_handle->sendCurrentLimits();
+            global_events.clear(can_handle->LIMITS_FLAG);
         }
         if (triggered_flags & can_handle->RX_FLAG) {
             //            DPRINT("Flag: CAN RX\n");
