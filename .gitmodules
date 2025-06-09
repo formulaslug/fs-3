@@ -2,10 +2,6 @@
 	path = ETC/mbed-os
 	url = https://github.com/mbed-ce/mbed-os.git
 	shallow = true
-[submodule "BMS/mbed-os"]
-	path = BMS/mbed-os
-	url = https://github.com/mbed-ce/mbed-os.git
-	shallow = true
 [submodule "BMS/lib-mbed-ltc681x"]
 	path = BMS/lib-mbed-ltc681x
 	url = https://github.com/formulaslug/lib-mbed-ltc681x.git

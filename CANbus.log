@@ -1,0 +1,169 @@
+Conversion Warnings Log
+
+
+MSG_ID: 390 	MSG_TYPE: S 	MSG_NAME: SME_RPDO_Throttle_Demand
+	SIG_NAME: SME_THROTL_UNUSED_BIT_1, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: SME_THROTL_UNUSED_BIT_2, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: SME_THROTL_UNUSED_BIT_3, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: SME_THROTL_UNUSED_BIT_4, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: SME_THROTL_UNUSED_BIT_5, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: SME_THROTL_UNUSED_BIT_6, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: SME_THROTL_UNUSED_BIT_7, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: SME_THROTL_UNUSED_BIT_8, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: SME_THROTL_UNUSED_BIT_9, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: SME_THROTL_UNUSED_SHORT_1, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+
+MSG_ID: 646 	MSG_TYPE: S 	MSG_NAME: SME_RPDO_Max_Currents
+	SIG_NAME: SME_CURRLIM_UNUSED_INT_1, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+
+MSG_ID: 1154 	MSG_TYPE: S 	MSG_NAME: SME_TPDO_Torque_speed
+	SIG_NAME: SME_TRQSPD_Speed, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+
+MSG_ID: 1666 	MSG_TYPE: S 	MSG_NAME: SME_TPDO_Temperature
+	SIG_NAME: SME_TEMP_ControllerTemperature, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: SME_TEMP_MotorTemperature, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+
+MSG_ID: 392 	MSG_TYPE: S 	MSG_NAME: ACC_TPDO_STATUS
+	SIG_NAME: ACC_STATUS_BMS_FAULT, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: ACC_STATUS_IMD_FAULT, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: ACC_STATUS_SHUTDOWN_STATE, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: ACC_STATUS_PRECHARGE_DONE, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: ACC_STATUS_PRECHARGING, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: ACC_STATUS_CELL_TOO_LOW, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: ACC_STATUS_CELL_TOO_HIGH, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: ACC_STATUS_TEMP_TOO_LOW, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: ACC_STATUS_TEMP_TOO_HIGH, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: ACC_STATUS_TEMP_TOO_HIGH_CRG, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: ACC_STATUS_CHARGING, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: ACC_STATUS_CELL_FAULT_INDEX, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+
+MSG_ID: 655360 	MSG_TYPE: X 	MSG_NAME: VDM_GPS_LAT_LONG
+	SIG_NAME: VDM_GPS_Latitude, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: VDM_GPS_Longitude, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+
+MSG_ID: 655361 	MSG_TYPE: X 	MSG_NAME: VDM_GPS_DATA
+	SIG_NAME: VDM_GPS_SPEED, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: VDM_GPS_ALTITUDE, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: VDM_GPS_TRUE_COURSE, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: VDM_GPS_SATELLITES_IN_USE, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: VDM_GPS_VALID1, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+
+MSG_ID: 655362 	MSG_TYPE: X 	MSG_NAME: VDM_DATE_TIME
+	SIG_NAME: VDM_GPS_VALID2, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: VDM_UTC_DATE_YEAR, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: VDM_UTC_DATE_MONTH, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: VDM_UTC_DATE_DAY, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: VDM_UTC_TIME_HOURS, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: VDM_UTC_TIME_MINUTES, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: VDM_UTC_TIME_SECONDS, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+
+MSG_ID: 655363 	MSG_TYPE: X 	MSG_NAME: VDM_ACCELERATION
+	SIG_NAME: VDM_X_AXIS_ACCELERATION, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: VDM_Y_AXIS_ACCELERATION, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: VDM_Z_AXIS_ACCELERATION, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+
+MSG_ID: 655364 	MSG_TYPE: X 	MSG_NAME: VDM_YAW_RATE
+	SIG_NAME: VDM_X_AXIS_YAW_RATE, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: VDM_Y_AXIS_YAW_RATE, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: VDM_Z_AXIS_YAW_RATE, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+
+MSG_ID: 393 	MSG_TYPE: S 	MSG_NAME: ETC_TPDO_STATUS
+	SIG_NAME: ETC_STATUS_RTD_BUTTON, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: ETC_STATUS_RTDS, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: ETC_STATUS_REVERSE, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: ETC_STATUS_BRAKELIGHT, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: ETC_STATUS_RTD, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: ETC_STATUS_IMPLAUSIBILITY, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: ETC_STATUS_TS_ACTIVE, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+
+MSG_ID: 416 	MSG_TYPE: S 	MSG_NAME: TMAIN_TPDO_DATA
+	SIG_NAME: TMAIN_DATA_BRAKES_F, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: TMAIN_DATA_BRAKES_R, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+
+MSG_ID: 418 	MSG_TYPE: S 	MSG_NAME: TPERIPH_FL_TPDO_DATA
+	SIG_NAME: TPERIPH_FL_DATA_WHEELSPEED, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: TPERIPH_FL_DATA_STRAIN, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+
+MSG_ID: 419 	MSG_TYPE: S 	MSG_NAME: TPERIPH_FR_TPDO_DATA
+	SIG_NAME: TPERIPH_FR_DATA_WHEELSPEED, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: TPERIPH_FR_DATA_STRAIN, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+
+MSG_ID: 420 	MSG_TYPE: S 	MSG_NAME: TPERIPH_BL_TPDO_DATA
+	SIG_NAME: TPERIPH_BL_DATA_WHEELSPEED, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: TPERIPH_BL_DATA_STRAIN, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+
+MSG_ID: 421 	MSG_TYPE: S 	MSG_NAME: TPERIPH_BR_TPDO_DATA
+	SIG_NAME: TPERIPH_BR_DATA_WHEELSPEED, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: TPERIPH_BR_DATA_STRAIN, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+
+MSG_ID: 673 	MSG_TYPE: S 	MSG_NAME: TPERIPH_FL_TPDO_TIRETEMP
+	SIG_NAME: TPERIPH_FL_TIRETEMP_1, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: TPERIPH_FL_TIRETEMP_2, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: TPERIPH_FL_TIRETEMP_3, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: TPERIPH_FL_TIRETEMP_4, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: TPERIPH_FL_TIRETEMP_5, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: TPERIPH_FL_TIRETEMP_6, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: TPERIPH_FL_TIRETEMP_7, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: TPERIPH_FL_TIRETEMP_8, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+
+MSG_ID: 674 	MSG_TYPE: S 	MSG_NAME: TPERIPH_FR_TPDO_TIRETEMP
+	SIG_NAME: TPERIPH_FR_TIRETEMP_1, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: TPERIPH_FR_TIRETEMP_2, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: TPERIPH_FR_TIRETEMP_3, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: TPERIPH_FR_TIRETEMP_4, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: TPERIPH_FR_TIRETEMP_5, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: TPERIPH_FR_TIRETEMP_6, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: TPERIPH_FR_TIRETEMP_7, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: TPERIPH_FR_TIRETEMP_8, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+
+MSG_ID: 675 	MSG_TYPE: S 	MSG_NAME: TPERIPH_BL_TPDO_TIRETEMP
+	SIG_NAME: TPERIPH_BL_TIRETEMP_1, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: TPERIPH_BL_TIRETEMP_2, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: TPERIPH_BL_TIRETEMP_3, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: TPERIPH_BL_TIRETEMP_4, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: TPERIPH_BL_TIRETEMP_5, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: TPERIPH_BL_TIRETEMP_6, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: TPERIPH_BL_TIRETEMP_7, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: TPERIPH_BL_TIRETEMP_8, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+
+MSG_ID: 676 	MSG_TYPE: S 	MSG_NAME: TPERIPH_BR_TPDO_TIRETEMP
+	SIG_NAME: TPERIPH_BR_TIRETEMP_1, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: TPERIPH_BR_TIRETEMP_2, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: TPERIPH_BR_TIRETEMP_3, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: TPERIPH_BR_TIRETEMP_4, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: TPERIPH_BR_TIRETEMP_5, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: TPERIPH_BR_TIRETEMP_6, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: TPERIPH_BR_TIRETEMP_7, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: TPERIPH_BR_TIRETEMP_8, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+
+MSG_ID: 2021 	MSG_TYPE: S 	MSG_NAME: LSS_COMMAND
+	SIG_NAME: COMMAND_MODE, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: COMMAND_COMMAND_SPECIFIER, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+
+MSG_ID: 2020 	MSG_TYPE: S 	MSG_NAME: LSS_RESPONSE
+	SIG_NAME: RESPONSE_COMMAND_SPECIFIER, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+
+MSG_ID: 518 	MSG_TYPE: S 	MSG_NAME: SMPC_RPDO_CONTROL
+	SIG_NAME: SMPC_CONTROL_DEST_NODE_ID, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: SMPC_CONTROL_ENABLE, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: SMPC_CONTROL_CURRENT_10X_MULT, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: SMPC_CONTROL_EVSE_OVERRIDE, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+
+MSG_ID: 774 	MSG_TYPE: S 	MSG_NAME: SMPC_RPDO_MAX_VOLTAGE_CURRENT
+	SIG_NAME: SMPC_MAX_DEST_NODE_ID, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: SMPC_MAX_CHRG_VOLTAGE, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+	SIG_NAME: SMPC_MAX_CHRG_CURRENT, STATUS: Invalid Max or Min value., ACTION: Value Set to default
+
+MSG_ID: 1073741824 	MSG_TYPE: X 	MSG_NAME: VECTOR__INDEPENDENT_SIG_MSG
+	SIG_NAME: ACC_SEG5_VOLTS_CELL0, STATUS: No error, ACTION: Signal Discarded
+	SIG_NAME: ACC_SEG5_VOLTS_CELL1, STATUS: No error, ACTION: Signal Discarded
+	SIG_NAME: ACC_SEG5_VOLTS_CELL2, STATUS: No error, ACTION: Signal Discarded
+	SIG_NAME: ACC_SEG5_VOLTS_CELL4, STATUS: No error, ACTION: Signal Discarded
+	SIG_NAME: ACC_SEG5_VOLTS_CELL3, STATUS: No error, ACTION: Signal Discarded
+	SIG_NAME: ACC_SEG5_VOLTS_CELL5, STATUS: No error, ACTION: Signal Discarded
+	SIG_NAME: ACC_SEG5_TEMPS_CELL1, STATUS: No error, ACTION: Signal Discarded
+	SIG_NAME: ACC_SEG5_TEMPS_CELL2, STATUS: No error, ACTION: Signal Discarded
+	SIG_NAME: ACC_SEG5_TEMPS_CELL0, STATUS: No error, ACTION: Signal Discarded
+	SIG_NAME: ACC_SEG5_TEMPS_CELL4, STATUS: No error, ACTION: Signal Discarded
+	SIG_NAME: ACC_SEG5_TEMPS_CELL3, STATUS: No error, ACTION: Signal Discarded
+	SIG_NAME: ACC_SEG5_TEMPS_CELL5, STATUS: No error, ACTION: Signal Discarded
