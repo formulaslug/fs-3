@@ -24,12 +24,11 @@ types_dict = {
 
 
 with open (args.input_file, "rb" ) as f:
-
-
-    f = open("test.fsdaq", "rb")
+    # f = open("test.fsdaq", "rb")
     df = pl.DataFrame()
     batchlen = 0
     data = f.read()
+    # print(ascii(data))
     header = ascii(data[:8])
     m = np.frombuffer(data[8:12], dtype=np.uint32, count=1)[0]
     n = np.frombuffer(data[12:16], dtype=np.uint32, count=1)[0]
@@ -47,12 +46,16 @@ with open (args.input_file, "rb" ) as f:
         colType = data[pos:pos+2].decode('ascii')
         colTypes.append((types_dict[colType], int((2**int(colType[1]))/8*n)))
         pos += 2
-    print(colTypes)
+    # print(colTypes)
+    # print(len(data))
     while(ascii(data[pos:pos+8]) != header):
         frame_pieces = []
         for i in range(m):
             col_byte_len = colTypes[i][1]
             col_type = colTypes[i][0]
+            # if(len(data) < (col_byte_len)):
+            #     df.write_csv(args.output_file)
+            #     exit(0)
             col_bit = np.frombuffer(data[pos:pos+col_byte_len], dtype=col_type, count=n)
             frame_piece_series = pl.Series(colTitles[i], col_bit)
             frame_pieces.append(frame_piece_series)
@@ -63,4 +66,5 @@ with open (args.input_file, "rb" ) as f:
             df = frame_piece
         else:
             df = df.vstack(frame_piece)
+        # print(df)
     df.write_csv(args.output_file)
