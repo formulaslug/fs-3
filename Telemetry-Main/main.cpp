@@ -108,7 +108,8 @@ int main() {
     // Initializing CAN and vehicle state
 
 
-    // Initializing Dash
+    
+    
     ticker.attach([&]() {
         state.tick++;
         if (state.tick % (TICKS_PER_SECOND / RADIO_UPDATE_HZ) == 0) {
@@ -122,6 +123,8 @@ int main() {
         }
     }, 1000ms / TICKS_PER_SECOND);
 
+    
+    // Initializing Dash
     if (state.dash_on) {
         eve.init(EvePresets::CFA800480E3);
         ThisThread::sleep_for(10ms);
