@@ -27,8 +27,8 @@ add_library(libradio STATIC ../XBeeRadio/libradio/src/radio.cpp)
 target_include_directories(libradio PUBLIC ../XBeeRadio/libradio/src/)
 target_link_libraries(libradio mbed-os)
 
-add_library(BT817Q STATIC ../Telemetry-Dash1/BT817Q.cpp ../Telemetry-Dash1/layouts.cpp)
-target_include_directories(BT817Q PUBLIC ../Telemetry-Dash1/)
+add_library(BT817Q STATIC ./BT817Q/BT817Q.cpp ./BT817Q/layouts.cpp)
+target_include_directories(BT817Q PUBLIC ./BT817Q)
 target_link_libraries(BT817Q mbed-core-flags)
 
 add_library(SDFileSystem STATIC ../SDFileSystem/SDFileSystem.cpp)

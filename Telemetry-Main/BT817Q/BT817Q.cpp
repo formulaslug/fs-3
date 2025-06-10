@@ -263,20 +263,14 @@ void BT817Q::clear(uint8_t r, uint8_t g, uint8_t b) {
   cmd(CLEAR(1, 1, 1));
 }
 
-void BT817Q::drawText(
-    int16_t x, int16_t y, const char *s, uint8_t font, uint16_t options) {
+void BT817Q::drawText(int16_t x, int16_t y, const char *s, uint8_t font, uint16_t options) {
   cmd(CMD_TEXT);
   cmd((uint32_t(y) << 16) | uint16_t(x));
   cmd((uint32_t(options) << 16) | font);
   cmdString(s);
 }
 
-void BT817Q::drawText(int16_t x,
-                      int16_t y,
-                      const char *s,
-                      Color color,
-                      uint8_t font,
-                      uint16_t options) {
+void BT817Q::drawText(int16_t x, int16_t y, const char *s, Color color, uint8_t font, uint16_t options) {
   cmd(SAVE_CONTEXT());
   setMainColor(color);
   drawText(x, y, s, font, options);
@@ -306,9 +300,8 @@ void BT817Q::drawNumber(int16_t x,
   drawNumber(x, y, n, font, width, options);
 }
 
-void BT817Q::drawFormattedText(
-    int16_t x, int16_t y, const char *s, uint8_t font, uint16_t options, ...) {
-  size_t len = snprintf(nullptr, 0, s);
+void BT817Q::drawFormattedText(const int16_t x, const int16_t y, const char *s, const uint8_t font, const uint16_t options, ...) {
+  const size_t len = snprintf(nullptr, 0, s);
   char buffer[len];
   va_list args;
   va_start(args, options);
@@ -317,13 +310,7 @@ void BT817Q::drawFormattedText(
   drawText(x, y, buffer, font, options);
 }
 
-void BT817Q::drawFormattedText(int16_t x,
-                               int16_t y,
-                               const char *s,
-                               Color color,
-                               uint8_t font,
-                               uint16_t options,
-                               ...) {
+void BT817Q::drawFormattedText(int16_t x, int16_t y, const char *s, Color color, uint8_t font, uint16_t options, ...) {
   cmd(SAVE_CONTEXT());
   setMainColor(color);
   size_t len = snprintf(nullptr, 0, s);

@@ -36,7 +36,7 @@ SPI spi(PA_7, PA_6, PA_5);
 XBeeRadio radio(spi, cs, spi_attn);
 auto mbed_can = CAN(PB_8, PB_9, 500000);
 auto can = MbedCAN(mbed_can);
-VehicleStateManager vsm = VehicleStateManager(&can);
+auto vsm = VehicleStateManager(&can);
 
 // Default DASH parameters
 Layouts::StandardLayoutParams params = {
@@ -61,43 +61,50 @@ Layouts::StandardLayoutParams params = {
 
 Layouts eve(PC_12, PC_11, PC_10, PD_2, PB_7, PC_13, EvePresets::CFA800480E3);
 
-Ticker ticker;
+// Ticker ticker;
 
-void update_radio(void) {
+void update_radio() {
     // printf("RADIO!\n");
 }
 
-void update_sd(void) {
+void update_sd() {
   // printf("SD!\n");
 }
 void update_dash() {
-    // printf("DASH!\n");
-    const VehicleState vsm_state = vsm.getState();
-    int8_t total_temp = 0;
-    uint8_t max_temp = 0;
-    for (auto [TEMPS_CELL0, TEMPS_CELL1, TEMPS_CELL2, TEMPS_CELL3, TEMPS_CELL4, TEMPS_CELL5] : vsm_state.accSegTemps) {
-        total_temp += (TEMPS_CELL0 + TEMPS_CELL1 + TEMPS_CELL2 + TEMPS_CELL3 + TEMPS_CELL4 +TEMPS_CELL5);
-        max_temp = max(TEMPS_CELL0, max(TEMPS_CELL1, max(TEMPS_CELL2, max(TEMPS_CELL3, max(TEMPS_CELL4, TEMPS_CELL5)))));
-    }
-    params = {
-        .faults = Faults{false, static_cast<bool>(vsm_state.accStatus.PRECHARGE_DONE), static_cast<bool>(vsm_state.accStatus.SHUTDOWN_STATE)},
-        // .speed = static_cast<uint8_t>(vsm_state.vdmGpsData.SPEED / 100),
-        .speed = static_cast<uint8_t>(vsm_state.etcStatus.PEDAL_TRAVEL),
-        .soc = vsm_state.accPower.SOC,
-        .acc_temp = max_temp,
-        .ctrl_tmp = vsm_state.smeTemp.CONTROLLER_TEMP,
-        .mtr_tmp = vsm_state.smeTemp.MOTOR_TEMP,
-        .mtr_volt = static_cast<float>(vsm_state.accPower.PACK_VOLTAGE/100.0),
-        .glv = static_cast<float>(vsm_state.pdbPowerA.GLV_VOLTAGE),
-        .brake_balance = 50,
-        // .throttle_demand = static_cast<float>(static_cast<float>(vsm_state.smeThrottleDemand.TORQUE_DEMAND)/30000.0),
-         .throttle_demand = static_cast<float>(vsm_state.etcStatus.PEDAL_TRAVEL),
-        .brake_demand = static_cast<float>(((static_cast<float>(vsm_state.etcStatus.BRAKE_SENSE_VOLTAGE)/1000.0)-0.5)/4),
-        .time = chrono::milliseconds(0),
-        .delta_time_seconds = 0.01,
-        .rtds = false,
-        .rpm = vsm_state.smeTrqSpd.SPEED
-    };
+  // printf("DASH!\n");
+  const VehicleState vsm_state = vsm.getState();
+  int8_t total_temp = 0;
+  uint8_t max_temp = 0;
+  for (auto [TEMPS_CELL0, TEMPS_CELL1, TEMPS_CELL2, TEMPS_CELL3, TEMPS_CELL4,TEMPS_CELL5] : vsm_state.accSegTemps) {
+    total_temp += (TEMPS_CELL0 + TEMPS_CELL1 + TEMPS_CELL2 + TEMPS_CELL3 + TEMPS_CELL4 + TEMPS_CELL5);
+    max_temp = max( TEMPS_CELL0, max(TEMPS_CELL1, max(TEMPS_CELL2, max(TEMPS_CELL3, max(TEMPS_CELL4, TEMPS_CELL5)))));
+  }
+  params = {
+      .faults =
+          Faults{false, static_cast<bool>(vsm_state.accStatus.PRECHARGE_DONE),
+                 static_cast<bool>(vsm_state.accStatus.SHUTDOWN_STATE)},
+      // .speed = static_cast<uint8_t>(vsm_state.vdmGpsData.SPEED / 100),
+      .speed = static_cast<uint8_t>(vsm_state.etcStatus.PEDAL_TRAVEL),
+      .soc = vsm_state.accPower.SOC,
+      .acc_temp = max_temp,
+      .ctrl_tmp = vsm_state.smeTemp.CONTROLLER_TEMP,
+      .mtr_tmp = vsm_state.smeTemp.MOTOR_TEMP,
+      .mtr_volt = static_cast<float>(vsm_state.accPower.PACK_VOLTAGE / 100.0),
+      .glv = static_cast<float>(vsm_state.pdbPowerA.GLV_VOLTAGE),
+      .brake_balance = 50,
+      // .throttle_demand =
+      // static_cast<float>(static_cast<float>(vsm_state.smeThrottleDemand.TORQUE_DEMAND)/30000.0),
+      .throttle_demand = static_cast<float>(vsm_state.etcStatus.PEDAL_TRAVEL),
+      .brake_demand = static_cast<float>(
+          ((static_cast<float>(vsm_state.etcStatus.BRAKE_SENSE_VOLTAGE) /
+            1000.0) -
+           0.5) /
+          4),
+      .time = chrono::milliseconds(0),
+      .delta_time_seconds = 0.01,
+      .rtds = false,
+      .rpm = vsm_state.smeTrqSpd.SPEED};
+  // params.speed++;
   eve.drawStandardLayout(params);
 }
 
@@ -106,18 +113,18 @@ int main() {
     ThisThread::sleep_for(100ms);
 
     // Initializing CAN and vehicle state
-    ticker.attach([&]() {
-        state.tick++;
-        if (state.tick % (TICKS_PER_SECOND / RADIO_UPDATE_HZ) == 0) {
-            state.radio_event = true;
-        }
-        if (state.tick % (TICKS_PER_SECOND / SD_UPDATE_HZ) == 0) {
-            state.sd_event = true;
-        }
-        if (state.tick % (TICKS_PER_SECOND / DASH_UPDATE_HZ) == 0) {
-            state.dash_event = true;
-        }
-    }, 1000ms / TICKS_PER_SECOND);
+    // ticker.attach([&]() {
+    //     state.tick++;
+    //     if (state.tick % (TICKS_PER_SECOND / RADIO_UPDATE_HZ) == 0) {
+    //         state.radio_event = true;
+    //     }
+    //     if (state.tick % (TICKS_PER_SECOND / SD_UPDATE_HZ) == 0) {
+    //         state.sd_event = true;
+    //     }
+    //     if (state.tick % (TICKS_PER_SECOND / DASH_UPDATE_HZ) == 0) {
+    //         state.dash_event = true;
+    //     }
+    // }, 1000ms / TICKS_PER_SECOND);
 
     
     // Initializing Dash
@@ -135,9 +142,15 @@ int main() {
     //     printf("Radio temperature returned an unrealistic value. Disabling.\n");
     //     state.radio_on = false;
     // }
-
+    int x = 0;
+    // Timer t;
+    // t.start();
     while (true) {
+        // t.reset();
         vsm.update();
+        // printf("%f", t.elapsed_time().count()/1000.0);
+
+        x++;
         // Remember to read f and r brake pressure
 
 
@@ -155,10 +168,14 @@ int main() {
         //     }
         // }
 
-        if (state.dash_event) {
-            printf("Update Dash -- ");
+        // if (state.dash_event) {
+        //     printf("Update Dash -- ");
+        //     update_dash();
+        //     state.dash_event = false;
+        // }
+        if (x>3500) {
             update_dash();
-            state.dash_event = false;
+            x = 0;
         }
 
         // printf("CAN!\n");

@@ -25,12 +25,14 @@ void VehicleStateManager::processCANMessage() {
     if (!_mbedCAN || !_mbedCAN->isReady()) { return; }
     // printf("Here\n");
     CANMessage msg;
-    while (_mbedCAN->read(msg)) {
+    int processed = 0;
+    while ((_mbedCAN->read(msg)) && (processed < 20)) {
         // printf("%x\n", msg.id);
+        processed++;
         switch (msg.id) {
             // ACC Message
             case CAN_ID::ACC_STATUS: {
-                const ACC_STATUS_t* data = reinterpret_cast<const ACC_STATUS_t*>(msg.data);
+                const auto* data = reinterpret_cast<const ACC_STATUS_t*>(msg.data);
                 _vehicleState.accStatus = *data;
                 break;
             }
