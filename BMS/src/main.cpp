@@ -59,7 +59,7 @@ bool checkingPrechargeStatus = false;
 bool checkingShutdownStatus = false;
 
 bool prechargeDone = false;
-bool hasBmsFault = true;
+bool hasBmsFault = false; // assume no fault at start
 bool isCharging = false;
 bool hasFansOn = false;
 bool isBalancing = false;
@@ -127,7 +127,6 @@ int main() {
                 continue; // If not an osEventMessage, continue
             }
             // Status Message unpacking from bmsEvent
-            hasBmsFault = false;
 
 
             maxCellTemp = bmsEvent->maxTemp; // Assign the maxTemp from bmsEvent
@@ -168,6 +167,7 @@ int main() {
                 // Process the bmsState value in bmsEvent
                 case BMSThreadState::BMSStartup:
                     printf("BMS Fault Startup State\n");
+                    hasBmsFault = false;
                     break;
                 case BMSThreadState::BMSIdle:
                     // printf("BMS Fault Idle State\n");
@@ -184,7 +184,6 @@ int main() {
                     break;
                 case BMSThreadState::BMSFaultRecover:
                     printf("BMS Fault Recovery State\n");
-                    hasBmsFault = false;
                     break;
                 case BMSThreadState::BMSFault:
                     printf("*** BMS FAULT ***\n");
@@ -251,7 +250,7 @@ int main() {
         }
 
         bms_fault_pin = !hasBmsFault;
-        bms_fault_inverse_pin = !bms_fault_pin;
+        bms_fault_inverse_pin = hasBmsFault;
 
 
         precharge_control_pin = prechargeDone;
@@ -264,7 +263,7 @@ int main() {
         }
         fan_pwm.write(fan_percent / 100.0);
 
-        printf("shutdown state: %x\n", shutdown_measure_pin.read());
+        // printf("shutdown state: %x\n", shutdown_measure_pin.read());
 
         status_message.bmsFault = hasBmsFault;
         status_message.shutdownState = shutdown_measure_pin.read();
@@ -336,8 +335,8 @@ void initIO() {
     fan_pwm.period_us(40);
     fan_pwm.write(0);
     fan_percent = 0;
-    bms_fault_pin = 1; // assume no fault at start, 1 is no fault
-    bms_fault_inverse_pin = 0; // assume no fault at start, 0 is no fault
+    bms_fault_pin = !hasBmsFault; // assume no fault at start, 1 is no fault
+    bms_fault_inverse_pin = hasBmsFault; // assume no fault at start, 0 is no fault
     precharge_control_pin = 0; // positive AIR open at start
     state_of_charge = 100; // TODO: CHANGE TO ACCOUNT FOR POSSIBLE DISCHARGE
 
