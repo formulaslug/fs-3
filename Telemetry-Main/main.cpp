@@ -71,7 +71,7 @@ void update_sd(void) {
   // printf("SD!\n");
 }
 void update_dash() {
-  // printf("DASH!\n");
+    // printf("DASH!\n");
     const VehicleState vsm_state = vsm.getState();
     int8_t total_temp = 0;
     uint8_t max_temp = 0;
@@ -98,7 +98,7 @@ void update_dash() {
         .rtds = false,
         .rpm = vsm_state.smeTrqSpd.SPEED
     };
-  eve.drawStandardLayout2(params);
+  eve.drawStandardLayout(params);
 }
 
 int main() {
@@ -106,10 +106,6 @@ int main() {
     ThisThread::sleep_for(100ms);
 
     // Initializing CAN and vehicle state
-
-
-    
-    
     ticker.attach([&]() {
         state.tick++;
         if (state.tick % (TICKS_PER_SECOND / RADIO_UPDATE_HZ) == 0) {
