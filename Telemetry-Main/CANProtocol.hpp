@@ -204,21 +204,21 @@ struct VDM_GPS_LAT_LONG_t {
 };
 
 struct VDM_GPS_DATA_t {
-    int16_t SPEED;                    // bits 7-22
+    uint16_t SPEED;                    // bits 7-22
     int16_t ALTITUDE;                 // bits 23-38
-    int16_t TRUE_COURSE;              // bits 39-54
-    int8_t  SATELLITES_IN_USE;        // bits 55-62
-    int8_t  VALID1;                   // bits 63-70
+    uint16_t TRUE_COURSE;              // bits 39-54
+    uint8_t  SATELLITES_IN_USE;        // bits 55-62
+    uint8_t  VALID1;                   // bits 63-70
 };
 
 struct VDM_DATE_TIME_t {
-    int8_t VALID2;                    // bits 7-14
-    int8_t UTC_DATE_YEAR;             // bits 15-22
-    int8_t UTC_DATE_MONTH;            // bits 23-30
-    int8_t UTC_DATE_DAY;              // bits 31-38
-    int8_t UTC_TIME_HOURS;            // bits 47-54
-    int8_t UTC_TIME_MINUTES;          // bits 55-62
-    int8_t UTC_TIME_SECONDS;          // bits 63-70
+    uint8_t VALID2;                    // bits 7-14
+    uint8_t UTC_DATE_YEAR;             // bits 15-22
+    uint8_t UTC_DATE_MONTH;            // bits 23-30
+    uint8_t UTC_DATE_DAY;              // bits 31-38
+    uint8_t UTC_TIME_HOURS;            // bits 47-54
+    uint8_t UTC_TIME_MINUTES;          // bits 55-62
+    uint8_t UTC_TIME_SECONDS;          // bits 63-70
 };
 
 struct VDM_ACCELERATION_t {

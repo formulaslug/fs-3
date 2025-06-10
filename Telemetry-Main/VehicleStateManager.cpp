@@ -26,7 +26,7 @@ void VehicleStateManager::processCANMessage() {
     // printf("Here\n");
     CANMessage msg;
     while (_mbedCAN->read(msg)) {
-        printf("%x\n", msg.id);
+        // printf("%x\n", msg.id);
         switch (msg.id) {
             // ACC Message
             case CAN_ID::ACC_STATUS: {
@@ -77,6 +77,7 @@ void VehicleStateManager::processCANMessage() {
             case CAN_ID::ETC_STATUS: {
                 const ETC_STATUS_t* data = reinterpret_cast<const ETC_STATUS_t*>(msg.data);
                 _vehicleState.etcStatus = *data;
+                printf("pedal travel: %d\n", _vehicleState.etcStatus.PEDAL_TRAVEL);
                 break;
             }
             // PDB Messages
