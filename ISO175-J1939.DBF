@@ -1,0 +1,29 @@
+//******************************BUSMASTER Messages and signals Database ******************************//
+
+[DATABASE_VERSION] 1.3
+
+[PROTOCOL] J1939
+
+[BUSMASTER_VERSION] [3.2.2]
+
+[NUMBER_OF_MESSAGES] 2
+
+[START_MSG] TP_CM_BAM,65524,8,0,1,X
+[END_MSG]
+
+[START_MSG] PGN_Info_General,65281,8,14,1,X
+[START_SIGNALS] R_iso_corrected,16,1,0,U,65535,0,1,0.000000,1.000000,Ohm,
+[START_SIGNALS] R_iso_status,8,3,0,U,255,0,1,0.000000,1.000000,,
+[START_SIGNALS] MeasurementCounter,8,4,0,U,255,0,1,0.000000,1.000000,,
+[START_SIGNALS] Device_Error,1,5,0,B,1,0,1,0.000000,1.000000,,
+[START_SIGNALS] HV_P_To_Chassis_error,1,5,1,B,1,0,1,0.000000,1.000000,,
+[START_SIGNALS] HV_N_To_Chassis_error,1,5,2,B,1,0,1,0.000000,1.000000,,
+[START_SIGNALS] Chassis_GND_Conn_faults,1,5,3,B,1,0,1,0.000000,1.000000,,
+[START_SIGNALS] Insulation_res_fault,1,5,4,B,1,0,1,0.000000,1.000000,,
+[START_SIGNALS] Insulation_resistance_warning,1,5,5,B,1,0,1,0.000000,1.000000,,
+[START_SIGNALS] Insulation_resistance_out_of_date,1,5,6,B,1,0,1,0.000000,1.000000,,
+[START_SIGNALS] HV_Voltage_Unbalance_Faults,1,5,7,B,1,0,1,0.000000,1.000000,,
+[START_SIGNALS] Undervoltage_error,1,6,0,B,1,0,1,0.000000,1.000000,,
+[START_SIGNALS] System_condition_unstable,1,6,1,B,1,0,1,0.000000,1.000000,,
+[START_SIGNALS] Earth_Disconnector_open,1,6,2,B,1,0,1,0.000000,1.000000,,
+[END_MSG]
