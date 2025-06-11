@@ -150,6 +150,9 @@ SDFileSystem::SDFileSystem(PinName mosi, PinName miso, PinName sclk, PinName cs,
 int SDFileSystem::initialise_card() {
     // Set to SCK for initialisation, and clock card with cs = 1
     _spi.frequency(_init_sck);
+
+    _spi.set_dma_usage(DMAUsage::DMA_USAGE_OPPORTUNISTIC);
+
     _cs = 1;
     for (int i = 0; i < 16; i++) {
         _spi.write(0xFF);

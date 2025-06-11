@@ -144,8 +144,7 @@ if __name__ == "__main__":
     #     v = v.removesuffix("),)")
     #     print("{:33s} {}".format(k, v))
 
-    n = 100
-    generate_nanoarrow_code({k: signal_to_datatype[k] for k in list(signal_to_datatype)[:n]}, 8)
+    generate_nanoarrow_code({k: signal_to_datatype[k] for k in list(signal_to_datatype)}, 8)
 
 
 

@@ -29,7 +29,7 @@ int main(int argc, char *argv[]) {
     write_fsdaq_schema(file);
 
     Values vals{};
-    // memset(&vals, INT_MAX, sizeof(vals));
+    memset(&vals, INT_MAX, sizeof(vals));
 
     write_fsdaq_batch(&vals, file);
 
