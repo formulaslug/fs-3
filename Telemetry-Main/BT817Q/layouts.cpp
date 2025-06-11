@@ -47,6 +47,7 @@ void Layouts::drawStandardLayout(Faults faults, const uint8_t speed, const uint8
   if (failure == startFrame()) {
     return;
   }
+  printf("Drew!\n");
   clear(255, 255, 255); // black background for frame
   setMainColor(black);
   drawProgressBar(Point{220, 10}, 340, 35, speed, 110, mid_gray, orange);       // mph progress bar

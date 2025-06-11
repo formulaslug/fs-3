@@ -148,7 +148,6 @@ int main() {
     while (true) {
         // t.reset();
         vsm.update();
-        // printf("%f", t.elapsed_time().count()/1000.0);
 
         x++;
         // Remember to read f and r brake pressure
@@ -173,9 +172,17 @@ int main() {
         //     update_dash();
         //     state.dash_event = false;
         // }
-        if (x>3500) {
+        // printf("Time: %f\n", t.elapsed_time().count()/1.0);
+        // t.reset();
+        // update_dash();
+        // printf("\tDash: %f\n", t.elapsed_time().count()/1.0);
+        if (x>7000) {
+            // printf("Time: %f\n", t.elapsed_time().count()/1.0);
+            // t.reset();
             update_dash();
+            // printf("\tDash: %f\n", t.elapsed_time().count()/1.0);
             x = 0;
+            // printf("Updating Dash\n");
         }
 
         // printf("CAN!\n");
