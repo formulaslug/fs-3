@@ -6,8 +6,6 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include <bits/this_thread_sleep.h>
-
 #define ENABLE_RADIO false
 #define ENABLE_SD false
 #define ENABLE_DASH true
@@ -105,7 +103,7 @@ void update_dash() {
       .rtds = false,
       .rpm = vsm_state.smeTrqSpd.SPEED};
   // params.speed++;
-  eve.drawStandardLayout(params);
+  eve.drawStandardLayout2(params);
 }
 
 int main() {
@@ -129,12 +127,15 @@ int main() {
     
     // Initializing Dash
     if (state.dash_on) {
+        // ThisThread::sleep_for(500ms);
         eve.init(EvePresets::CFA800480E3);
         ThisThread::sleep_for(10ms);
         eve.startFrame();
-        eve.clear(0, 0, 0);
+        eve.clear(255, 255, 0);
         eve.endFrame();
-        ThisThread::sleep_for(10ms);
+        // eve.loadFonts();
+        // ThisThread::sleep_for(600ms);
+        // update_dash();
     }
 
     // int radio_temp = radio.get_temp();
@@ -143,11 +144,12 @@ int main() {
     //     state.radio_on = false;
     // }
     int x = 0;
-    // Timer t;
-    // t.start();
+    Timer t;
+    t.start();
+    auto p = Layouts::StandardLayoutParams{.faults= Faults{}, .soc = 3}; //for testing
     while (true) {
-        // t.reset();
-        vsm.update();
+        t.reset();
+        // vsm.update();
 
         x++;
         // Remember to read f and r brake pressure
@@ -178,9 +180,11 @@ int main() {
         // printf("\tDash: %f\n", t.elapsed_time().count()/1.0);
         if (x>7000) {
             // printf("Time: %f\n", t.elapsed_time().count()/1.0);
-            // t.reset();
-            update_dash();
-            // printf("\tDash: %f\n", t.elapsed_time().count()/1.0);
+            t.reset();
+            // update_dash();
+            eve.drawStandardLayout2(p);
+            printf("\tDash: %f\n", t.elapsed_time().count()/1.0);
+
             x = 0;
             // printf("Updating Dash\n");
         }

@@ -7,29 +7,34 @@ BT817Q::BT817Q(PinName mosi,
                PinName pdn,
                PinName irq,
                EvePanel panel)
-    : _spi(mosi, miso, sck), _cs(cs), _pdn(pdn), _irq(irq), _p(panel) {}
+    : _spi(mosi, miso, sck), _cs(cs), _pdn(pdn), _irq(irq), _p(panel) {
+  _pdn=0;
+}
 
 void BT817Q::init(const EvePanel &p) {
   printf("Initializing EVE...\n");
   // ThisThread::sleep_for(1000ms);
 
-  ThisThread::sleep_for(100ms);
+  ThisThread::sleep_for(20ms);
   _pdn = 0;
-  ThisThread::sleep_for(100ms);
+  ThisThread::sleep_for(6ms);
   _pdn = 1;
-  ThisThread::sleep_for(100ms);
+  ThisThread::sleep_for(300ms);
+
+  hostCmd(HCMD_RST_PULSE, 0x00);
 
   // SPI safe‑start (<= 11 MHz until PCLK up)
   _cs = 1;
   _spi.format(8, 0);
-  _spi.frequency(1000000);
+  _spi.frequency(30*100000);
   // _spi.frequency(30030030);
   _cs = 0;
+  // ThisThread::sleep_for(200ms);
 
   hostCmd(HCMD_CLKEXT, 0x00);
   hostCmd(HCMD_CLKSEL, 0x46);
   hostCmd(HCMD_ACTIVE, 0x00);
-  ThisThread::sleep_for(300ms);
+  // ThisThread::sleep_for(300ms);
 
   // Check if EVE is in working status
   while (0x7c != read8(REG_ID))
@@ -45,6 +50,7 @@ void BT817Q::init(const EvePanel &p) {
 
   write8(REG_PCLK, 0); // Default to 0; we set it properly last
   write8(REG_PWM_DUTY, 0);
+
 
   // Panel timing registers000000
   write16(REG_HSIZE, p.width);
@@ -83,14 +89,22 @@ void BT817Q::init(const EvePanel &p) {
 
   // explicitly set vertex format for vertex2F
   cmd(VERTEX_FORMAT(4));
-  cmdLoadRomFonts(1, 34);
-  cmdLoadRomFonts(2, 33);
-  cmdLoadRomFonts(3, 32);
+  loadFonts();
 
   // I dont think we need this?
   // Reset command FIFO
   // _cmd_wp = 0;
   // write32(REG_CMD_WRITE, 0);
+  // ThisThread::sleep_for(200ms);
+}
+
+void BT817Q::loadFonts() {
+  cmdLoadRomFonts(1, 34);
+  cmdLoadRomFonts(2, 33);
+  cmdLoadRomFonts(3, 32);
+  // cmdLoadRomFonts(31, 34);
+  // cmdLoadRomFonts(30, 33);
+  // cmdLoadRomFonts(29, 32);
 }
 
 void BT817Q::selectWriteAddress(uint32_t addr) {

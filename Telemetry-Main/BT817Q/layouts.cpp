@@ -47,7 +47,8 @@ void Layouts::drawStandardLayout(Faults faults, const uint8_t speed, const uint8
   if (failure == startFrame()) {
     return;
   }
-  printf("Drew!\n");
+  loadFonts();
+  // printf("Drew!\n");
   clear(255, 255, 255); // black background for frame
   setMainColor(black);
   drawProgressBar(Point{220, 10}, 340, 35, speed, 110, mid_gray, orange);       // mph progress bar
@@ -89,6 +90,7 @@ void Layouts::drawStandardLayout(Faults faults, const uint8_t speed, const uint8
   const char sign_char = (delta_time_seconds > 0) ? '+' : ' ';
   const Color delta_color = (delta_time_seconds > 0) ? red : green;
   drawFormattedText(100, 150, "%c %00.2f s  ", delta_color, 24, OPT_CENTER, sign_char, delta_time_seconds); // delta time formatted in ± s.ms
+  //TODO! fix large font on boot up
   drawFormattedText(400, 110, "%d MPH", 1, OPT_CENTER, speed); // speed display text
   drawFormattedText(400, 160, "SOC: %d", 24, OPT_CENTER, soc);
   drawFormattedText(100, 260, "BB: %02.1f %%  ", 24, OPT_CENTER, brake_balance * 100.0f); // brake balance display
@@ -133,26 +135,10 @@ void Layouts::drawStandardLayout2(Faults faults, uint8_t speed, uint8_t soc,
     return;
   }
   clear(255, 255, 255); // black background for frame
+  loadFonts();
   setMainColor(black);
-  drawProgressBar(Point{220, 10}, 340, 35, speed, 110, mid_gray,
-                  orange);       // mph progress bar
-  for (int i = 0; i < 16; i++) { // to section off the progress bar
-    uint16_t base_x = 220 + (20 * (i + 1));
-    drawLine(Point{base_x, 0}, Point{base_x, 50}, white, 16 * 5);
-  }
-  drawRect(Point{200, 10}, Point{220, 45}, white);
-  drawRect(Point{560, 10}, Point{580, 45}, white);
-  drawProgressBar(Point{220, 180}, 340, 30, soc, 100, mid_gray,
-                  Color{0, 200, 36}); // soc progress bar
-  drawRect(Point{200, 180}, Point{220, 210}, white);
-  drawRect(Point{560, 180}, Point{580, 210}, white);
-  for (int i = 0; i < 16; i++) {
-    // to section off the progress bar
-    uint16_t base_x = 220 + (20 * (i + 1));
-    drawLine(Point{base_x, 175}, Point{base_x, 210}, white, 16 * 5);
-    clear(0, 0, 0); // black background for frame
-    setMainColor(white);
-  }
+
+
   drawFormattedText(400, 100, "%03d", 1, OPT_CENTER, speed);
 
   drawText(185, 235, "TACH", 21);
@@ -165,20 +151,29 @@ void Layouts::drawStandardLayout2(Faults faults, uint8_t speed, uint8_t soc,
            23);
 
   drawText(638, 30, "SOC", 24);
+
   drawFormattedText(637, 79, "%02d", 2, OPT_CENTER, soc);
 
+  setMainColor(green);
+  bool pastPoint = false;
   for (int j = 1; j <= 25; j++) {
     // segmented soc
     uint16_t segTopLeftY = 490 - j * 19;
     uint16_t segBotRightY = segTopLeftY - 10;
-    if (soc > j * 4) {
-      drawRect(Point{700, segTopLeftY}, Point{795, segBotRightY}, orange);
-    } else if (soc > (j - 1) * 4) {
-      drawRect(Point{700, segTopLeftY}, Point{795, segBotRightY}, red);
-    } else {
-      drawRect(Point{700, segTopLeftY}, Point{795, segBotRightY}, mid_gray);
+    if (soc < j*4 && !pastPoint) {
+      setMainColor(mid_gray);
+      pastPoint = true;
     }
+    drawRect(Point{700, segTopLeftY}, {795, segBotRightY});
+    // if (soc > j * 4) {
+    //   drawRect(Point{700, segTopLeftY}, Point{795, segBotRightY}, orange);
+    // } else if (soc > (j - 1) * 4) {
+    //   drawRect(Point{700, segTopLeftY}, Point{795, segBotRightY}, red);
+    // } else {
+    //   drawRect(Point{700, segTopLeftY}, Point{795, segBotRightY}, mid_gray);
+    // }
   }
+  setMainColor(black);
 
   Color fan_color = faults.fans ? red : green;
   Color precharge_color = faults.precharge ? red : green;

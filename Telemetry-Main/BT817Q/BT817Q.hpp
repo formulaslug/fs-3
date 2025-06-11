@@ -300,6 +300,8 @@ public:
   void endFrame(); // DISPLAY + CMD_SWAP
   void setBacklight(bool on);
 
+  void loadFonts();
+
 private:
   // Low‑level internal helpers
   void hostCmd(uint8_t cmd, uint8_t param);
