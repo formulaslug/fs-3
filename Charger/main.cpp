@@ -10,14 +10,19 @@ void sendCAN();
 CAN* can;
 
 uint32_t max_voltage_mV = 0;
-uint16_t max_dc_current_mA = 0;
+uint16_t max_dc_current_cA = 0; // in centiamps (0.01 amps)
 uint8_t max_ac_current_A = 0;
+
+uint16_t pack_voltage = 0;
+uint16_t soc = 0;
 
 bool enable = false;
 
 
 AnalogIn control_pilot(PIN_CONTROL_PILOT);
 AnalogIn proximity_pilot(PIN_PROXIMITY_PILOT);
+
+EventQueue queue = EventQueue(EVENTS_EVENT_SIZE * 32);
 
 
 int main()
@@ -41,15 +46,18 @@ int main()
 
       while (can->read(msg)) {
          switch (msg.id) {
-            case 0x80: // sync
-               sendCAN();
-               break;
-            case 0x188: // ACC_TPDO_STATUS
-               prechargeDone = msg.data[0] & 0b00001000;
-               fault = msg.data[0] & 0b00000011;
-               shutdown_closed = msg.data[0] & 0b00000100;
-               cell_temps_fine = !(msg.data[1] & 0b00010000);
-               break;
+         case 0x188: // ACC_TPDO_STATUS
+            prechargeDone = msg.data[0] & 0b00001000;
+            fault = msg.data[0] & 0b00000011;
+            shutdown_closed = msg.data[0] & 0b00000100;
+            cell_temps_fine = !(msg.data[1] & 0b00010000);
+            break;
+         case 0x288: // ACC_TPDO_POWER
+            pack_voltage = msg.data[0] + (msg.data[1] << 8);
+            soc = msg.data[2];
+            break;
+         default:
+            break;
          }
       }
 
@@ -77,11 +85,18 @@ int main()
 
 
       max_voltage_mV = VOLTAGE_TARGET_MV;
-      max_dc_current_mA = CURRENT_MAX_MA;
 
-      printf("pp_ready: %x, precharge done: %x, fault: %x, sh closed: %x, cell temps fine: %x\n", proximity_pilot_ready, prechargeDone, fault, shutdown_closed, cell_temps_fine);
+      // printf("pp_ready: %x, precharge done: %x, fault: %x, sh closed: %x, cell temps fine: %x\n", proximity_pilot_ready, prechargeDone, fault, shutdown_closed, cell_temps_fine);
       enable = proximity_pilot_ready && prechargeDone && !fault && shutdown_closed && cell_temps_fine;
-      printf("enable: %x\n", enable);
+      printf("Enable: %x\nVoltage: %f\nSOC: %d\n\n", enable, pack_voltage / 100.0, soc);
+
+      if (enable) {
+         max_dc_current_cA = CURRENT_MAX_CA;
+      } else {
+         max_dc_current_cA = 0;
+      }
+
+      queue.dispatch_once();
    }
 
    // main() is expected to loop forever.
@@ -92,9 +107,13 @@ int main()
 void initIO() {
    printf("initIO()\n");
    can = new CAN(PIN_CAN1_RD, PIN_CAN1_TD, CAN_FREQUENCY);
+   can->filter(0x088, 0x00FF, CANAny); // accept any TPDOs from ACC (0x188, 0x288)
 
    // LSS assign charger
    initChargerCAN();
+
+   this_thread::sleep_for(100ms);
+   queue.call_every(100ms, &sendCAN);
 }
 
 void initChargerCAN() {
@@ -102,14 +121,14 @@ void initChargerCAN() {
 
    ThisThread::sleep_for(2500ms);
 
-   // Switch state global protocal, switch to LSS configuration state
+   // Switch state global protocol, switch to LSS configuration state
    uint8_t lss0_data[8] = {0x04, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
    CANMessage lss0_msg(0x7E5, lss0_data);
    can->write(lss0_msg);
 
    ThisThread::sleep_for(500ms);
 
-   // Configurate node ID protocal, set node ID to 0x10
+   // Configurate node ID protocol, set node ID to 0x10
    uint8_t lss1_data[8] = {0x11, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
    CANMessage lss1_msg(0x7E5, lss1_data);
    can->write(lss1_msg);
@@ -127,8 +146,8 @@ void sendCAN() {
       static_cast<uint8_t>(max_voltage_mV >> 8),
       static_cast<uint8_t>(max_voltage_mV >> 16),
       static_cast<uint8_t>(max_voltage_mV >> 24),
-      static_cast<uint8_t>(max_dc_current_mA),
-      static_cast<uint8_t>(max_dc_current_mA >> 8),
+      static_cast<uint8_t>(max_dc_current_cA),
+      static_cast<uint8_t>(max_dc_current_cA >> 8),
       max_ac_current_A
    };
    CANMessage charge_limits_msg(0x306,  charge_limits_data);

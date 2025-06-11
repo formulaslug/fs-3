@@ -34,8 +34,9 @@
 #define VOLTAGE_TARGET_MV 120000
 #endif
 
-#ifndef CURRENT_MAX_MA
-#define CURRENT_MAX_MA 52000 // 52 amps is 1C for now, battery can support up to 120 amps according to datasheet
+// in centiamps (0.01 amps)
+#ifndef CURRENT_MAX_CA
+#define CURRENT_MAX_CA 5200 // 52 amps is 1C for now, battery can support up to 120 amps according to datasheet, note that due to charger errors
 #endif
 
 
