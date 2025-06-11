@@ -110,6 +110,7 @@ struct Values {
     int8_t ACC_SEG3_TEMPS_CELL0[ROWS];
     int8_t ACC_SEG3_TEMPS_CELL1[ROWS];
 };
+#pragma pack()
 
 inline void write_fsdaq_schema(FILE *file) {
     uint32_t m = COLS;
