@@ -86,7 +86,7 @@ int main()
 
       max_voltage_mV = VOLTAGE_TARGET_MV;
 
-      // printf("pp_ready: %x, precharge done: %x, fault: %x, sh closed: %x, cell temps fine: %x\n", proximity_pilot_ready, prechargeDone, fault, shutdown_closed, cell_temps_fine);
+      printf("pp_ready: %x, precharge done: %x, fault: %x, sh closed: %x, cell temps fine: %x\n", proximity_pilot_ready, prechargeDone, fault, shutdown_closed, cell_temps_fine);
       enable = proximity_pilot_ready && prechargeDone && !fault && shutdown_closed && cell_temps_fine;
       printf("Enable: %x\nVoltage: %f\nSOC: %d\n\n", enable, pack_voltage / 100.0, soc);
 
@@ -109,17 +109,17 @@ void initIO() {
    can = new CAN(PIN_CAN1_RD, PIN_CAN1_TD, CAN_FREQUENCY);
    can->filter(0x088, 0x00FF, CANAny); // accept any TPDOs from ACC (0x188, 0x288)
 
+   ThisThread::sleep_for(2500ms);
+
    // LSS assign charger
    initChargerCAN();
 
-   this_thread::sleep_for(100ms);
+   ThisThread::sleep_for(100ms);
    queue.call_every(100ms, &sendCAN);
 }
 
 void initChargerCAN() {
    printf("initChargerCAN()\n");
-
-   ThisThread::sleep_for(2500ms);
 
    // Switch state global protocol, switch to LSS configuration state
    uint8_t lss0_data[8] = {0x04, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
