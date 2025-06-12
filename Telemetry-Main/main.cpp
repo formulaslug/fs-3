@@ -127,15 +127,11 @@ int main() {
     
     // Initializing Dash
     if (state.dash_on) {
-        // ThisThread::sleep_for(500ms);
         eve.init(EvePresets::CFA800480E3);
         ThisThread::sleep_for(10ms);
-        eve.startFrame();
-        eve.clear(255, 255, 0);
-        eve.endFrame();
-        // eve.loadFonts();
-        // ThisThread::sleep_for(600ms);
-        // update_dash();
+        // eve.startFrame();
+        // eve.clear(255, 255, 0);
+        // eve.endFrame();
     }
 
     // int radio_temp = radio.get_temp();
@@ -143,13 +139,18 @@ int main() {
     //     printf("Radio temperature returned an unrealistic value. Disabling.\n");
     //     state.radio_on = false;
     // }
+
     int x = 0;
     Timer t;
     t.start();
     auto p = Layouts::StandardLayoutParams{.faults= Faults{}, .soc = 3}; //for testing
+
     while (true) {
         t.reset();
-        // vsm.update();
+        vsm.update();
+        if (x % 7000 == 0) {
+            printf("\tVSM: %.3fms\n", t.elapsed_time().count()/1000.0);
+        }
 
         x++;
         // Remember to read f and r brake pressure
@@ -181,9 +182,9 @@ int main() {
         if (x>7000) {
             // printf("Time: %f\n", t.elapsed_time().count()/1.0);
             t.reset();
-            // update_dash();
-            eve.drawStandardLayout2(p);
-            printf("\tDash: %f\n", t.elapsed_time().count()/1.0);
+            update_dash();
+            // eve.drawStandardLayout2(p);
+            printf("\tDash: %.3fms\n", t.elapsed_time().count()/1000.0);
 
             x = 0;
             // printf("Updating Dash\n");

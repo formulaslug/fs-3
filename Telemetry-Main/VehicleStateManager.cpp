@@ -79,7 +79,7 @@ void VehicleStateManager::processCANMessage() {
             case CAN_ID::ETC_STATUS: {
                 const ETC_STATUS_t* data = reinterpret_cast<const ETC_STATUS_t*>(msg.data);
                 _vehicleState.etcStatus = *data;
-                printf("pedal travel: %d\n", _vehicleState.etcStatus.PEDAL_TRAVEL);
+                // printf("pedal travel: %d\n", _vehicleState.etcStatus.PEDAL_TRAVEL);
                 break;
             }
             // PDB Messages
