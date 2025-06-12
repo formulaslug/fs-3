@@ -254,6 +254,6 @@ inline void write_fsdaq_schema(FILE *file) {
 }
 
 inline void write_fsdaq_batch(Values *vals, FILE *file) {
-    fwrite(&vals, sizeof(*vals), 1, file);
+    fwrite(vals, sizeof(*vals), 1, file);
 }
 

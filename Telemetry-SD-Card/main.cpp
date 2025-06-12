@@ -24,16 +24,18 @@ int main(int argc, char *argv[]) {
         error_quit("Error opening file!");
     }
 
-    fwrite("FSDAQ001", 8, 1, file);
+    // fwrite("FSDAQ001", 8, 1, file);
 
     write_fsdaq_schema(file);
 
     Values vals{};
     memset(&vals, INT_MAX, sizeof(vals));
 
+    printf("%d\n", vals.ACC_POWER_SOC[2]);
+
     write_fsdaq_batch(&vals, file);
 
-    fwrite("FSDAQ001", 8, 1, file);
+    // fwrite("FSDAQ001", 8, 1, file);
 
     fclose(file);
 
