@@ -132,6 +132,9 @@ void CANWrapper::processCANRx() {
                 ETCState state = this->etc.getState();
                 state.ts_ready = rx.data[0] & 0x08;
                 this->etc.updateStateFromCAN(state);
+                if (!this->etc.getState().ts_ready) {
+                    this->etc.turnOffMotor();
+                }
                 break;
         }
     }

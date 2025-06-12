@@ -121,7 +121,7 @@ void ETCController::checkStartConditions() {
     // If the brake is pressed past the tolerance threshold and the tractive system is ready
     // then the motor can be enabled. The last condition for motor start is the cockpit switch
     // being set to the ON position, which is what calls this method.
-    if(this->state.ts_ready && this->state.brakes_read >= ETCController::BRAKE_TOLERANCE) {
+    if(this->state.ts_ready && this->state.brakes_read >= ETCController::BRAKE_TOLERANCE && this->state.pedal_travel <= 0.01) {
         this->state.motor_enabled = true;
         this->runRTDS();
     }
@@ -130,7 +130,7 @@ void ETCController::checkStartConditions() {
 
 void ETCController::runRTDS() {
     this->rtdsOutput.write(true);
-    this->rtdsTicker.attach(callback([this] {this->stopRTDS();}), 1s);
+    this->rtdsTicker.attach(callback([this] {this->stopRTDS();}), 1000ms);
 }
 
 
