@@ -90,17 +90,19 @@ void ETCController::updateState() {
     // can then update the state information related to pedal travel.
 
     float pedalTravel = (he1Travel + he2Travel) / 2.0f;
+    this->state.pedal_travel = pedalTravel;
+    this->state.brakes_read = this->brakePedalInput.read() * ETCController::MAX_VOLTAGE;
+
+    this->set_brake_implausibility();
 
     this->state.he1_read = this->he1Input.read() * ETCController::MAX_VOLTAGE;
     this->state.he2_read = this->he2Input.read() * ETCController::MAX_VOLTAGE;
     this->state.he1_travel = he1Travel;
     this->state.he2_travel = he2Travel;
-    this->state.pedal_travel = pedalTravel;
     this->state.torque_demand =
-        this->state.motor_enabled ?
+        (this->state.motor_enabled && !this->state.brakes_implausibility) ?
         static_cast<int16_t>(pedalTravel * ETCController::MAX_TORQUE) :
         0;
-    this->state.brakes_read = this->brakePedalInput.read() * ETCController::MAX_VOLTAGE;
 
     this->brakeLightOutput.write(this->state.brakes_read >= ETCController::BRAKE_TOLERANCE);
 }
@@ -121,7 +123,7 @@ void ETCController::checkStartConditions() {
     // If the brake is pressed past the tolerance threshold and the tractive system is ready
     // then the motor can be enabled. The last condition for motor start is the cockpit switch
     // being set to the ON position, which is what calls this method.
-    if(this->state.ts_ready && this->state.brakes_read >= ETCController::BRAKE_TOLERANCE && this->state.pedal_travel <= 0.01) {
+    if(this->state.ts_ready && this->state.brakes_read >= ETCController::BRAKE_TOLERANCE && this->state.pedal_travel < 0.05) {
         this->state.motor_enabled = true;
         this->runRTDS();
     }
@@ -153,8 +155,20 @@ void ETCController::resetState() {
     this->state.motor_forward = true;
     this->state.cockpit = false;
     this->state.torque_demand = 0;
+    this->state.brakes_implausibility = false;
 }
 
+void ETCController::set_brake_implausibility() {
+    if (this->state.brakes_implausibility) {
+        if (this->state.pedal_travel < 0.05f) {
+            this->state.brakes_implausibility = false;
+        }
+    } else {
+        if (this->state.brakes_read >= BRAKE_TOLERANCE && this->state.pedal_travel > 0.25f) {
+            this->state.brakes_implausibility = true;
+        }
+    }
+}
 
 ETCState ETCController::getState() const {
     return this->state;

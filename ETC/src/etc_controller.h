@@ -42,6 +42,7 @@ struct ETCState {
     bool motor_forward;
     bool cockpit;
     int16_t torque_demand;
+    bool brakes_implausibility;
 };
 
 
@@ -177,6 +178,10 @@ public:
      */
     ETCState getState() const;
 
+    /**
+    * sets brakes implausibility
+    */
+    void set_brake_implausibility();
 
     /**
      * Returns {@code state.mbb_alive}.
