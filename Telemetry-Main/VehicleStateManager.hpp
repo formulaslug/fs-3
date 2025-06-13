@@ -20,6 +20,7 @@
 #endif
 
 struct VehicleState {
+    // ---- FROM CAN BUS ----
     // ACC
     ACC_STATUS_t accStatus;
     ACC_SEG_VOLTS_t accSegVolts[5];
@@ -46,12 +47,23 @@ struct VehicleState {
     VDM_DATE_TIME_t vdmDateTime;
     VDM_ACCELERATION_t vdmAcceleration;
     VDM_YAW_RATE_t vdmYawRate;
+
+    // ---- FROM NUCLEO PINS ----
+    uint16_t steering_sensor;
+    uint16_t brake_sensor_f;
+    uint16_t brake_sensor_r;
+    
 };
 
 class VehicleStateManager {
 
 public:
-    explicit VehicleStateManager(MbedCAN* mbedCAN);
+    explicit VehicleStateManager(
+        MbedCAN* mbedCAN,
+        PinName steering_sensor,
+        PinName brake_sensor_f,
+        PinName brake_sensor_r
+    );
     
     VehicleState getState() const;
     void update();
@@ -60,13 +72,18 @@ public:
 
 private:
     MbedCAN* _mbedCAN;
+    AnalogIn _steering_sensor;
+    AnalogIn _brake_sensor_f;
+    AnalogIn _brake_sensor_r;
 
     VehicleState _vehicleState;
+
     char _lapTime[16];
     Timer _lapTimer;
 
     void processCANMessage();
     void updateLapTime();
+    void readSensorValues();
 };
 
 #endif // VEHICLE_STATE_MANAGER_HPP 

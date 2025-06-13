@@ -205,5 +205,6 @@ void Layouts::drawStandardLayout2(Faults faults, uint8_t speed, uint8_t soc,
   drawRect(Point{643, 127}, Point{666, 310}, mid_gray);
   uint16_t brake_bar_h = (310 - floor(183 * brake_demand));
   drawRect(Point{643, brake_bar_h}, Point{666, 310}, red);
+  // drawRect(Point{643, static_cast<uint16_t>(brake_demand)}, Point{666, 310}, red);
   endFrame();
 }

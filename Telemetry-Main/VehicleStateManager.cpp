@@ -7,8 +7,12 @@
 #include "CANProtocol.hpp"
 #include "mbed.h"
 
-VehicleStateManager::VehicleStateManager(MbedCAN* mbedCAN)
-    : _mbedCAN(mbedCAN)
+VehicleStateManager::VehicleStateManager(
+    MbedCAN* mbedCAN,
+    PinName steering_sensor,
+    PinName brake_sensor_f,
+    PinName brake_sensor_r
+) : _mbedCAN(mbedCAN), _steering_sensor(steering_sensor), _brake_sensor_f(brake_sensor_r), _brake_sensor_r(brake_sensor_r)
 {
     _vehicleState = {};
 
@@ -19,16 +23,19 @@ void VehicleStateManager::update() {
     // printf("Updating CAN\n");
     processCANMessage();
     updateLapTime();
+    readSensorValues();
+}
+
+void VehicleStateManager::readSensorValues() {
+    _vehicleState.steering_sensor =  _steering_sensor.read_u16();
+    _vehicleState.brake_sensor_f =  _brake_sensor_f.read_u16();
+    _vehicleState.brake_sensor_r =  _brake_sensor_r.read_u16();
 }
 
 void VehicleStateManager::processCANMessage() {
     if (!_mbedCAN || !_mbedCAN->isReady()) { return; }
-    // printf("Here\n");
     CANMessage msg;
-    // int processed = 0;
-    while ((_mbedCAN->read(msg))) {
-        // printf("%x\n", msg.id);
-        // processed++;
+    while (_mbedCAN->read(msg)) {
         switch (msg.id) {
             // ACC Message
             case CAN_ID::ACC_STATUS: {
