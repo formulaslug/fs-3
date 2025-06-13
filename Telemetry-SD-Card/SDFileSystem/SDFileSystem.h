@@ -81,7 +81,7 @@ protected:
     uint32_t _transfer_sck;
 
     SPI _spi;
-    DigitalOut _cs;
+    // DigitalOut _cs;
     int cdv;
     int _is_initialized;
 };
