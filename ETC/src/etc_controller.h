@@ -89,8 +89,7 @@ public:
     static constexpr float MAX_VOLTAGE = 3.3f;
 
     /** The percentage tolerance for the brake pedal to be considered pressed. */
-    // static constexpr float BRAKE_TOLERANCE = 0.382f;
-    static constexpr float BRAKE_TOLERANCE = 0.0f;
+    static constexpr float BRAKE_TOLERANCE = 0.380f;
 
     /** The voltage divider slope for the hall-effect 1 sensor. */
     static constexpr float HE1_SCALE = (330.0f / 480.0f);
