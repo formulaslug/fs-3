@@ -101,7 +101,7 @@ def generate_nanoarrow_code(signal_to_fsdaq_datatype: dict[str, str], rows: int 
 
     template = template_file.read()
     template = template.replace("@COLS@", str(len(signal_to_fsdaq_datatype)))
-    template = template.replace("@ROWS@", str(8))
+    template = template.replace("@ROWS@", str(rows))
 
     col_names = ", ".join(['"' + col + '"' for col in signal_to_fsdaq_datatype.keys()])
     col_name_sizes = ", ".join([str(len(col_name)) for col_name in signal_to_fsdaq_datatype.keys()])
@@ -144,8 +144,9 @@ if __name__ == "__main__":
     #     v = v.removesuffix("),)")
     #     print("{:33s} {}".format(k, v))
 
-    n = 120
-    generate_nanoarrow_code({k: signal_to_datatype[k] for k in list(signal_to_datatype)[:n]}, 8)
+    # n = 50
+    # generate_nanoarrow_code({k: signal_to_datatype[k] for k in list(signal_to_datatype)[:n]}, 8)
+    generate_nanoarrow_code({k: signal_to_datatype[k] for k in list(signal_to_datatype)}, 80)
 
 
 

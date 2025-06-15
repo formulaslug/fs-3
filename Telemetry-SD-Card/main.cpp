@@ -1,6 +1,37 @@
-#include "SDFileSystem.h"
-#include "mbed.h"
 #include "./fsdaq_encoder_generated_from_dbc.hpp"
+#include "FATFileSystem.h"
+#include "SDBlockDevice.h"
+#include "mbed.h"
+
+// SDBlockDevice - lowest-level interfaces with the SD card.
+// Pin configurations and transfer speeds are set in mbed_app.json.
+SDBlockDevice sd{
+    MBED_CONF_SD_SPI_MOSI,
+    MBED_CONF_SD_SPI_MISO,
+    MBED_CONF_SD_SPI_CLK, 
+    MBED_CONF_SD_SPI_CS,
+    MBED_CONF_SD_TRX_FREQUENCY,
+};
+// FATFileSystem - Creates a FAT filesystem on the SDBlockDevice.
+// "sd" is the name of the filesystem; i.e. filepaths are /sd/...
+FATFileSystem fs{"sd"};
+
+// Our data
+Values vals{};
+
+// Debug
+mbed_stats_heap_t heap;
+mbed_stats_stack_t stack;
+
+void print_mem_usage() {
+    mbed_stats_heap_get(&heap);
+    printf("\nHeap: %u/%u (used/reserved), max usage: %u, allocs: %u\n",
+           heap.current_size, heap.reserved_size, heap.max_size,
+           heap.alloc_cnt);
+    mbed_stats_stack_get(&stack);
+    printf("Stack: max usage: %u, bytes reserved: %u\n\n", stack.max_size,
+           stack.reserved_size);
+}
 
 void error_quit(std::string msg) {
     printf("%s\n", msg.c_str());
@@ -11,15 +42,29 @@ void error_quit(std::string msg) {
 int main(int argc, char *argv[]) {
     printf("Hello World!\n");
 
-    // SDFileSystem sd{D2, A5, A4, D3, "sd"}; // Mosi, miso, sclk, cs // L423KC
-    SDFileSystem sd{D11, D12, D13, D10, "sd"}; // Mosi, miso, sclk, cs // F446RE
-    if (sd.disk_initialize() != 0) {
-        error_quit("Failed to initialize SD card!");
+    // Enable debug logging (to be turned off)
+    sd.debug(true);
+
+    // TODO: experiment with async SPI and/or DMA
+    // sd.set_async_spi_mode(true, DMAUsage::DMA_USAGE_ALWAYS);
+
+    print_mem_usage();
+
+    // Mount the FATFileSystem (so we can use regular C file IO like fopen/read)
+    int error = fs.mount(&sd);
+    if (error) {
+        // Reformat if we can't mount the filesystem.
+        // This should only happen on the first boot
+        printf("No filesystem found, formatting...\n");
+        error = fs.reformat(&sd);
+        if (error) error_quit("Error: could not reformat SD card! Is the SD card plugged in?\n");
     }
 
-    mkdir("/sd/fsdaq", 0777);
+    mkdir("/sd/fsdaqqqq", 0777);
 
-    FILE *file = fopen("/sd/fsdaq/test.fsdaq", "w");
+    print_mem_usage();
+
+    FILE *file = fopen("/sd/fsdaqqqq/test.fsdaq", "w+");
     if (file == NULL) {
         error_quit("Error opening file!");
     }
@@ -28,16 +73,23 @@ int main(int argc, char *argv[]) {
 
     write_fsdaq_schema(file);
 
-    Values vals{};
+    print_mem_usage();
+
     memset(&vals, INT_MAX, sizeof(vals));
 
     write_fsdaq_batch(&vals, file);
+    write_fsdaq_batch(&vals, file);
+    write_fsdaq_batch(&vals, file);
+    write_fsdaq_batch(&vals, file);
+    write_fsdaq_batch(&vals, file);
+
+    print_mem_usage();
 
     fwrite("FSDAQ001", 8, 1, file);
 
     fclose(file);
 
-    printf("Goodbye World!\n");
+    printf("Goodbye World!\n\n");
     while (1) {
     };
 }

@@ -8,16 +8,31 @@
     "*": {
       "platform.stdio-baud-rate": 115200,
       "platform.stdio-buffered-serial": 1,
-//      "target.features_add": ["STORAGE"],
-//      "target.components_add": ["SD"],
-//      "sd.SPI_MOSI": "D2",
-//      "sd.SPI_MISO": "A5",
-//      "sd.SPI_CLK": "A4",
-//      "sd.SPI_CS": "D3",
-//      "sd.INIT_FREQUENCY": 160000 //should be 100khz - 400khz
 
       // Uncomment to use mbed-baremetal instead of mbed-os
       // "target.application-profile": "bare-metal"
-    }
+
+
+      // Enable the SD card library component (creates the mbed-storage-* cmake
+      // libraries for us to link against)
+      "target.features_add": ["STORAGE"],
+      "target.components_add": ["SD"],
+
+      // SPI frequencies
+      "sd.INIT_FREQUENCY": 160000, //should be 100khz - 400khz
+      "sd.TRX_FREQUENCY": 250000000, // 25MHz
+    },
+    "NUCLEO_L432KC": {
+      "sd.SPI_MOSI": "D2",
+      "sd.SPI_MISO": "A5",
+      "sd.SPI_CLK": "A4",
+      "sd.SPI_CS": "D3",
+    },
+    "NUCLEO_F446RE": {
+      "sd.SPI_MOSI": "D11",
+      "sd.SPI_MISO": "D12",
+      "sd.SPI_CLK": "D13",
+      "sd.SPI_CS": "D10",
+    },
   }
 }

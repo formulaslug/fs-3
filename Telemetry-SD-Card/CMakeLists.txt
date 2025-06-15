@@ -13,19 +13,6 @@ include(mbed_project_setup)
 # Include MBED OS
 add_subdirectory(../mbed-os ../mbed-os-build)
 
-# Add FATFileSystem library, link it against mbed-core
-add_library(FATFileSystem STATIC FATFileSystem/FATDirHandle.cpp FATFileSystem/FATFileHandle.cpp FATFileSystem/FATFileSystem.cpp FATFileSystem/ChaN/ccsbcs.cpp FATFileSystem/ChaN/diskio.cpp FATFileSystem/ChaN/ff.cpp)
-target_include_directories(FATFileSystem
-        PUBLIC FATFileSystem
-        PUBLIC FATFileSystem/ChaN)
-target_link_libraries(FATFileSystem PUBLIC mbed-core-flags) # needed so the library can access Mbed symbols
-
-# Add SDFileSystem library, link it against FATFileSystem and mbed-core
-add_library(SDFileSystem STATIC SDFileSystem/SDFileSystem.cpp)
-target_include_directories(SDFileSystem INTERFACE SDFileSystem)
-target_link_libraries(SDFileSystem PUBLIC mbed-core-flags) # needed so the library can access Mbed symbols
-target_link_libraries(SDFileSystem PUBLIC FATFileSystem) # SDFileSystem depends on FATFileSystem
-
 # # Fetch Nanoarrow - a minimal implementation of Apache Arrow
 # include(FetchContent)
 # # This enables the nanoarrow IPC extension (required to use Arrow IPC functions)
@@ -46,6 +33,9 @@ add_executable(${PROJECT_NAME} main.cpp)
 
 target_include_directories(${PROJECT_NAME} PUBLIC include)
 # target_link_libraries(${PROJECT_NAME} mbed-os FATFileSystem SDFileSystem nanoarrow nanoarrow_ipc)
-target_link_libraries(${PROJECT_NAME} mbed-os FATFileSystem SDFileSystem)
+# target_link_libraries(${PROJECT_NAME} mbed-baremetal FATFileSystem SDFileSystem)
+# target_link_libraries(${PROJECT_NAME} mbed-os FATFileSystem SDFileSystem)
+
+target_link_libraries(${PROJECT_NAME} mbed-os mbed-storage-sd mbed-storage-fat)
 
 mbed_set_post_build(${PROJECT_NAME})
