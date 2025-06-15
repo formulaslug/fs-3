@@ -93,7 +93,7 @@ def choose_float_type(s: cantools.db.Signal, tolerance: float):
     return pa.float64()
 
 
-def generate_nanoarrow_code(signal_to_fsdaq_datatype: dict[str, str], rows: int = 8):
+def generate_cpp_code(signal_to_fsdaq_datatype: dict[str, str], rows: int = 8):
     assert rows % 8 == 0
 
     out_file = open("./fsdaq_encoder_generated_from_dbc.hpp", "w")
@@ -146,7 +146,7 @@ if __name__ == "__main__":
 
     # n = 50
     # generate_nanoarrow_code({k: signal_to_datatype[k] for k in list(signal_to_datatype)[:n]}, 8)
-    generate_nanoarrow_code({k: signal_to_datatype[k] for k in list(signal_to_datatype)}, 80)
+    generate_cpp_code({k: signal_to_datatype[k] for k in list(signal_to_datatype)}, 80)
 
 
 

@@ -10,7 +10,7 @@
       "platform.stdio-buffered-serial": 1,
 
       // Uncomment to use mbed-baremetal instead of mbed-os
-      // "target.application-profile": "bare-metal"
+      //"target.application-profile": "bare-metal",
 
 
       // Enable the SD card library component (creates the mbed-storage-* cmake
