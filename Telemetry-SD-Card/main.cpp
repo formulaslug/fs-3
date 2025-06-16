@@ -78,9 +78,14 @@ const char *col_names[] = {
     "176", "177", "178", "179", "180", "181", "182", "183", "184", "185", "186",
     "187", "188", "189", "190", "191", "192", "193", "194", "195", "196", "197",
     "198", "199",
+    "200", "201", "202", "203", "204", "205", "206", "207", "208", "209", "210",
+    "211", "212", "213", "214", "215", "216", "217", "218", "219", "220", "221",
+    "222", "223", "224", "225", "226", "227", "228", "229", "230", "231", "232",
+    "233", "234", "235", "236", "237", "238", "239", "240", "241", "242", "243",
+    "244", "245", "246", "247", "248", "249",
 };
-#define COLS 200
-#define ROWS 20
+#define COLS 250
+#define ROWS 80
 
 // We use alignas(8) because Arrow mandates all buffers to be 8-byte aligned
 struct RecordBatchBody {
@@ -286,6 +291,56 @@ struct RecordBatchBody {
     alignas(8) int32_t col197[ROWS];
     alignas(8) int32_t col198[ROWS];
     alignas(8) int32_t col199[ROWS];
+    alignas(8) int32_t col200[ROWS];
+    alignas(8) int32_t col201[ROWS];
+    alignas(8) int32_t col202[ROWS];
+    alignas(8) int32_t col203[ROWS];
+    alignas(8) int32_t col204[ROWS];
+    alignas(8) int32_t col205[ROWS];
+    alignas(8) int32_t col206[ROWS];
+    alignas(8) int32_t col207[ROWS];
+    alignas(8) int32_t col208[ROWS];
+    alignas(8) int32_t col209[ROWS];
+    alignas(8) int32_t col210[ROWS];
+    alignas(8) int32_t col211[ROWS];
+    alignas(8) int32_t col212[ROWS];
+    alignas(8) int32_t col213[ROWS];
+    alignas(8) int32_t col214[ROWS];
+    alignas(8) int32_t col215[ROWS];
+    alignas(8) int32_t col216[ROWS];
+    alignas(8) int32_t col217[ROWS];
+    alignas(8) int32_t col218[ROWS];
+    alignas(8) int32_t col219[ROWS];
+    alignas(8) int32_t col220[ROWS];
+    alignas(8) int32_t col221[ROWS];
+    alignas(8) int32_t col222[ROWS];
+    alignas(8) int32_t col223[ROWS];
+    alignas(8) int32_t col224[ROWS];
+    alignas(8) int32_t col225[ROWS];
+    alignas(8) int32_t col226[ROWS];
+    alignas(8) int32_t col227[ROWS];
+    alignas(8) int32_t col228[ROWS];
+    alignas(8) int32_t col229[ROWS];
+    alignas(8) int32_t col230[ROWS];
+    alignas(8) int32_t col231[ROWS];
+    alignas(8) int32_t col232[ROWS];
+    alignas(8) int32_t col233[ROWS];
+    alignas(8) int32_t col234[ROWS];
+    alignas(8) int32_t col235[ROWS];
+    alignas(8) int32_t col236[ROWS];
+    alignas(8) int32_t col237[ROWS];
+    alignas(8) int32_t col238[ROWS];
+    alignas(8) int32_t col239[ROWS];
+    alignas(8) int32_t col240[ROWS];
+    alignas(8) int32_t col241[ROWS];
+    alignas(8) int32_t col242[ROWS];
+    alignas(8) int32_t col243[ROWS];
+    alignas(8) int32_t col244[ROWS];
+    alignas(8) int32_t col245[ROWS];
+    alignas(8) int32_t col246[ROWS];
+    alignas(8) int32_t col247[ROWS];
+    alignas(8) int32_t col248[ROWS];
+    alignas(8) int32_t col249[ROWS];
 };
 
 void arrow_flatcc_build_schema(flatcc_builder_t *b) {
@@ -417,21 +472,21 @@ void arrow_stream_write_message_to_file(void *flatbuf, size_t flatbuf_size, void
     }
 }
 
-// TODO: experiment with a custom emitter that writes directly to a FILE*
-int dbg_emitter(void *emit_context, const flatcc_iovec_t *iov, int iov_count, flatbuffers_soffset_t offset, size_t len) {
-    printf("dbg: emit: iov_count: %d, offset: %d, len: %d\n", iov_count, offset, len);
-
-    for (int i = 0; i < iov_count; ++i) {
-        if (iov[i].iov_base == flatcc_builder_padding_base) {
-            printf("dbg:  padding at: %d, len: %d\n", offset, iov[i].iov_len);
-        }
-        if (iov[i].iov_base == 0) {
-            printf("dbg:  null vector reserved at: %d, len: %d\n", offset, iov[i].iov_len);
-        }
-        offset += (flatbuffers_soffset_t)iov[i].iov_len;
-    }
-    return 0;
-}
+// // TODO: experiment with a custom emitter that writes directly to a FILE*
+// int dbg_emitter(void *emit_context, const flatcc_iovec_t *iov, int iov_count, flatbuffers_soffset_t offset, size_t len) {
+//     printf("dbg: emit: iov_count: %d, offset: %d, len: %d\n", iov_count, offset, len);
+//
+//     for (int i = 0; i < iov_count; ++i) {
+//         if (iov[i].iov_base == flatcc_builder_padding_base) {
+//             printf("dbg:  padding at: %d, len: %d\n", offset, iov[i].iov_len);
+//         }
+//         if (iov[i].iov_base == 0) {
+//             printf("dbg:  null vector reserved at: %d, len: %d\n", offset, iov[i].iov_len);
+//         }
+//         offset += (flatbuffers_soffset_t)iov[i].iov_len;
+//     }
+//     return 0;
+// }
 
 RecordBatchBody values;
 int32_t *cols[] = {
@@ -520,6 +575,7 @@ int main(int argc, char *argv[]) {
     flatcc_builder_t b, *B;
     B = &b;
 
+
     flatcc_builder_init(B);
     // flatcc_builder_custom_init(B, dbg_emitter, 0, 0, 0);
 
@@ -551,7 +607,6 @@ int main(int argc, char *argv[]) {
 
     size_t record_batch_flatbuf_size;
     void *record_batch_flatbuf = flatcc_builder_finalize_buffer(B, &record_batch_flatbuf_size);
-    // void *record_batch_flatbuf = flatcc_builder_get_direct_buffer(B, &record_batch_flatbuf_size);
 
     printf("record batch flatbuf size: %d", record_batch_flatbuf_size);
     MBED_ASSERT(record_batch_flatbuf_size != 0 && record_batch_flatbuf);
