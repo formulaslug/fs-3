@@ -80,7 +80,7 @@ const char *col_names[] = {
     "198", "199",
 };
 #define COLS 200
-#define ROWS 5
+#define ROWS 20
 
 // We use alignas(8) because Arrow mandates all buffers to be 8-byte aligned
 struct RecordBatchBody {
@@ -300,19 +300,19 @@ void arrow_flatcc_build_schema(flatcc_builder_t *b) {
         org_apache_arrow_flatbuf_Field_nullable_add(b, false);
         org_apache_arrow_flatbuf_Field_type_Int_create(b, 32, true);
 
-        // org_apache_arrow_flatbuf_Field_children_start(b);
         // // Our columns are super simple (primitives only); no children
+        // org_apache_arrow_flatbuf_Field_children_start(b);
         // org_apache_arrow_flatbuf_Field_children_end(b);
-        // org_apache_arrow_flatbuf_Field_custom_metadata_start(b);
         // // Our fields don't have any custom metadata afaik
+        // org_apache_arrow_flatbuf_Field_custom_metadata_start(b);
         // org_apache_arrow_flatbuf_Field_custom_metadata_end(b);
 
         org_apache_arrow_flatbuf_Schema_fields_push_end(b);
     }
 
     org_apache_arrow_flatbuf_Schema_fields_end(b);
-    // org_apache_arrow_flatbuf_Schema_custom_metadata_start(b);
     // // we don't have any custom metadata afaik
+    // org_apache_arrow_flatbuf_Schema_custom_metadata_start(b);
     // org_apache_arrow_flatbuf_Schema_custom_metadata_end(b);
     org_apache_arrow_flatbuf_Schema_features_start(b);
     org_apache_arrow_flatbuf_Schema_features_end(b);
@@ -330,21 +330,24 @@ void arrow_flatcc_encode_schema_message(flatcc_builder_t *b) {
     org_apache_arrow_flatbuf_Message_end_as_root(b);
 }
 
-// Each column defined in the schema is represented by one Node struct here,
-// giving it's length and null count
-org_apache_arrow_flatbuf_FieldNode rb_nodes[COLS] = {};
-// Each column has 1-3+ buffers depending on its type; eg. data, validity,
-// offsets, etc. For primitives (which we're using exclusively), those are
-// validity followed by data. See buffer orders for different types here:
-// https://arrow.apache.org/docs/format/Columnar.html#buffer-listing-for-each-layout
-org_apache_arrow_flatbuf_Buffer rb_buffers[COLS * 2] = {};
-
 // Note that the actual data buffers come after this flatbuffer message, in the
 // messageBody. This is contains only the metadata (lenghts, offsets, etc)
 void arrow_flatcc_encode_record_batch_message(flatcc_builder_t *b) {
     org_apache_arrow_flatbuf_Message_start_as_root(b);
     org_apache_arrow_flatbuf_Message_version_add(b, org_apache_arrow_flatbuf_MetadataVersion_V5);
     org_apache_arrow_flatbuf_Message_header_RecordBatch_start(b);
+
+    // We use heap allocated lists below as mbed-os RTOS threads are heavily
+    // stack-limited. These are cleaned up immediately after writing the schema.
+
+    // Each column defined in the schema is represented by one Node struct here,
+    // giving it's length and null count
+    org_apache_arrow_flatbuf_FieldNode *rb_nodes = new org_apache_arrow_flatbuf_FieldNode[COLS];
+    // Each column has 1-3+ buffers depending on its type; eg. data, validity,
+    // offsets, etc. For primitives (which we're using exclusively atm), those
+    // are validity followed by data. Buffer orders for different types:
+    // https://arrow.apache.org/docs/format/Columnar.html#buffer-listing-for-each-layout
+    org_apache_arrow_flatbuf_Buffer *rb_buffers = new org_apache_arrow_flatbuf_Buffer[COLS*2];
 
     int64_t offset = 0;
     int buffer_index = 0;
@@ -358,7 +361,7 @@ void arrow_flatcc_encode_record_batch_message(flatcc_builder_t *b) {
 
         // Since we're omitting validity buffers (enforcing non-null values)
         // entirely for now, we set each validity buffer metadata to say
-        // length=0 so Arrow decoders know to not look for them
+        // length=0 so Arrow decoders know not to look for them
         const uint validity_buf_size = 0; // (int)(ceil(ROWS / 8.0f));
         rb_buffers[buffer_index++] = {.offset = offset, .length = 0};
         if (rb_nodes[i].null_count > 0) // NOTE: ATM this will never happen
@@ -378,6 +381,10 @@ void arrow_flatcc_encode_record_batch_message(flatcc_builder_t *b) {
     // metadata that contain the actual data buffers.
     org_apache_arrow_flatbuf_Message_bodyLength_add(b, offset);
     org_apache_arrow_flatbuf_Message_end_as_root(b);
+
+    // These take a significant amount of space, lets clean them up!
+    delete[] rb_nodes;
+    delete[] rb_buffers;
 }
 
 
@@ -410,7 +417,22 @@ void arrow_stream_write_message_to_file(void *flatbuf, size_t flatbuf_size, void
     }
 }
 
-flatcc_builder_t b;
+// TODO: experiment with a custom emitter that writes directly to a FILE*
+int dbg_emitter(void *emit_context, const flatcc_iovec_t *iov, int iov_count, flatbuffers_soffset_t offset, size_t len) {
+    printf("dbg: emit: iov_count: %d, offset: %d, len: %d\n", iov_count, offset, len);
+
+    for (int i = 0; i < iov_count; ++i) {
+        if (iov[i].iov_base == flatcc_builder_padding_base) {
+            printf("dbg:  padding at: %d, len: %d\n", offset, iov[i].iov_len);
+        }
+        if (iov[i].iov_base == 0) {
+            printf("dbg:  null vector reserved at: %d, len: %d\n", offset, iov[i].iov_len);
+        }
+        offset += (flatbuffers_soffset_t)iov[i].iov_len;
+    }
+    return 0;
+}
+
 RecordBatchBody values;
 int32_t *cols[] = {
     values.col0,   values.col1,   values.col2,   values.col3,
@@ -495,18 +517,27 @@ int main(int argc, char *argv[]) {
     if (file == NULL)
         error_quit("Error opening file!");
 
-    flatcc_builder_init(&b);
+    flatcc_builder_t b, *B;
+    B = &b;
+
+    flatcc_builder_init(B);
+    // flatcc_builder_custom_init(B, dbg_emitter, 0, 0, 0);
 
     print_mem_usage();
 
-    arrow_flatcc_encode_schema_message(&b);
+    arrow_flatcc_encode_schema_message(B);
     size_t schema_size;
-    void *schema = flatcc_builder_finalize_buffer(&b, &schema_size);
+    void *schema = flatcc_builder_finalize_buffer(B, &schema_size);
+    printf("schema flatbuf size: %d", schema_size);
     MBED_ASSERT(schema_size != 0 && schema);
 
+    free(schema);
+
     print_mem_usage();
 
-    flatcc_builder_reset(&b);
+    // A full clear/init cycle seems to free much more memory than just a reset.
+    flatcc_builder_clear(B);
+    flatcc_builder_init(B);
 
     print_mem_usage();
 
@@ -514,18 +545,20 @@ int main(int argc, char *argv[]) {
 
     print_mem_usage();
 
-    arrow_flatcc_encode_record_batch_message(&b);
+    arrow_flatcc_encode_record_batch_message(B);
 
     print_mem_usage();
 
     size_t record_batch_flatbuf_size;
-    // void *record_batch_flatbuf = flatcc_builder_finalize_buffer(&b, &record_batch_flatbuf_size);
-    void *record_batch_flatbuf = flatcc_builder_get_direct_buffer(&b, &record_batch_flatbuf_size);
+    void *record_batch_flatbuf = flatcc_builder_finalize_buffer(B, &record_batch_flatbuf_size);
+    // void *record_batch_flatbuf = flatcc_builder_get_direct_buffer(B, &record_batch_flatbuf_size);
+
+    printf("record batch flatbuf size: %d", record_batch_flatbuf_size);
     MBED_ASSERT(record_batch_flatbuf_size != 0 && record_batch_flatbuf);
 
     print_mem_usage();
 
-    flatcc_builder_reset(&b);
+    flatcc_builder_clear(B);
 
     int val = 0;
     for (int i = 0; i < COLS; i++) {

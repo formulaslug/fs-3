@@ -31,7 +31,8 @@ FetchContent_MakeAvailable(nanoarrow)
 set(CMAKE_CXX_STANDARD 20)
 add_executable(${PROJECT_NAME} main.cpp)
 
-target_include_directories(${PROJECT_NAME} PUBLIC include)
+# "SYSTEM" should remove warnings when compiling the generated flatbuffers code
+target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC include)
 target_link_libraries(${PROJECT_NAME} mbed-os mbed-storage-sd mbed-storage-fat nanoarrow nanoarrow_ipc)
 # target_link_libraries(${PROJECT_NAME} mbed-baremetal mbed-storage-sd mbed-storage-fat)
 # target_link_libraries(${PROJECT_NAME} mbed-baremetal mbed-storage-sd mbed-storage-fat nanoarrow nanoarrow_ipc)
