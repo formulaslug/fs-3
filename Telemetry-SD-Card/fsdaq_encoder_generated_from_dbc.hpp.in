@@ -7,9 +7,17 @@ static const char *col_names[] = { @COL_NAMES@ };
 static const uint8_t col_name_sizes[] = { @COL_NAME_SIZES@ };
 static const char *col_name_types[] = { @COL_NAME_TYPES@ };
 
+struct ValuesRow {
+@VALUES_ROW_STRUCT_FIELDS@
+};
+
 #pragma pack(1)
-struct Values {
-@STRUCT_FIELDS@
+class Values {
+@VALUES_STRUCT_FIELDS@
+
+    void updateValuesWithRow(ValuesRow row, int idx) {
+@UPDATE_FIELDS_FROM_ROW@
+    }
 };
 #pragma pack()
 

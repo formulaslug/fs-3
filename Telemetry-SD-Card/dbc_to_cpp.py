@@ -110,15 +110,23 @@ def generate_cpp_code(signal_to_fsdaq_datatype: dict[str, str], rows: int = 8):
     template = template.replace("@COL_NAME_SIZES@", col_name_sizes)
     template = template.replace("@COL_NAME_TYPES@", col_name_types)
 
-    struct_fields = []
+    values_struct_fields = []
+    values_row_struct_fields = []
+    update_fields_from_row = []
     for col_name, fsdaq_type in signal_to_fsdaq_datatype.items():
         if fsdaq_type == "b0":
-            struct_fields.append("    " + "uint8_t" + " " + col_name + "[ROWS/8];")
+            values_struct_fields.append(" "*4 + "uint8_t" + " " + col_name + "[ROWS/8];")
+            update_fields_from_row.append(" "*8 + "this->" + col_name + "[idx/8] |= row." + col_name + " << idx;")
         else:
-            struct_fields.append("    " + FSDAQ_TYPE_TO_C_TYPE[fsdaq_type] + " " + col_name + "[ROWS];")
-    template = template.replace("@STRUCT_FIELDS@", "\n".join(struct_fields))
+            values_struct_fields.append("    " + FSDAQ_TYPE_TO_C_TYPE[fsdaq_type] + " " + col_name + "[ROWS];")
+            update_fields_from_row.append(" "*8 + "this->" + col_name + "[idx] = row." + col_name + ";")
+        values_row_struct_fields.append(" "*4 + FSDAQ_TYPE_TO_C_TYPE[fsdaq_type] + " " + col_name + ";")
+    template = template.replace("@VALUES_STRUCT_FIELDS@", "\n".join(values_struct_fields))
+    template = template.replace("@VALUES_ROW_STRUCT_FIELDS@", "\n".join(values_row_struct_fields))
 
-    # template = template.replace("@BATCH_COL_REFS@", ", ".join(["vals." + k for k in signal_to_fsdaq_datatype.keys()]))
+    template = template.replace("@UPDATE_FIELDS_FROM_ROW@", "\n".join(update_fields_from_row))
+
+    
     
     out_file.write(template)
     out_file.close()
