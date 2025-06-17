@@ -245,7 +245,7 @@ int main() {
         } else if (dcBusVoltage < 20000 && !checkingPrechargeStatus) {
             checkingPrechargeStatus = true;
             queue.call_in(500ms, &checkPrechargeVoltage);
-                    prechargeDone = false;
+                    // prechargeDone = false;
 
         }
 
