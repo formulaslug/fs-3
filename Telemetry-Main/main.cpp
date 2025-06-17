@@ -10,13 +10,13 @@
 #include "SDBlockDevice.h"
 
 #define ENABLE_RADIO false
-#define ENABLE_SD true
-#define ENABLE_DASH false
+#define ENABLE_SD false
+#define ENABLE_DASH true
 
 // #define TICKS_PER_SECOND 1000
 
 #define SD_UPDATE_HZ 100ms
-#define DASH_UPDATE_HZ 10ms
+#define DASH_UPDATE_HZ 100ms
 #define RADIO_UPDATE_HZ 1ms
 
 // struct TelemetrySystemState {
@@ -64,7 +64,10 @@ Layouts::StandardLayoutParams params = {
   .mtr_tmp = 20,
   .mtr_volt = 110,
   .glv = 12,
+  .steering_angle = 11,
   .brake_balance = 50,
+  .brake_f = 0,
+  .brake_r = 0,
   .throttle_demand = 0,
   .brake_demand = 0,
   .time = chrono::milliseconds(0),
@@ -114,7 +117,10 @@ void update_dash() {
       .mtr_tmp = vsm_state.smeTemp.MOTOR_TEMP,
       .mtr_volt = static_cast<float>(vsm_state.accPower.PACK_VOLTAGE / 100.0),
       .glv = static_cast<float>(vsm_state.pdbPowerA.GLV_VOLTAGE),
-      .brake_balance = static_cast<float>(vsm_state.brake_sensor_f) / (vsm_state.brake_sensor_f + vsm_state.brake_sensor_r),
+      .steering_angle = vsm_state.steering_sensor,
+      .brake_balance = vsm_state.brake_sensor_f / (vsm_state.brake_sensor_f + vsm_state.brake_sensor_r),
+      .brake_f = vsm_state.brake_sensor_f,
+      .brake_r = vsm_state.brake_sensor_r,
       .throttle_demand = static_cast<float>(vsm_state.smeThrottleDemand.TORQUE_DEMAND/32768.0),
       // .throttle_demand = static_cast<float>(vsm_state.etcStatus.PEDAL_TRAVEL),
       .brake_demand = static_cast<float>(((vsm_state.etcStatus.BRAKE_SENSE_VOLTAGE / 1000.0) - 0.5) / 4),
@@ -123,6 +129,7 @@ void update_dash() {
       .rtds = static_cast<bool>(vsm_state.etcStatus.RTDS),
       .rpm = vsm_state.smeTrqSpd.SPEED,
   };
+  printf("%f %f\n", params.brake_f, params.brake_r);
   // params.speed++;
   eve.drawStandardLayout2(params);
 }
@@ -223,6 +230,8 @@ int main() {
     if (ENABLE_DASH) {
         queue.call_every(DASH_UPDATE_HZ, &update_dash);
     }
+    queue.call_every(1ms, [](){vsm.update();});
+    queue.dispatch_forever();
 
     while (true) {
         // t.reset();

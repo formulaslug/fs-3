@@ -49,9 +49,9 @@ struct VehicleState {
     VDM_YAW_RATE_t vdmYawRate;
 
     // ---- FROM NUCLEO PINS ----
-    uint16_t steering_sensor;
-    uint16_t brake_sensor_f;
-    uint16_t brake_sensor_r;
+    float steering_sensor;
+    float brake_sensor_f;
+    float brake_sensor_r;
     
 };
 

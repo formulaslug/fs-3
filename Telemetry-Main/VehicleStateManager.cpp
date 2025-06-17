@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <chrono>
 #include <cstring>
+#include <numeric>
 #include "CANInterface.hpp"
 #include "CANProtocol.hpp"
 #include "mbed.h"
@@ -26,10 +27,22 @@ void VehicleStateManager::update() {
     readSensorValues();
 }
 
+vector<float> brake_f_acc{10};
+vector<float> brake_r_acc{10};
+
 void VehicleStateManager::readSensorValues() {
-    _vehicleState.steering_sensor =  _steering_sensor.read_u16();
-    _vehicleState.brake_sensor_f =  _brake_sensor_f.read_u16();
-    _vehicleState.brake_sensor_r =  _brake_sensor_r.read_u16();
+    _vehicleState.steering_sensor =  _steering_sensor.read() * 3.3f;
+
+    // for (int i = 0; i < 10; i++) {
+    //     brake_f_acc[i] = _brake_sensor_f.read() * 3.3f;
+    //     brake_r_acc[i] = _brake_sensor_r.read() * 3.3f;
+    // }
+    //
+    // _vehicleState.brake_sensor_f = std::accumulate(brake_f_acc.begin(), brake_f_acc.end(), 0.0);
+    // _vehicleState.brake_sensor_r = std::accumulate(brake_r_acc.begin(), brake_r_acc.end(), 0.0);
+
+    _vehicleState.brake_sensor_f =_brake_sensor_f.read() * 3.3f;
+    _vehicleState.brake_sensor_r =_brake_sensor_r.read() * 3.3f;
 }
 
 void VehicleStateManager::processCANMessage() {

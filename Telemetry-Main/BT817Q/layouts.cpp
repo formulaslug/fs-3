@@ -37,13 +37,12 @@ void Layouts::drawTestLayout(int var) {
   endFrame(); // automatically waits for cmd queue to clear out
 }
 
-void Layouts::drawStandardLayout(Faults faults, const uint8_t speed, const uint8_t soc,
-                                 uint8_t acc_temp, uint8_t ctrl_tmp,
-                                 uint8_t mtr_tmp, float mtr_volt, float glv,
-                                 float brake_balance, float throttle_demand,
-                                 float brake_demand,
-                                 std::chrono::milliseconds time,
-                                 double delta_time_seconds) {
+void Layouts::drawStandardLayout(
+    Faults faults, const uint8_t speed, const uint8_t soc, uint8_t acc_temp,
+    uint8_t ctrl_tmp, uint8_t mtr_tmp, float mtr_volt, float glv,
+    float steering_angle, float brake_balance, float brake_f, float brake_r,
+    float throttle_demand, float brake_demand, std::chrono::milliseconds time,
+    double delta_time_seconds) {
   if (failure == startFrame()) {
     return;
   }
@@ -51,14 +50,16 @@ void Layouts::drawStandardLayout(Faults faults, const uint8_t speed, const uint8
   // printf("Drew!\n");
   clear(255, 255, 255); // black background for frame
   setMainColor(black);
-  drawProgressBar(Point{220, 10}, 340, 35, speed, 110, mid_gray, orange);       // mph progress bar
+  drawProgressBar(Point{220, 10}, 340, 35, speed, 110, mid_gray,
+                  orange);       // mph progress bar
   for (int i = 0; i < 16; i++) { // to section off the progress bar
     uint16_t base_x = 220 + (20 * (i + 1));
     drawLine(Point{base_x, 0}, Point{base_x, 50}, white, 16 * 5);
   }
   drawRect(Point{200, 10}, Point{220, 45}, white);
   drawRect(Point{560, 10}, Point{580, 45}, white);
-  drawProgressBar(Point{220, 180}, 340, 30, soc, 100, mid_gray, Color{0, 200, 36}); // soc progress bar
+  drawProgressBar(Point{220, 180}, 340, 30, soc, 100, mid_gray,
+                  Color{0, 200, 36}); // soc progress bar
   drawRect(Point{200, 180}, Point{220, 210}, white);
   drawRect(Point{560, 180}, Point{580, 210}, white);
   for (int i = 0; i < 16; i++) { // to section off the progress bar
@@ -86,18 +87,25 @@ void Layouts::drawStandardLayout(Faults faults, const uint8_t speed, const uint8
   const auto time_ms = time - duration_cast<milliseconds>(time_s);
   const auto time_min = duration_cast<minutes>(time_s);
   time_s -= duration_cast<seconds>(time_min);
-  drawFormattedText(100, 100, "%02d:%02d:%02d", 24, OPT_CENTER, time_min.count(), time_s.count(), time_ms.count()); // lap time formatted in mm:ss::ms
+  drawFormattedText(100, 100, "%02d:%02d:%02d", 24, OPT_CENTER,
+                    time_min.count(), time_s.count(),
+                    time_ms.count()); // lap time formatted in mm:ss::ms
   const char sign_char = (delta_time_seconds > 0) ? '+' : ' ';
   const Color delta_color = (delta_time_seconds > 0) ? red : green;
-  drawFormattedText(100, 150, "%c %00.2f s  ", delta_color, 24, OPT_CENTER, sign_char, delta_time_seconds); // delta time formatted in ± s.ms
-  //TODO! fix large font on boot up
-  drawFormattedText(400, 110, "%d MPH", 1, OPT_CENTER, speed); // speed display text
+  drawFormattedText(100, 150, "%c %00.2f s  ", delta_color, 24, OPT_CENTER,
+                    sign_char,
+                    delta_time_seconds); // delta time formatted in ± s.ms
+  // TODO! fix large font on boot up
+  drawFormattedText(400, 110, "%d MPH", 1, OPT_CENTER,
+                    speed); // speed display text
   drawFormattedText(400, 160, "SOC: %d", 24, OPT_CENTER, soc);
-  drawFormattedText(100, 260, "BB: %02.1f %%  ", 24, OPT_CENTER, brake_balance * 100.0f); // brake balance display
+  drawFormattedText(100, 260, "BB: %02.1f %%  ", 24, OPT_CENTER,
+                    brake_balance * 100.0f); // brake balance display
   drawFormattedText(680, 80, "ACC: %03d C", 24, OPT_CENTER, acc_temp); // temps
   drawFormattedText(680, 115, "CTRL: %03d C", 24, OPT_CENTER, ctrl_tmp);
   drawFormattedText(680, 150, "MTR: %03d C", 24, OPT_CENTER, mtr_tmp);
-  drawFormattedText(680, 205, "MC: %03.1f V  ", 24, OPT_CENTER, mtr_volt); // voltages
+  drawFormattedText(680, 205, "MC: %03.1f V  ", 24, OPT_CENTER,
+                    mtr_volt); // voltages
   drawFormattedText(680, 235, "GLV: %03.1f V  ", 24, OPT_CENTER, glv);
 
   // drawProgressBar(Point{700, 300},
@@ -123,21 +131,18 @@ void Layouts::drawStandardLayout(Faults faults, const uint8_t speed, const uint8
   endFrame();
 }
 
-void Layouts::drawStandardLayout2(Faults faults, uint8_t speed, uint8_t soc,
-                                  uint8_t acc_temp, uint8_t ctrl_tmp,
-                                  uint8_t mtr_tmp, float mtr_volt, float glv,
-                                  float brake_balance, float throttle_demand,
-                                  float brake_demand,
-                                  std::chrono::milliseconds time,
-                                  double delta_time_seconds, bool rtds,
-                                  uint16_t rpm) {
+void Layouts::drawStandardLayout2(
+    Faults faults, uint8_t speed, uint8_t soc, uint8_t acc_temp,
+    uint8_t ctrl_tmp, uint8_t mtr_tmp, float mtr_volt, float glv,
+    float steering_angle, float brake_balance, float brake_f, float brake_r,
+    float throttle_demand, float brake_demand, std::chrono::milliseconds time,
+    double delta_time_seconds, bool rtds, uint16_t rpm) {
   if (failure == startFrame()) {
     return;
   }
   clear(255, 255, 255); // black background for frame
   loadFonts();
   setMainColor(black);
-
 
   drawFormattedText(400, 100, "%03d", 1, OPT_CENTER, speed);
 
@@ -160,7 +165,7 @@ void Layouts::drawStandardLayout2(Faults faults, uint8_t speed, uint8_t soc,
     // segmented soc
     uint16_t segTopLeftY = 490 - j * 19;
     uint16_t segBotRightY = segTopLeftY - 10;
-    if (soc < j*4 && !pastPoint) {
+    if (soc < j * 4 && !pastPoint) {
       setMainColor(mid_gray);
       pastPoint = true;
     }
@@ -197,6 +202,9 @@ void Layouts::drawStandardLayout2(Faults faults, uint8_t speed, uint8_t soc,
   drawFormattedText(70, 300, "MC       %03.1fV  ", 24, OPT_CENTER,
                     mtr_volt); // voltages
   drawFormattedText(70, 330, "GLV     %03.1fV  ", 24, OPT_CENTER, glv);
+  drawFormattedText(70, 390, "BRF     %03.2f  ", 24, OPT_CENTER, brake_f);
+  drawFormattedText(70, 420, "BRR     %03.2f  ", 24, OPT_CENTER, brake_r);
+  drawFormattedText(70, 450, "STEER   %03.2f  ", 24, OPT_CENTER, steering_angle);
 
   drawRect(Point{614, 127}, Point{637, 310}, mid_gray);
   uint16_t throttle_bar_h = (310 - floor(183 * throttle_demand));
@@ -205,6 +213,7 @@ void Layouts::drawStandardLayout2(Faults faults, uint8_t speed, uint8_t soc,
   drawRect(Point{643, 127}, Point{666, 310}, mid_gray);
   uint16_t brake_bar_h = (310 - floor(183 * brake_demand));
   drawRect(Point{643, brake_bar_h}, Point{666, 310}, red);
-  // drawRect(Point{643, static_cast<uint16_t>(brake_demand)}, Point{666, 310}, red);
+  // drawRect(Point{643, static_cast<uint16_t>(brake_demand)}, Point{666, 310},
+  // red);
   endFrame();
 }

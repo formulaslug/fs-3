@@ -32,7 +32,10 @@ public:
     uint8_t mtr_tmp;
     float mtr_volt;
     float glv;
+    float steering_angle;
     float brake_balance;
+    float brake_f;
+    float brake_r;
     float throttle_demand;
     float brake_demand;
     std::chrono::milliseconds time;
@@ -49,7 +52,10 @@ public:
                           uint8_t mtr_tmp,
                           float mtr_volt,
                           float glv,
+                          float steering_angle,
                           float brake_balance,
+                          float brake_f,
+                          float brake_r,
                           float throttle_demand,
                           float brake_demand,
                           std::chrono::milliseconds time,
@@ -65,7 +71,10 @@ public:
                        params.mtr_tmp,
                        params.mtr_volt,
                        params.glv,
+                       params.steering_angle,
                        params.brake_balance,
+                       params.brake_f,
+                       params.brake_r,
                        params.throttle_demand,
                        params.brake_demand,
                        params.time,
@@ -79,7 +88,10 @@ public:
                           uint8_t mtr_tmp,
                           float mtr_volt,
                           float glv,
+                          float steering_angle,
                           float brake_balance,
+                          float brake_f,
+                          float brake_r,
                           float throttle_demand,
                           float brake_demand,
                           std::chrono::milliseconds time,
@@ -97,7 +109,10 @@ public:
                        params.mtr_tmp,
                        params.mtr_volt,
                        params.glv,
+                       params.steering_angle,
                        params.brake_balance,
+                       params.brake_f,
+                       params.brake_r,
                        params.throttle_demand,
                        params.brake_demand,
                        params.time,
