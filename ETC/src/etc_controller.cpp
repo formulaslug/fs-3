@@ -109,7 +109,12 @@ void ETCController::updateState() {
         static_cast<int16_t>(pedalTravel * ETCController::MAX_TORQUE) :
         0;
 
-    this->brakeLightOutput.write(this->state.brakes_read >= ETCController::BRAKE_TOLERANCE);
+
+    if (this->state.brakes_read >= ETCController::BRAKE_TOLERANCE_HIGH) {
+        this->brakeLightOutput.write(1);
+    } else if (this->state.brakes_read <= ETCController::BRAKE_TOLERANCE_LOW) {
+        this->brakeLightOutput.write(0);
+    }
 }
 
 
@@ -128,7 +133,7 @@ void ETCController::checkStartConditions() {
     // If the brake is pressed past the tolerance threshold and the tractive system is ready
     // then the motor can be enabled. The last condition for motor start is the cockpit switch
     // being set to the ON position, which is what calls this method.
-    if(this->state.ts_ready && this->state.brakes_read >= ETCController::BRAKE_TOLERANCE && this->state.pedal_travel < 0.05) {
+    if(this->state.ts_ready && this->state.brakes_read >= ETCController::BRAKE_TOLERANCE_HIGH && this->state.pedal_travel < 0.05) {
         this->state.motor_enabled = true;
         this->runRTDS();
     }
@@ -171,7 +176,7 @@ void ETCController::set_brake_implausibility() {
             this->state.brakes_implausibility = false;
         }
     } else {
-        if (this->state.brakes_read >= BRAKE_TOLERANCE && this->state.pedal_travel > 0.25f) {
+        if (this->state.brakes_read >= BRAKE_TOLERANCE_HIGH && this->state.pedal_travel > 0.25f) {
             this->state.brakes_implausibility = true;
         }
     }
