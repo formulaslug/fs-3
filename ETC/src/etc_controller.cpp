@@ -23,7 +23,12 @@ ETCController::ETCController()
         this->state.cockpit = false;
     }));
     this->cockpitSwitchInterrupt.fall(callback([this]() {
-        this->checkStartConditions();
+        this->cockpitSwitchTicker.attach(callback([this]() {
+            if (!cockpitSwitchInterrupt.read()) {
+                this->checkStartConditions();
+            }
+            this->cockpitSwitchTicker.detach();
+        }), 100ms);
         this->state.cockpit = true;
     }));
     this->reverseSwitchInterrupt.rise(callback([this]() { this->switchForwardMotor(); }));
@@ -131,8 +136,10 @@ void ETCController::checkStartConditions() {
 
 
 void ETCController::runRTDS() {
-    this->rtdsOutput.write(true);
-    this->rtdsTicker.attach(callback([this] {this->stopRTDS();}), 1000ms);
+    if (!this->rtdsOutput.read()) {
+        this->rtdsOutput.write(true);
+        this->rtdsTicker.attach(callback([this] {this->stopRTDS();}), 1000ms);
+    }
 }
 
 

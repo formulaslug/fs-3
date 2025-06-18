@@ -77,6 +77,9 @@ class ETCController {
     /** Timer for the RTDS activation. */
     Ticker rtdsTicker;
 
+    /** Ticker for debouncing cockpit switch */
+    Ticker cockpitSwitchTicker;
+
     /** State of the ETC. */
     ETCState state;
 
@@ -153,6 +156,10 @@ public:
      */
     void checkStartConditions();
 
+    /**
+     * Wait and check again before allowing starting
+     */
+    void debounceCockpitSwitch();
 
     /**
      * Runs the RTDS buzzer for 3 seconds.
