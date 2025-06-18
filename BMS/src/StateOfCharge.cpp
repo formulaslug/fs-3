@@ -36,7 +36,7 @@ uint16_t convertLowVoltage(uint32_t voltage) {
             {
                 return CELL_CAPACITY_RATED;
             }
-            return linearInterpolateAh(socLookupTable[i-1], socLookupTable[i-1], cell_voltage);
+            return linearInterpolateAh(socLookupTable[i-1], socLookupTable[i], cell_voltage);
         }
     }
     // Fallback Value
