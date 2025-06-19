@@ -316,6 +316,10 @@ int main() {
         }
         // printf("capacity discharged: %d\n", capacityDischarged);
         state_of_charge = 100 - (100 * capacityDischarged / (CELL_CAPACITY_RATED));
+        uint32_t cell_voltage = packVoltagemV / (BMS_BANK_COUNT * BMS_BANK_CELL_COUNT);
+
+        int32_t new_capacity_discharged = soc_energy(cell_voltage, capacityDischarged);
+        state_of_charge = 100 - (100 * new_capacity_discharged / (CELL_CAPACITY_RATED));
         // printf("state of charge: %d\n", state_of_charge);
 
         // printf("pack voltage: %d\n", packVoltagemV);
