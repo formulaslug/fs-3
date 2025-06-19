@@ -49,19 +49,19 @@ void ETCController::updateState() {
     // two sensors differs by too much, or the voltages of either sensor is out of range (less
     // than 0% or more than 100% pedal travel).
 
-    float travelDifference = std::fabs(he1Travel - he2Travel);
+    float travelDifference = std::abs(he1Travel - he2Travel);
     if (travelDifference > 0.1f) {
         if (!this->implausTravelTimerRunning) {
             // we now start our timer, if it's not already running
             this->implausTravelTimer.start();
             this->implausTravelTimerRunning = true;
         }
-        else if (this->implausTravelTimer.elapsed_time() > 100ms) {
-            this->implausTravelTimer.stop();
-            this->implausTravelTimer.reset();
-            this->implausTravelTimerRunning = false;
-            this->turnOffMotor();
-        }
+        // else if (this->implausTravelTimer.elapsed_time() > 100ms) {
+            // this->implausTravelTimer.stop();
+            // this->implausTravelTimer.reset();
+            // this->implausTravelTimerRunning = false;
+            // this->turnOffMotor();
+        // }
     }
     else {
         // if everything is good and timer is running, we reset
@@ -70,20 +70,20 @@ void ETCController::updateState() {
         this->implausTravelTimerRunning = false;
     }
 
-    if (he1Voltage <= 0.05f || he1Voltage >= ETCController::MAX_VOLTAGE ||
-        he2Voltage <= 0.05f || he2Voltage >= ETCController::MAX_VOLTAGE)
+    if (he1Voltage <= 0.2f || he1Voltage >= 3.0f ||
+        he2Voltage <= 0.2f || he2Voltage >= 3.0f)
     {
         if (!this->implausBoundsTimerRunning) {
             // we now start our timer, if it's not already running
             this->implausBoundsTimer.start();
             this->implausBoundsTimerRunning = true;
         }
-        else if (this->implausBoundsTimer.elapsed_time() > 100ms) {
-            this->implausBoundsTimer.stop();
-            this->implausBoundsTimer.reset();
-            this->implausBoundsTimerRunning = false;
-            this->turnOffMotor();
-        }
+        // else if (this->implausBoundsTimer.elapsed_time() > 100ms) {
+            // this->implausBoundsTimer.stop();
+            // this->implausBoundsTimer.reset();
+            // this->implausBoundsTimerRunning = false;
+            // this->turnOffMotor();
+        // }
     }
     else {
         this->implausBoundsTimer.stop();
@@ -105,7 +105,7 @@ void ETCController::updateState() {
     this->state.he1_travel = he1Travel;
     this->state.he2_travel = he2Travel;
     this->state.torque_demand =
-        (this->state.motor_enabled && !this->state.brakes_implausibility) ?
+        (this->state.motor_enabled && (!this->state.brakes_implausibility && !this->hasImplausibility())) ?
         static_cast<int16_t>(pedalTravel * ETCController::MAX_TORQUE) :
         0;
 
@@ -274,5 +274,7 @@ bool ETCController::isBraking() {
 
 
 bool ETCController::hasImplausibility() {
-    return this->implausTravelTimerRunning || this->implausBoundsTimerRunning;
+    // return this->implausTravelTimerRunning || this->implausBoundsTimerRunning;
+    return this->implausTravelTimer.elapsed_time() >= 100ms
+        || this->implausBoundsTimer.elapsed_time() >= 100ms;
 }

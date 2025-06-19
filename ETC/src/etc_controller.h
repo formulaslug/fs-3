@@ -67,7 +67,7 @@ class ETCController {
 
     /** Timer for implausibility via HE sensor travel percent mismatch. */
     Timer implausTravelTimer;
-    /** Whether the implausibility travel percent mismatch timer is active. */
+   /** Whether the implausibility travel percent mismatch timer is active. */
     bool implausTravelTimerRunning;
     /** Timer for implausibility via HE sensor invalid voltages. */
     Timer implausBoundsTimer;
@@ -92,8 +92,8 @@ public:
     static constexpr float MAX_VOLTAGE = 3.3f;
 
     /** The percentage tolerance for the brake pedal to be considered pressed. */
-    static constexpr float BRAKE_TOLERANCE_HIGH = 0.38f;
-    static constexpr float BRAKE_TOLERANCE_LOW = 0.25f;
+    static constexpr float BRAKE_TOLERANCE_HIGH = 0.42f;
+    static constexpr float BRAKE_TOLERANCE_LOW = 0.36f;
 
     /** The voltage divider slope for the hall-effect 1 sensor. */
     static constexpr float HE1_SCALE = (330.0f / 480.0f);
