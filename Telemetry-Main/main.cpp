@@ -109,7 +109,7 @@ void update_dash() {
   params = {
       .faults =
           Faults{false, static_cast<bool>(vsm_state.accStatus.PRECHARGE_DONE),
-                 static_cast<bool>(vsm_state.accStatus.SHUTDOWN_STATE)},
+                 static_cast<bool>(!vsm_state.accStatus.SHUTDOWN_STATE)},
       .speed = static_cast<uint8_t>(vsm_state.smeThrottleDemand.TORQUE_DEMAND / 327.68),
       .soc = vsm_state.accPower.SOC,
       .acc_temp = max_temp,
@@ -121,12 +121,12 @@ void update_dash() {
       .brake_balance = vsm_state.brake_sensor_f / (vsm_state.brake_sensor_f + vsm_state.brake_sensor_r),
       .brake_f = vsm_state.brake_sensor_f,
       .brake_r = vsm_state.brake_sensor_r,
-      .throttle_demand = static_cast<float>(vsm_state.smeThrottleDemand.TORQUE_DEMAND/32768.0),
-      // .throttle_demand = static_cast<float>(vsm_state.etcStatus.PEDAL_TRAVEL),
+      // .throttle_demand = static_cast<float>(vsm_state.smeThrottleDemand.TORQUE_DEMAND/32768.0),
+      .throttle_demand = static_cast<float>(vsm_state.smeTrqSpd.SPEED) * 112/7500.0f,
       .brake_demand = static_cast<float>(((vsm_state.etcStatus.BRAKE_SENSE_VOLTAGE / 1000.0) - 0.5) / 4),
       .time = chrono::milliseconds(0),
       .delta_time_seconds = 0.01,
-      .rtds = static_cast<bool>(vsm_state.etcStatus.RTDS),
+      .rtds = static_cast<bool>(vsm_state.etcStatus.RTD),
       .rpm = vsm_state.smeTrqSpd.SPEED,
   };
   printf("%f %f\n", params.brake_f, params.brake_r);

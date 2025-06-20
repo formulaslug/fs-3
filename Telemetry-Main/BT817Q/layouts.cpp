@@ -193,7 +193,7 @@ void Layouts::drawStandardLayout2(
   drawText(36, 36, "FANS", 23);
   drawText(110, 36, "PCHG", 23);
   drawText(36, 110, "SHTD", 23);
-  drawText(110, 110, "RTDS", 23);
+  drawText(110, 110, "RTD", 23);
 
   drawFormattedText(70, 180, "FAN       %03d", 24, OPT_CENTER, acc_temp);
   drawFormattedText(70, 210, "ACC    %03dC", 24, OPT_CENTER, acc_temp);
