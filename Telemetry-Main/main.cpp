@@ -108,7 +108,7 @@ void update_dash() {
   }
   params = {
       .faults =
-          Faults{false, static_cast<bool>(vsm_state.accStatus.PRECHARGE_DONE),
+          Faults{false, static_cast<bool>(!vsm_state.accStatus.PRECHARGE_DONE),
                  static_cast<bool>(!vsm_state.accStatus.SHUTDOWN_STATE)},
       .speed = static_cast<uint8_t>(vsm_state.smeTrqSpd.SPEED * 112 / 7500),
       .soc = vsm_state.accPower.SOC,
@@ -121,9 +121,11 @@ void update_dash() {
       .brake_balance = vsm_state.brake_sensor_f / (vsm_state.brake_sensor_f + vsm_state.brake_sensor_r),
       .brake_f = vsm_state.brake_sensor_f,
       .brake_r = vsm_state.brake_sensor_r,
-      .throttle_demand = static_cast<float>(vsm_state.smeThrottleDemand.TORQUE_DEMAND / 32768.0), // 0-1
-      // 0.33 - 1.65
-      .brake_demand = static_cast<float>(((vsm_state.etcStatus.BRAKE_SENSE_VOLTAGE / 32768.0)*3.3 - 0.33) / (1.65 - 0.33)),
+      .throttle_demand = vsm_state.smeThrottleDemand.TORQUE_DEMAND / 32768.0f, // 0-1
+      // 0 - 1
+      .brake_val = static_cast<float>(((vsm_state.etcStatus.BRAKE_SENSE_VOLTAGE / 32768.0)*3.3 - 0.33) / (1.65 - 0.33)),
+      // psi
+      .brake_psi = static_cast<float>((vsm_state.etcStatus.BRAKE_SENSE_VOLTAGE / 32768.0) - 0.1) * 2500,
       .time = chrono::milliseconds(0),
       .delta_time_seconds = 0.01,
       .rtds = static_cast<bool>(vsm_state.etcStatus.RTD),

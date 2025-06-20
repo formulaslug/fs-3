@@ -37,7 +37,8 @@ public:
     float brake_f;
     float brake_r;
     float throttle_demand;
-    float brake_demand;
+    float brake_val;
+    float brake_psi;
     std::chrono::milliseconds time;
     double delta_time_seconds;
     bool rtds;
@@ -57,7 +58,8 @@ public:
                           float brake_f,
                           float brake_r,
                           float throttle_demand,
-                          float brake_demand,
+                          float brake_val,
+                          float brake_psi,
                           std::chrono::milliseconds time,
                           double delta_time_seconds
                           );
@@ -76,7 +78,8 @@ public:
                        params.brake_f,
                        params.brake_r,
                        params.throttle_demand,
-                       params.brake_demand,
+                       params.brake_val,
+                       params.brake_psi,
                        params.time,
                        params.delta_time_seconds);
   }
@@ -93,7 +96,8 @@ public:
                           float brake_f,
                           float brake_r,
                           float throttle_demand,
-                          float brake_demand,
+                          float brake_val,
+                          float brake_psi,
                           std::chrono::milliseconds time,
                           double delta_time_seconds,
                           bool rtds,
@@ -114,7 +118,8 @@ public:
                        params.brake_f,
                        params.brake_r,
                        params.throttle_demand,
-                       params.brake_demand,
+                       params.brake_val,
+                       params.brake_psi,
                        params.time,
                        params.delta_time_seconds,
                        params.rtds,

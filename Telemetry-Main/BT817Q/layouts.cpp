@@ -41,7 +41,7 @@ void Layouts::drawStandardLayout(
     Faults faults, const uint8_t speed, const uint8_t soc, uint8_t acc_temp,
     uint8_t ctrl_tmp, uint8_t mtr_tmp, float mtr_volt, float glv,
     float steering_angle, float brake_balance, float brake_f, float brake_r,
-    float throttle_demand, float brake_demand, std::chrono::milliseconds time,
+    float throttle_demand, float brake_val, float brake_psi, std::chrono::milliseconds time,
     double delta_time_seconds) {
   if (failure == startFrame()) {
     return;
@@ -126,7 +126,7 @@ void Layouts::drawStandardLayout(
   //                 red,
   //                 mid_gray); // brake demand bar
   drawRect(Point{750, 300}, Point{782, 480}, mid_gray);
-  const uint16_t brake_bar_h = (480 - floor(160 * brake_demand));
+  const uint16_t brake_bar_h = (480 - floor(160 * brake_val));
   drawRect(Point{750, brake_bar_h}, Point{782, 480}, red);
   endFrame();
 }
@@ -135,7 +135,7 @@ void Layouts::drawStandardLayout2(
     Faults faults, uint8_t speed, uint8_t soc, uint8_t acc_temp,
     uint8_t ctrl_tmp, uint8_t mtr_tmp, float mtr_volt, float glv,
     float steering_angle, float brake_balance, float brake_f, float brake_r,
-    float throttle_demand, float brake_demand, std::chrono::milliseconds time,
+    float throttle_demand, float brake_val, float brake_psi, std::chrono::milliseconds time,
     double delta_time_seconds, bool rtds, uint16_t rpm) {
   if (failure == startFrame()) {
     return;
@@ -199,20 +199,21 @@ void Layouts::drawStandardLayout2(
   drawFormattedText(70, 210, "ACC    %03dC", 24, OPT_CENTER, acc_temp);
   drawFormattedText(70, 240, "CTRL  %03dC", 24, OPT_CENTER, ctrl_tmp);
   drawFormattedText(70, 270, "MTR    %03dC", 24, OPT_CENTER, mtr_tmp);
-  drawFormattedText(70, 300, "MC       %03.1fV  ", 24, OPT_CENTER,
+  drawFormattedText(70, 300, "MC      %03.1fV  ", 24, OPT_CENTER,
                     mtr_volt); // voltages
   drawFormattedText(70, 330, "GLV     %03.1fV  ", 24, OPT_CENTER, glv);
-  drawFormattedText(70, 390, "BRF     %03.2f  ", 24, OPT_CENTER, brake_f);
-  drawFormattedText(70, 420, "BRR     %03.2f  ", 24, OPT_CENTER, brake_r);
+  drawFormattedText(70, 360, "BRF     %03.2fmV     ", 24, OPT_CENTER, brake_f);
+  drawFormattedText(70, 390, "BRR     %03.2fmV  ", 24, OPT_CENTER, brake_r);
+  drawFormattedText(70, 420, "BR      %03.2fpsi  ", 24, OPT_CENTER, brake_psi);
   drawFormattedText(70, 450, "STEER   %03.2f  ", 24, OPT_CENTER, steering_angle);
 
   drawRect(Point{614, 127}, Point{637, 310}, mid_gray);
-  uint16_t throttle_bar_h = 127 + 183*throttle_demand;
-  drawRect(Point{614, throttle_bar_h}, Point{637, 310}, green);
+  uint16_t throttle_bar_h = 310 - 183*throttle_demand;
+  drawRect(Point{614, 127}, Point{637, throttle_bar_h}, green);
 
   drawRect(Point{643, 127}, Point{666, 310}, mid_gray);
-  uint16_t brake_bar_h = 127 + 183*brake_demand;
-  drawRect(Point{643, brake_bar_h}, Point{666, 310}, red);
+  uint16_t brake_bar_h = 310 - 183*(brake_val);
+  drawRect(Point{643, 310}, Point{666, brake_bar_h}, red);
   // drawRect(Point{643, static_cast<uint16_t>(brake_demand)}, Point{666, 310},
   // red);
   endFrame();
