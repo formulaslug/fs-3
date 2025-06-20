@@ -207,11 +207,11 @@ void Layouts::drawStandardLayout2(
   drawFormattedText(70, 450, "STEER   %03.2f  ", 24, OPT_CENTER, steering_angle);
 
   drawRect(Point{614, 127}, Point{637, 310}, mid_gray);
-  uint16_t throttle_bar_h = (310 - floor(183 * throttle_demand));
+  uint16_t throttle_bar_h = 127 + 183*throttle_demand;
   drawRect(Point{614, throttle_bar_h}, Point{637, 310}, green);
 
   drawRect(Point{643, 127}, Point{666, 310}, mid_gray);
-  uint16_t brake_bar_h = (310 - floor(183 * brake_demand));
+  uint16_t brake_bar_h = 127 + 183*brake_demand;
   drawRect(Point{643, brake_bar_h}, Point{666, 310}, red);
   // drawRect(Point{643, static_cast<uint16_t>(brake_demand)}, Point{666, 310},
   // red);
