@@ -126,6 +126,17 @@ public:
                        params.rpm);
   }
 
+  void drawLayout3(Faults faults,
+                    float mtr_volt,
+                    uint8_t acc_temp,
+                    uint8_t ctrl_temp,
+                    uint8_t mtr_temp,
+                    uint8_t soc,
+                    float glv,
+                    bool rtds,
+                    int tick //pass in tick to allow flashing/blinking
+                    );
+
   void drawTestLayout(int var);
 };
 

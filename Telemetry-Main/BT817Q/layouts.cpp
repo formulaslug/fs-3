@@ -218,3 +218,119 @@ void Layouts::drawStandardLayout2(
   // red);
   endFrame();
 }
+
+#define MC_WARNING_VOLT 100
+//TODO!!! placeholder!! ENSURE THIS IS THE CORRECT VALUE!!!!
+
+#define ACC_WARNING_TEMP 52
+//TODO!!! placeholder!! ENSURE THIS IS THE CORRECT VALUE!!!!
+
+void Layouts::drawLayout3(Faults faults, float mtr_volt, uint8_t acc_temp,
+                          uint8_t ctrl_temp, uint8_t mtr_temp, uint8_t soc,
+                          float glv, bool rtds, int tick) {
+  //--------init-------------
+  clear(255, 255, 255); // white background for frame
+  loadFonts();
+  //-----------\init-------------
+
+  //--------------SOC bars---------------
+  setMainColor(green);
+  bool pastPoint = false;
+  for (int j = 1; j <= 10; j++) {
+    // segmented soc
+    uint16_t segTopLeftY = 480 - j * 45;
+    uint16_t segBotRightY = segTopLeftY + 20;
+    if (soc < j * 10 && !pastPoint) {
+      setMainColor(mid_gray);
+      pastPoint = true;
+    }
+    drawRect(Point{700, segTopLeftY}, {795, segBotRightY});
+  }
+  //----------\SOC bars----------------------
+
+  //--------indicator lights------------------
+  bool curr_green = true;
+  if (faults.fans && curr_green) {
+    setMainColor(red);
+  }
+  drawRect(Point{1, 1}, Point{73, 73}); //fans
+  if (faults.precharge && curr_green) {
+    setMainColor(red);
+    curr_green = false;
+  }
+  else if (!faults.precharge && !curr_green) {
+    setMainColor(green);
+    curr_green = true;
+  }
+  drawRect(Point{75, 1}, Point{147, 73}); //pc
+  if (faults.shutdown && curr_green) {
+    setMainColor(red);
+    curr_green = false;
+  }
+  else if (!faults.shutdown && !curr_green) {
+    setMainColor(green);
+    curr_green = true;
+  }
+  drawRect(Point{1, 75}, Point{73, 147}); //shdn
+  if (!rtds && curr_green) {
+    setMainColor(red);
+    curr_green = false;
+  }
+  else if (rtds && !curr_green) {
+    setMainColor(green);
+    curr_green = true;
+  }
+  drawRect(Point{75, 75}, Point{147, 147}); //rtds
+  //-----------\indicator lights--------------------
+
+  //---------MC warning box----------
+  Color mc_volts_bg = Color {18, 219, 255};
+  if (mtr_volt < MC_WARNING_VOLT) { //flash the box to alarm driver if MC volts below warning point
+    if (tick % 2 == 0) {
+      mc_volts_bg = red;
+    }
+    else {
+      mc_volts_bg = Color {255, 255, 0};
+    }
+  }
+  setMainColor(mc_volts_bg);
+  drawRect(Point{200, 0}, {375, 125});
+  //--------------\MC warning box-------
+
+  //---------ACC TEMP warning box----------
+  Color acc_temp_bg = Color {18, 219, 255};
+  if (acc_temp < ACC_WARNING_TEMP) { //flash the box to alarm driver if MC volts below warning point
+    if (tick % 2 == 0) {
+      acc_temp_bg = red;
+    }
+    else {
+      acc_temp_bg = Color {255, 255, 0};
+    }
+  }
+  setMainColor(acc_temp_bg);
+  drawRect(Point{400, 0}, {625, 125});
+  //--------------\ACC TEMP warning box-------
+
+  //--------------TEXT-----------------
+  setMainColor(black);
+
+  //___status indicators_____
+  drawText(36, 36, "FANS", 23);
+  drawText(110, 36, "PCHG", 23);
+  drawText(36, 110, "SHTD", 23);
+  drawText(110, 110, "RTD", 23);
+
+  //___MC and ACC______
+  drawFormattedText(275, 75,
+    "MC\n%03.1f V       ", 1, OPT_CENTER, mtr_volt);
+  drawFormattedText(525, 75,
+   "ACC\n%03d'C       ", 1, OPT_CENTER, acc_temp);
+
+  //___GLV, CTRL and MTR______
+  drawFormattedText(75, 175, "GLV\n%03d V     ", 31, OPT_CENTER, glv);
+  drawFormattedText(75, 175, "CTRL\n%03d'C     ", 31, OPT_CENTER, ctrl_temp);
+  drawFormattedText(75, 175, "MTR\n%03d'C     ", 31, OPT_CENTER, mtr_temp);
+
+  //____SOC number
+  drawFormattedText(550, 175, "SOC\n%03d    ", 2, OPT_CENTER, soc);
+}
