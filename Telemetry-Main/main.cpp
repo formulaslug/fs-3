@@ -52,6 +52,7 @@ FILE *sd_fp;
 Values vals{};
 ValuesRow current_row{};
 int row_idx = 0;
+
 int this_tick = 0;
 
 
@@ -76,8 +77,6 @@ int this_tick = 0;
 //   .rtds = false,
 //   .rpm = 0
 // };
-//
-
 
 Layouts eve(PC_12, PC_11, PC_10, PD_2, PB_7, PC_13, EvePresets::CFA800480E3);
 
