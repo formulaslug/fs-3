@@ -127,7 +127,7 @@ public:
   }
 
   void drawLayout3(Faults faults,
-                    float mtr_volt,
+                    float acc_volt,
                     uint8_t acc_temp,
                     uint8_t ctrl_temp,
                     uint8_t mtr_temp,

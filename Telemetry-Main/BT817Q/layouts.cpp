@@ -225,7 +225,7 @@ void Layouts::drawStandardLayout2(
 #define ACC_WARNING_TEMP 52
 //TODO!!! placeholder!! ENSURE THIS IS THE CORRECT VALUE!!!!
 
-void Layouts::drawLayout3(Faults faults, float mtr_volt, uint8_t acc_temp,
+void Layouts::drawLayout3(Faults faults, float acc_volt, uint8_t acc_temp,
                           uint8_t ctrl_temp, uint8_t mtr_temp, uint8_t soc,
                           float glv, bool rtds, int tick) {
   //--------init-------------
@@ -285,7 +285,7 @@ void Layouts::drawLayout3(Faults faults, float mtr_volt, uint8_t acc_temp,
 
   //---------MC warning box----------
   Color mc_volts_bg = Color {18, 219, 255};
-  if (mtr_volt < MC_WARNING_VOLT) { //flash the box to alarm driver if MC volts below warning point
+  if (acc_volt < MC_WARNING_VOLT) { //flash the box to alarm driver if MC volts below warning point
     if (tick % 2 == 0) {
       mc_volts_bg = red;
     }
@@ -322,7 +322,7 @@ void Layouts::drawLayout3(Faults faults, float mtr_volt, uint8_t acc_temp,
 
   //___MC and ACC______
   drawFormattedText(275, 75,
-    "MC\n%03.1f V       ", 1, OPT_CENTER, mtr_volt);
+    "ACC\n%03.1f V       ", 1, OPT_CENTER, acc_volt);
   drawFormattedText(525, 75,
    "ACC\n%03d'C       ", 1, OPT_CENTER, acc_temp);
 
