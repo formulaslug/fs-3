@@ -99,6 +99,7 @@ void update_sd() {
         row_idx++;
     }
 }
+int n = 0;
 void update_dash() {
   const VehicleState vsm_state = vsm.getState();
   // int8_t total_temp = 0;
@@ -145,7 +146,7 @@ void update_dash() {
         vsm_state.accPower.SOC,
         static_cast<float>(vsm_state.pdbPowerA.GLV_VOLTAGE),
         static_cast<bool>(vsm_state.etcStatus.RTD),
-        this_tick++
+        n
         );
 }
 
@@ -246,50 +247,54 @@ int main() {
         queue.call_every(DASH_UPDATE_HZ, &update_dash);
     }
     queue.call_every(1ms, [](){vsm.update();});
+    queue.call_every(100ms, [](){n++;});
     queue.dispatch_forever();
 
-    while (true) {
-        // t.reset();
-        // vsm.update();
-        // if (x % 7000 == 0) {
-        //     printf("\tVSM: %.3fms\n", t.elapsed_time().count()/1000.0);
-        // }
-        //
-        // x++;
-
-        // if (state.radio_event) {
-        //     state.radio_event = false;
-        //     if (state.radio_on) {
-        //         update_radio();
-        //     }
-        // }
-        //
-        // if (state.sd_event) {
-        //     state.sd_event = false;
-        //     if (state.sd_on) {
-        //         update_sd();
-        //     }
-        // }
-
-        // if (state.dash_event) {
-        //     printf("Update Dash -- ");
-        //     update_dash();
-        //     state.dash_event = false;
-        // }
-
-        // if (x>5000) {
-        //     printf("Time: %f\n", t.elapsed_time().count()/1.0);
-        //     t.reset();
-        //
-        //     update_dash();
-        //
-        //     // eve.drawStandardLayout2(p);
-        //     printf("\tDash: %.3fms\n", t.elapsed_time().count()/1000.0);
-        //
-        //     x = 0;
-            // printf("Updating Dash\n");
-        // }
+    // int x = 0;
+    // while (true) {
+    //     // t.reset();
+    //     vsm.update();
+    //     // if (x % 7000 == 0) {
+    //     //     printf("\tVSM: %.3fms\n", t.elapsed_time().count()/1000.0);
+    //     // }
+    //     //
+    //     x++;
+    //
+    //     n++;
+    //
+    //     // if (state.radio_event) {
+    //     //     state.radio_event = false;
+    //     //     if (state.radio_on) {
+    //     //         update_radio();
+    //     //     }
+    //     // }
+    //     //
+    //     // if (state.sd_event) {
+    //     //     state.sd_event = false;
+    //     //     if (state.sd_on) {
+    //     //         update_sd();
+    //     //     }
+    //     // }
+    //
+    //     // if (state.dash_event) {
+    //     //     printf("Update Dash -- ");
+    //     //     update_dash();
+    //     //     state.dash_event = false;
+    //     // }
+    //
+    //     if (x>500) {
+    //     //     printf("Time: %f\n", t.elapsed_time().count()/1.0);
+    //     //     t.reset();
+    //     //
+    //         update_dash();
+    //         //
+    //     //     // eve.drawStandardLayout2(p);
+    //     //     printf("\tDash: %.3fms\n", t.elapsed_time().count()/1000.0);
+    //     //
+    //         x = 0;
+    //         // printf("Updating Dash\n");
+    //     }
 
         // printf("CAN!\n");
-    }
+    // }
 }
