@@ -10,7 +10,7 @@
 #include "SDBlockDevice.h"
 
 #define ENABLE_RADIO false
-#define ENABLE_SD false
+#define ENABLE_SD true
 #define ENABLE_DASH true
 
 // #define TICKS_PER_SECOND 1000
@@ -31,18 +31,24 @@
 //
 // static TelemetrySystemState state = {ENABLE_RADIO, ENABLE_SD, ENABLE_DASH};
 
-DigitalIn spi_attn(PA_9);
-DigitalOut cs(PC_8);
-SPI spi(PA_7, PA_6, PA_5);
-XBeeRadio radio(spi, cs, spi_attn);
+DigitalIn xbee_spi_attn(PA_9);
+DigitalOut xbee_spi_cs(PC_8);
+SPI xbee_spi(PA_7, PA_6, PA_5);
+XBeeRadio radio(xbee_spi, xbee_spi_cs, xbee_spi_attn);
+
 auto mbed_can = CAN(PB_8, PB_9, 500000);
 auto can = MbedCAN(mbed_can);
 auto vsm = VehicleStateManager(&can, PC_5, PC_1, PC_0);
 
-// For SD card
 // SDBlockDevice - lowest-level interfaces with the SD card.
 // Pin configurations and transfer speeds are set in mbed_app.json.
-SDBlockDevice sd{ PB_15, PB_14, PB_13, PB_12, 25000000 };
+SDBlockDevice sd{
+    MBED_CONF_SD_SPI_MOSI,
+    MBED_CONF_SD_SPI_MISO,
+    MBED_CONF_SD_SPI_CLK, 
+    MBED_CONF_SD_SPI_CS,
+    MBED_CONF_SD_TRX_FREQUENCY,
+};
 // FATFileSystem - Creates a FAT filesystem on the SDBlockDevice.
 // "sd" is the name of the filesystem; i.e. filepaths are /sd/...
 FATFileSystem fs{"sd"};
@@ -146,7 +152,7 @@ void update_dash() {
         static_cast<float>(vsm_state.pdbPowerA.GLV_VOLTAGE),
         static_cast<bool>(vsm_state.etcStatus.RTD),
         n
-        );
+    );
 }
 
 void error_quit(std::string msg) {
@@ -173,7 +179,7 @@ int main() {
     //     }
     // }, 1000ms / TICKS_PER_SECOND);
 
-    
+
     // Initializing Dash
     if (ENABLE_DASH) {
         eve.init(EvePresets::CFA800480E3);
@@ -191,7 +197,7 @@ int main() {
         if (error) {
             // Reformat if we can't mount the filesystem.
             // This should only happen on the first boot
-            printf("No filesystem found, formatting...\n");
+            printf("No filesystem found, attempting to reformat...\n");
             error = fs.reformat(&sd);
             if (error) error_quit("Error: could not reformat SD card! Is the SD card plugged in?\n");
         }
@@ -213,7 +219,7 @@ int main() {
         } else {
           error_quit("Couldn't open fsdaq directory!\n");
         }
-    
+
         int max_num = 0;
         for (auto it = existing_filenames.begin(); it != existing_filenames.end(); ++it) {
           max_num = std::max(max_num, std::stoi(*it));
@@ -297,3 +303,4 @@ int main() {
         // printf("CAN!\n");
     // }
 }
+

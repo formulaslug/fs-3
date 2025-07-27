@@ -35,7 +35,7 @@ int main(int argc, char *argv[]) {
     if (error) {
         // Reformat if we can't mount the filesystem.
         // This should only happen on the first boot
-        printf("No filesystem found, formatting...\n");
+        printf("No filesystem found, attempting to reformat...\n");
         error = fs.reformat(&sd);
         if (error) error_quit("Error: could not reformat SD card! Is the SD card plugged in?\n");
     }
