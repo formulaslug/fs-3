@@ -19,6 +19,7 @@ add_library(BT817Q STATIC ./BT817Q/BT817Q.cpp ./BT817Q/layouts.cpp)
 target_include_directories(BT817Q PUBLIC ./BT817Q)
 target_link_libraries(BT817Q mbed-core-flags)
 
+set(CMAKE_CXX_STANDARD 20)
 add_executable(${PROJECT_NAME} main.cpp VehicleStateManager.cpp)
 target_link_libraries(${PROJECT_NAME} mbed-os libradio mbed-storage-sd mbed-storage-fat BT817Q)
 mbed_set_post_build(${PROJECT_NAME})
