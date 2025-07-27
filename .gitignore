@@ -38,9 +38,6 @@ Doxygen
 # cmake build cache
 **/cmake_build
 
-**/.idea
-
-
 *.iml
 mbed-os-build/
 
