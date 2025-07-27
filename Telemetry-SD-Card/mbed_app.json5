@@ -29,10 +29,10 @@
       "sd.SPI_CS": "D3",
     },
     "NUCLEO_F446RE": {
-      "sd.SPI_MOSI": "D11",
-      "sd.SPI_MISO": "D12",
-      "sd.SPI_CLK": "D13",
-      "sd.SPI_CS": "D10",
+      "sd.SPI_MOSI": "PB_15",
+      "sd.SPI_MISO": "PB_14",
+      "sd.SPI_CLK": "PB_13",
+      "sd.SPI_CS": "PB_12",
     },
   }
 }
