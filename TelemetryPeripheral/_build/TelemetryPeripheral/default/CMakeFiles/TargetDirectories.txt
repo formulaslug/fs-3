@@ -1,5 +1,0 @@
-/home/jack/dev/formula-slug/fs-3/TelemetryPeripheral/_build/TelemetryPeripheral/default/CMakeFiles/TelemetryPeripheral_default_default_AVR_GCC_assembleWithPreprocess.dir
-/home/jack/dev/formula-slug/fs-3/TelemetryPeripheral/_build/TelemetryPeripheral/default/CMakeFiles/TelemetryPeripheral_default_default_AVR_GCC_compile.dir
-/home/jack/dev/formula-slug/fs-3/TelemetryPeripheral/_build/TelemetryPeripheral/default/CMakeFiles/TelemetryPeripheral_default_default.elf.dir
-/home/jack/dev/formula-slug/fs-3/TelemetryPeripheral/_build/TelemetryPeripheral/default/CMakeFiles/edit_cache.dir
-/home/jack/dev/formula-slug/fs-3/TelemetryPeripheral/_build/TelemetryPeripheral/default/CMakeFiles/rebuild_cache.dir
