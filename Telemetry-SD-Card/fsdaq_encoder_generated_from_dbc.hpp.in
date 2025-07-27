@@ -1,0 +1,47 @@
+#include "mbed.h"
+
+#define COLS @COLS@
+#define ROWS @ROWS@
+
+static const char *col_names[] = { @COL_NAMES@ };
+static const uint8_t col_name_sizes[] = { @COL_NAME_SIZES@ };
+static const char *col_name_types[] = { @COL_NAME_TYPES@ };
+
+struct ValuesRow {
+@VALUES_ROW_STRUCT_FIELDS@
+};
+
+#pragma pack(1)
+class Values {
+@VALUES_STRUCT_FIELDS@
+
+    void updateValuesWithRow(ValuesRow row, int idx) {
+@UPDATE_FIELDS_FROM_ROW@
+    }
+};
+#pragma pack()
+
+inline void write_fsdaq_schema(FILE *file) {
+    uint32_t m = COLS;
+    uint32_t n = ROWS;
+    fwrite(&m, sizeof(m), 1, file);
+    fwrite(&n, sizeof(n), 1, file);
+
+    for (int i=0; i<COLS; i++) {
+        const uint8_t col_len = col_name_sizes[i];
+        const char *col = col_names[i];
+
+        fwrite(&col_len, sizeof(col_len), 1, file);
+        fwrite(col, col_len, 1, file);
+    }
+
+    for (int i=0; i<COLS; i++) {
+        const char *col_type = col_name_types[i];
+        fwrite(col_type, 2, 1, file);
+    }
+}
+
+inline void write_fsdaq_batch(Values *vals, FILE *file) {
+    fwrite(vals, sizeof(*vals), 1, file);
+}
+
