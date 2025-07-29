@@ -120,9 +120,9 @@ int row_idx = 0;
 void update_sd() {
     if (row_idx == ROWS) {
         write_fsdaq_batch(&vals, sd_fp);
+        row_idx = 0;
     } else {
         vals.setRow(current_row, row_idx);
-
         row_idx++;
     }
 }
