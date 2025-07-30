@@ -23,14 +23,11 @@ types_dict = {
     "f5": np.float32,
     "f6": np.float64,
     "b0": bool
-    }
+}
 
-with open (args.input_file, "rb" ) as f:
-    # f = open("test.fsdaq", "rb")
-    df = pl.DataFrame()
+with open(args.input_file, "rb" ) as f:
     batchlen = 0
     data = f.read()
-    # print(ascii(data))
     header = ascii(data[:8])
     m = np.frombuffer(data[8:12], dtype=np.uint32, count=1)[0]
     n = np.frombuffer(data[12:16], dtype=np.uint32, count=1)[0]
@@ -48,13 +45,13 @@ with open (args.input_file, "rb" ) as f:
         colType = data[pos:pos+2].decode('ascii')
         colTypes.append((types_dict[colType], int((2**int(colType[1]))/8*n)))
         pos += 2
-    # print(colTypes)
     data_left = len(data[pos:])
     len_of_frame = sum([x[1] for x in colTypes])
     chunks = np.floor(data_left / len_of_frame)
     misc_bytes = (data_left % len_of_frame) - 8
     print(f"chunks left: {chunks}")
     print(f"misc bytes left: {misc_bytes}")
+    frames = []
     for i in range(int(chunks)):
         frame_pieces = []
         for i in range(m):
@@ -79,12 +76,8 @@ with open (args.input_file, "rb" ) as f:
             frame_piece_series = pl.Series(colTitles[i], col_bit)
             frame_pieces.append(frame_piece_series)
             pos += col_byte_len
-        frame_piece = pl.DataFrame(frame_pieces)
-    # print(frame_pieces)
-    if df.is_empty():
-        df = frame_piece
-    else:
-        df = df.vstack(frame_piece)
-        # print(df)
+        frames.append(pl.DataFrame(frame_pieces))
+    df = pl.concat(frames, how="vertical")
+    # print(df)
     print(f"Stuff Left: {ascii(data[pos:])}")
     df.write_csv(args.output_file)
