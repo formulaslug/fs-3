@@ -7,18 +7,6 @@
 #include "CANInterface.hpp"
 #include "mbed.h"
 
-#if defined(__linux__)
-#include <byteswap.h>
-#define bswap_16(x) bswap_16(x)
-#define bswap_32(x) bswap_32(x)
-#define bswap_64(x) bswap_64(x)
-#elif defined(__APPLE__)
-#include <libkern/OSByteOrder.h>
-#define bswap_16(x) OSSwapInt16(x)
-#define bswap_32(x) OSSwapInt32(x)
-#define bswap_64(x) OSSwapInt64(x)
-#endif
-
 struct VehicleState {
     // ---- FROM CAN BUS ----
     // ACC
