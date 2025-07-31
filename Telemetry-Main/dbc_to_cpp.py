@@ -146,6 +146,7 @@ if __name__ == "__main__":
     for msg in db.messages:
         for signal in msg.signals:
             signal_to_datatype[signal.name] = get_fsdaq_type_for_signal(signal)
+            print(signal.name)
 
     # for k, v in signal_to_datatype.items():
     #     v = str(v).removeprefix("(DataType(")
@@ -154,7 +155,7 @@ if __name__ == "__main__":
 
     # n = 50
     # generate_nanoarrow_code({k: signal_to_datatype[k] for k in list(signal_to_datatype)[:n]}, 8)
-    generate_cpp_code({k: signal_to_datatype[k] for k in list(signal_to_datatype)}, 80)
+    generate_cpp_code(signal_to_datatype)
 
 
 
