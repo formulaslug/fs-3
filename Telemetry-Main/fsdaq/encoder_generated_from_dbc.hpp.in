@@ -1,22 +1,25 @@
 #include "mbed.h"
 
-#define COLS @COLS@
-#define ROWS @ROWS@
+namespace fsdaq {
+
+
+static const int COLS = @COLS@;
+static const int ROWS_PER_BATCH = @ROWS_PER_BATCH@;
 
 static const char *col_names[] = { @COL_NAMES@ };
 static const uint8_t col_name_sizes[] = { @COL_NAME_SIZES@ };
 static const char *col_name_types[] = { @COL_NAME_TYPES@ };
 
-struct ValuesRow {
-@VALUES_ROW_STRUCT_FIELDS@
+struct BatchRow {
+@BATCH_ROW_STRUCT_FIELDS@
 };
 
 #pragma pack(1)
-class Values {
-@VALUES_STRUCT_FIELDS@
+class Batch {
+@BATCH_STRUCT_FIELDS@
 
 public:
-    void setRow(ValuesRow row, int idx) {
+    void setRow(BatchRow row, int idx) {
 @UPDATE_FIELDS_FROM_ROW@
     }
 };
@@ -24,7 +27,7 @@ public:
 
 inline void write_fsdaq_schema(FILE *file) {
     uint32_t m = COLS;
-    uint32_t n = ROWS;
+    uint32_t n = ROWS_PER_BATCH;
     fwrite(&m, sizeof(m), 1, file);
     fwrite(&n, sizeof(n), 1, file);
 
@@ -42,7 +45,9 @@ inline void write_fsdaq_schema(FILE *file) {
     }
 }
 
-inline void write_fsdaq_batch(Values *vals, FILE *file) {
-    fwrite(vals, sizeof(*vals), 1, file);
+inline void write_fsdaq_batch(Batch *batch, FILE *file) {
+    fwrite(batch, sizeof(*batch), 1, file);
 }
 
+    
+} // namespace fsdaq

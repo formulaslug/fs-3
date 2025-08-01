@@ -3,3 +3,5 @@ BasedOnStyle: LLVM
 ColumnLimit: 0
 AllowShortIfStatementsOnASingleLine: Always
 AllowShortBlocksOnASingleLine: Always
+IndentAccessModifiers: false
+AccessModifierOffset: -4

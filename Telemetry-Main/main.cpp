@@ -3,7 +3,8 @@
 #include "SDBlockDevice.h"
 #include "Ticker.h"
 #include "VehicleStateManager.hpp"
-#include "fsdaq_encoder_generated_from_dbc.hpp"
+#include "fsdaq/encoder_generated_from_dbc.hpp"
+#include "fsdaq/writer.hpp"
 #include "layouts.h"
 #include "radio.hpp"
 #include <stdbool.h>
@@ -42,9 +43,7 @@ SDBlockDevice sd{
 FATFileSystem fs{"sd"};
 
 FILE *sd_fp;
-
-Values vals{};
-ValuesRow current_row{};
+fsdaq::BatchFileWriter data_writer{sd_fp};
 
 Layouts eve(PC_12, PC_11, PC_10, PD_2, PB_7, PC_13, EvePresets::CFA800480E3);
 
@@ -109,7 +108,7 @@ void init_sd() {
     printf("Initialized SD card: writing to %d.fsdaq!\n", max_num + 1);
 
     fwrite("FSDAQ001", 8, 1, sd_fp);
-    write_fsdaq_schema(sd_fp);
+    fsdaq::write_fsdaq_schema(sd_fp);
 }
 
 void init_dash() {
@@ -119,16 +118,6 @@ void init_dash() {
 
 void update_radio() {
     // printf("RADIO!\n");
-}
-
-int row_idx = 0;
-void update_sd() {
-    vals.setRow(current_row, row_idx);
-    row_idx++;
-    if (row_idx == ROWS) {
-        write_fsdaq_batch(&vals, sd_fp);
-        row_idx = 0;
-    }
 }
 
 int n = 0;
@@ -221,7 +210,8 @@ int main() {
 
     // event_queue.call_every(RADIO_UPDATE_HZ, &update_radio())
     if (ENABLE_SD) {
-        queue.call_every(SD_UPDATE_HZ, &update_sd);
+        // TODO::::
+        queue.call_every(SD_UPDATE_HZ, [](){ data_writer.append_row(current_row) });
     }
     if (ENABLE_DASH) {
         queue.call_every(DASH_UPDATE_HZ, &update_dash);
@@ -238,7 +228,7 @@ int main() {
         current_row.SME_THROTL_TorqueDemand = state.smeThrottleDemand.TORQUE_DEMAND;
         current_row.SME_THROTL_MaxSpeed = state.smeThrottleDemand.MAX_SPEED;
         current_row.SME_THROTL_Forward = state.smeThrottleDemand.FORWARD;
-        current_row.SME_THROTL_Reverse  = state.smeThrottleDemand.REVERSE;
+        current_row.SME_THROTL_Reverse = state.smeThrottleDemand.REVERSE;
         current_row.SME_THROTL_UNUSED_BIT_1 = 0;
         current_row.SME_THROTL_PowerReady = state.smeThrottleDemand.POWER_READY;
         current_row.SME_THROTL_UNUSED_BIT_2 = 0;
@@ -372,7 +362,6 @@ int main() {
         current_row.ACC_SEG4_TEMPS_CELL3 = state.accSegTemps[4].TEMPS_CELL3;
         current_row.ACC_SEG4_TEMPS_CELL4 = state.accSegTemps[4].TEMPS_CELL4;
         current_row.ACC_SEG4_TEMPS_CELL5 = state.accSegTemps[4].TEMPS_CELL5;
-
 
         // ETC
         current_row.ETC_STATUS_HE1 = state.etcStatus.HE1;
@@ -529,8 +518,8 @@ int main() {
         // current_row.SMPC_SER_PART_NUMBER
         // current_row.SMPC_SER_SERIAL_NUMBER
         // current_row.SMPC_SER_FIRMWARE_VER
-
     });
     queue.call_every(100ms, []() { n++; });
+    queue.call()
     queue.dispatch_forever();
 }

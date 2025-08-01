@@ -15,8 +15,8 @@ add_library(libradio STATIC ../XBeeRadio/libradio/src/radio.cpp)
 target_include_directories(libradio PUBLIC ../XBeeRadio/libradio/src/)
 target_link_libraries(libradio mbed-os)
 
-add_library(BT817Q STATIC ./BT817Q/BT817Q.cpp ./BT817Q/layouts.cpp)
-target_include_directories(BT817Q PUBLIC ./BT817Q)
+add_library(BT817Q STATIC ./dash/BT817Q.cpp ./dash/layouts.cpp)
+target_include_directories(BT817Q PUBLIC ./dash)
 target_link_libraries(BT817Q mbed-core-flags)
 
 set(CMAKE_CXX_STANDARD 20)

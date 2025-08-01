@@ -1,9 +1,8 @@
-import os
 import cantools
-import pyarrow as pa
 import numpy as np
+from pathlib import Path
 
-# See choose_float_type() for explanation
+# See choose_best_float_type() for explanation
 DEFAULT_FLOAT_TOLERANCE = 0.1
 
 FSDAQ_TYPE_TO_C_TYPE = {
@@ -23,9 +22,9 @@ FSDAQ_TYPE_TO_C_TYPE = {
 # Find the appropriate type to represent a given signal.
 # - If length==1, bool is used
 # - If scale==1, the correctly sized integer type is used
-# - Otherwise, choose_float_type() is used
-# See choose_float_type() for a description of float_tolerance
-def get_fsdaq_type_for_signal(
+# - Otherwise, choose_best_float_type() is used
+# See choose_best_float_type() for a description of float_tolerance
+def get_fsdaq_type_for_dbc_signal(
     s: cantools.db.Signal, float_tolerance: float = DEFAULT_FLOAT_TOLERANCE
 ) -> str:
     if s.length == 1 and s.scale == 1 and s.offset == 0:
@@ -50,7 +49,7 @@ def get_fsdaq_type_for_signal(
                 return arrow_type
         return "i5" if s.is_signed else "u5"
 
-    return choose_float_type(s, float_tolerance)
+    return choose_best_float_type(s, float_tolerance)
 
 
 # Find the appropriate float type to represent the signal within the given
@@ -58,7 +57,7 @@ def get_fsdaq_type_for_signal(
 # (scaled) value is representable within tolerance. Eg: if tolerance is 0.5
 # (50%), then any float whose value is within 50%*(signal's scale) of the actual
 # value is considered close enough
-def choose_float_type(s: cantools.db.Signal, tolerance: float):
+def choose_best_float_type(s: cantools.db.Signal, tolerance: float):
     raw_min = -(1 << (s.length - 1)) if s.is_signed else 0
     raw_max = (1 << (s.length - 1)) - 1 if s.is_signed else (1 << s.length) - 1
 
@@ -90,18 +89,18 @@ def choose_float_type(s: cantools.db.Signal, tolerance: float):
     print(
         f"Warning: Signal ${s.name} not representable as 64 bit float within 5% tolerance; ignoring!"
     )
-    return pa.float64()
+    return "f6"
 
 
-def generate_cpp_code(signal_to_fsdaq_datatype: dict[str, str], rows: int = 8):
-    assert rows % 8 == 0
+def generate_cpp_code(signal_to_fsdaq_datatype: dict[str, str], rows_per_batch: int = 80):
+    assert rows_per_batch % 8 == 0
 
-    out_file = open("./fsdaq_encoder_generated_from_dbc.hpp", "w")
-    template_file = open("./fsdaq_encoder_generated_from_dbc.hpp.in", "r")
+    out_file = open(Path(__file__).parent / "encoder_generated_from_dbc.hpp", "w")
+    template_file = open(Path(__file__).parent / "encoder_generated_from_dbc.hpp.in", "r")
 
     template = template_file.read()
     template = template.replace("@COLS@", str(len(signal_to_fsdaq_datatype)))
-    template = template.replace("@ROWS@", str(rows))
+    template = template.replace("@ROWS_PER_BATCH@", str(rows_per_batch))
 
     col_names = ", ".join(['"' + col + '"' for col in signal_to_fsdaq_datatype.keys()])
     col_name_sizes = ", ".join([str(len(col_name)) for col_name in signal_to_fsdaq_datatype.keys()])
@@ -110,19 +109,19 @@ def generate_cpp_code(signal_to_fsdaq_datatype: dict[str, str], rows: int = 8):
     template = template.replace("@COL_NAME_SIZES@", col_name_sizes)
     template = template.replace("@COL_NAME_TYPES@", col_name_types)
 
-    values_struct_fields = []
-    values_row_struct_fields = []
+    batch_struct_fields = []
+    batch_row_struct_fields = []
     update_fields_from_row = []
     for col_name, fsdaq_type in signal_to_fsdaq_datatype.items():
         if fsdaq_type == "b0":
-            values_struct_fields.append(" "*4 + "uint8_t" + " " + col_name + "[ROWS/8];")
-            update_fields_from_row.append(" "*8 + "this->" + col_name + "[idx/8] |= row." + col_name + " << idx;")
+            batch_struct_fields.append(" "*4 + "uint8_t" + " " + col_name + "[ROWS_PER_BATCH/8];")
+            update_fields_from_row.append(" "*8 + "this->" + col_name + "[idx/8] |= row." + col_name + " << idx%8;")
         else:
-            values_struct_fields.append("    " + FSDAQ_TYPE_TO_C_TYPE[fsdaq_type] + " " + col_name + "[ROWS];")
+            batch_struct_fields.append(" "*4 + FSDAQ_TYPE_TO_C_TYPE[fsdaq_type] + " " + col_name + "[ROWS_PER_BATCH];")
             update_fields_from_row.append(" "*8 + "this->" + col_name + "[idx] = row." + col_name + ";")
-        values_row_struct_fields.append(" "*4 + FSDAQ_TYPE_TO_C_TYPE[fsdaq_type] + " " + col_name + ";")
-    template = template.replace("@VALUES_STRUCT_FIELDS@", "\n".join(values_struct_fields))
-    template = template.replace("@VALUES_ROW_STRUCT_FIELDS@", "\n".join(values_row_struct_fields))
+        batch_row_struct_fields.append(" "*4 + FSDAQ_TYPE_TO_C_TYPE[fsdaq_type] + " " + col_name + ";")
+    template = template.replace("@BATCH_STRUCT_FIELDS@", "\n".join(batch_struct_fields))
+    template = template.replace("@BATCH_ROW_STRUCT_FIELDS@", "\n".join(batch_row_struct_fields))
 
     template = template.replace("@UPDATE_FIELDS_FROM_ROW@", "\n".join(update_fields_from_row))
 
@@ -141,12 +140,12 @@ if __name__ == "__main__":
 
     db.add_dbc_file("../CANbus.dbc")
 
-    signal_to_datatype: dict[str, pa.DataType] = {}
+    signal_to_datatype: dict[str, str] = {}
 
     for msg in db.messages:
         for signal in msg.signals:
-            signal_to_datatype[signal.name] = get_fsdaq_type_for_signal(signal)
-            print(signal.name)
+            signal_to_datatype[signal.name] = get_fsdaq_type_for_dbc_signal(signal)
+            # print(signal.name)
 
     # for k, v in signal_to_datatype.items():
     #     v = str(v).removeprefix("(DataType(")
