@@ -136,49 +136,50 @@ def generate_encoder_hpp(db: cantools.db.Database, rows_per_batch: int = 80):
     out_file.close()
     template_file.close()
 
-def generate_can_processor_hpp(db: cantools.db.Database):
-    out_file = open(Path(__file__).parent.parent / "fsdaq" / "can_processor_generated.hpp", "w")
-    template_file = open(Path(__file__).parent.parent / "fsdaq" / "can_processor_generated.hpp.in", "r")
-    template = template_file.read()
+# def generate_can_processor_hpp(db: cantools.db.Database):
+#     out_file = open(Path(__file__).parent.parent / "fsdaq" / "can_processor_generated.hpp", "w")
+#     template_file = open(Path(__file__).parent.parent / "fsdaq" / "can_processor_generated.hpp.in", "r")
+#     template = template_file.read()
+#
+#     can_message_ids = []
+#     for msg in db.messages:
+#         can_message_ids.append(" "*4 + f"{msg.name} = {hex(msg.frame_id)},")
+#
+#     template = template.replace("@MESSAGE_IDS@", "\n".join(can_message_ids))
+#
+#     out_file.write(template)
+#     out_file.close()
+#     template_file.close()
 
-    can_message_ids = []
-    for msg in db.messages:
-        can_message_ids.append(" "*4 + f"{msg.name} = {hex(msg.frame_id)},")
-
-    template = template.replace("@MESSAGE_IDS@", "\n".join(can_message_ids))
-
-    out_file.write(template)
-    out_file.close()
-    template_file.close()
-
-def generate_can_processor_cpp(db: cantools.db.Database):
-    out_file = open(Path(__file__).parent.parent / "fsdaq" / "can_processor_generated.cpp", "w")
-    template_file = open(Path(__file__).parent.parent / "fsdaq" / "can_processor_generated.cpp.in", "r")
-    template = template_file.read()
-
-    can_message_processing = []
-    for msg in db.messages:
-        msg_processing_lines = [" "*4 + f"case {msg.name}:"]
-        for signal in msg.signals:
-            if signal.is_float:
-                raise ValueError("can't handle float signals yet!")
-            # msg_processing_lines.append(" "*8 + f"current_row->{signal.name} = 100;")
-            raw_buf_type = f"{signal.is_signed and "" or "u"}int{8 * math.ceil(signal.length / 8)}_t"
-            byte_offset = signal.start / 8
-            bit_offset_in_byte = signal.start % 8
-            # underlying_bytes = 
-            last_byte_idx = math.ceil(signal.length / 8)
-            msg_processing_lines.append(" "*8 + f"{raw_buf_type} raw_{signal.name};");
-
-            msg_processing_lines.append("");
-        msg_processing_lines.append(" "*8 + "break;")
-        can_message_processing.append("\n".join(msg_processing_lines))
-
-    template = template.replace("@CAN_MESSAGE_PROCESSING@", "\n\n".join(can_message_processing))
-
-    out_file.write(template)
-    out_file.close()
-    template_file.close()
+# def generate_can_processor_cpp(db: cantools.db.Database):
+#     out_file = open(Path(__file__).parent.parent / "fsdaq" / "can_processor_generated.cpp", "w")
+#     template_file = open(Path(__file__).parent.parent / "fsdaq" / "can_processor_generated.cpp.in", "r")
+#     template = template_file.read()
+#
+#     can_message_processing = []
+#     for msg in db.messages:
+#         msg_processing_lines = [" "*4 + f"case {msg.name}:"]
+#         for signal in msg.signals:
+#             if signal.is_float:
+#                 raise ValueError("can't handle float signals yet!")
+#             # msg_processing_lines.append(" "*8 + f"current_row->{signal.name} = 100;")
+#             raw_buf_type = f"{signal.is_signed and "" or "u"}int{8 * math.ceil(signal.length / 8)}_t"
+#             byte_offset = math.floor(signal.start / 8)
+#             end_byte_offset = math.floor(signal.start + signal.length / 8)
+#             bit_offset_in_byte = signal.start % 8
+#             # underlying_bytes = 
+#             last_byte_idx = math.ceil(signal.length / 8)
+#             msg_processing_lines.append(" "*8 + f"{raw_buf_type} raw_{signal.name};");
+#
+#             msg_processing_lines.append("");
+#         msg_processing_lines.append(" "*8 + "break;")
+#         can_message_processing.append("\n".join(msg_processing_lines))
+#
+#     template = template.replace("@CAN_MESSAGE_PROCESSING@", "\n\n".join(can_message_processing))
+#
+#     out_file.write(template)
+#     out_file.close()
+#     template_file.close()
 
 
 
@@ -189,17 +190,9 @@ if __name__ == "__main__":
     db = cantools.db.Database()
     db.add_dbc_file("../CANbus.dbc")
 
-
-    # for k, v in signal_to_datatype.items():
-    #     v = str(v).removeprefix("(DataType(")
-    #     v = v.removesuffix("),)")
-    #     print("{:33s} {}".format(k, v))
-
-    # n = 50
-    # generate_nanoarrow_code({k: signal_to_datatype[k] for k in list(signal_to_datatype)[:n]}, 8)
     generate_encoder_hpp(db, rows_per_batch=80)
-    generate_can_processor_hpp(db)
-    generate_can_processor_cpp(db)
+    # generate_can_processor_hpp(db)
+    # generate_can_processor_cpp(db)
 
 
 

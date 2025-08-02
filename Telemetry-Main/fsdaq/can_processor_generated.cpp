@@ -15,7 +15,8 @@ void CANProcessor::process_message() {
         break;
 
     case SME_RPDO_Throttle_Demand:
-        uint16_t raw_SME_THROTL_TorqueDemand;
+        uint16_t raw_SME_THROTL_TorqueDemand = 0;
+        raw_SME_THROTL_TorqueDemand |= msg.data[0] & 0x07f;
 
         uint16_t raw_SME_THROTL_MaxSpeed;
 

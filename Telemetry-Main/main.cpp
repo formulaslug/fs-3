@@ -1,11 +1,10 @@
-#include "BT817Q.hpp"
 #include "FATFileSystem.h"
 #include "SDBlockDevice.h"
 #include "Ticker.h"
 #include "VehicleStateManager.hpp"
+#include "dash/layouts.h"
 #include "fsdaq/encoder_generated.hpp"
-#include "fsdaq/writer.hpp"
-#include "layouts.h"
+#include "fsdaq/file_batch_writer.hpp"
 #include "radio.hpp"
 #include <stdbool.h>
 #include <string>
@@ -43,7 +42,8 @@ SDBlockDevice sd{
 FATFileSystem fs{"sd"};
 
 FILE *sd_fp;
-fsdaq::FileBatchWriter data_writer{sd_fp};
+// fsdaq::FileBatchWriter data_writer{sd_fp};
+fsdaq::DataRow current_row{};
 
 Layouts eve(PC_12, PC_11, PC_10, PD_2, PB_7, PC_13, EvePresets::CFA800480E3);
 
@@ -125,8 +125,7 @@ void update_dash() {
     const VehicleState vsm_state = vsm.getState();
     uint8_t max_temp = 0;
 
-    for (auto [TEMPS_CELL0, TEMPS_CELL1, TEMPS_CELL2, TEMPS_CELL3, TEMPS_CELL4,
-               TEMPS_CELL5] : vsm_state.accSegTemps) {
+    for (auto [TEMPS_CELL0, TEMPS_CELL1, TEMPS_CELL2, TEMPS_CELL3, TEMPS_CELL4, TEMPS_CELL5] : vsm_state.accSegTemps) {
         max_temp =
             max(TEMPS_CELL0,
                 max(TEMPS_CELL1,
@@ -171,47 +170,41 @@ void update_dash() {
     // eve.drawStandardLayout2(params);
 
     eve.drawLayout3(
-        Faults{false,
-               static_cast<bool>(!vsm_state.accStatus.PRECHARGE_DONE),
-               static_cast<bool>(!vsm_state.accStatus.SHUTDOWN_STATE)},
-        static_cast<float>(vsm_state.accPower.PACK_VOLTAGE / 100.0), max_temp,
-        vsm_state.smeTemp.CONTROLLER_TEMP, vsm_state.smeTemp.MOTOR_TEMP,
+        Faults{false, static_cast<bool>(!vsm_state.accStatus.PRECHARGE_DONE), static_cast<bool>(!vsm_state.accStatus.SHUTDOWN_STATE)},
+        static_cast<float>(vsm_state.accPower.PACK_VOLTAGE / 100.0),
+        max_temp,
+        vsm_state.smeTemp.CONTROLLER_TEMP,
+        vsm_state.smeTemp.MOTOR_TEMP,
         vsm_state.accPower.SOC,
         static_cast<float>(vsm_state.pdbPowerA.GLV_VOLTAGE),
-        static_cast<bool>(vsm_state.etcStatus.RTD), n);
+        static_cast<bool>(vsm_state.etcStatus.RTD),
+        n
+    );
 }
 
-// void update_data() {
-//
-// };
-
 int main() {
-    mbed_can.attach([]() { queue.call(&process_can) }, interface::can::RxIrq);
-
     printf("Hello world\n");
 
+    ThisThread::sleep_for(500ms);
+
     // Initializing Dash
-    if (ENABLE_DASH) init_dash();
+    if (ENABLE_DASH) { init_dash(); update_dash(); }
 
     // Initializing SD card
     if (ENABLE_SD) init_sd();
 
-    // int radio_temp = radio.get_temp();
-    // if (radio_temp >= 70 || radio_temp <= 10) {
-    //     printf("Radio temperature returned an unrealistic value.
-    //     Disabling.\n"); state.radio_on = false;
-    // }
-
-    // int x = 0;
-    // Timer t;
-    // t.start();
-    // auto p = Layouts::StandardLayoutParams{.faults= Faults{}, .soc = 3};
-    // //for testing
+    fsdaq::FileBatchWriter data_writer{sd_fp};
 
     // event_queue.call_every(RADIO_UPDATE_HZ, &update_radio())
+
     if (ENABLE_SD) {
         // TODO::::
-        queue.call_every(SD_UPDATE_HZ, []() { data_writer.append_row(current_row) });
+        queue.call_every(SD_UPDATE_HZ, [&data_writer]() { data_writer.append_row(current_row); });
+
+        // mbed_can.attach(
+        //     []() { queue.call([]() { data_writer.append_row(current_row); }); },
+        //     interface::can::RxIrq
+        // );
     }
     if (ENABLE_DASH) {
         queue.call_every(DASH_UPDATE_HZ, &update_dash);
@@ -219,7 +212,7 @@ int main() {
     Timer t;
     t.start();
     queue.call_every(1ms, [&t]() {
-        printf("%fms\n", t.elapsed_time().count() / 1000.0f);
+        // printf("%fms\n", t.elapsed_time().count() / 1000.0f);
         t.reset();
         vsm.update();
         const VehicleState state = vsm.getState();
@@ -520,6 +513,5 @@ int main() {
         // current_row.SMPC_SER_FIRMWARE_VER
     });
     queue.call_every(100ms, []() { n++; });
-    queue.call()
-        queue.dispatch_forever();
+    queue.dispatch_forever();
 }

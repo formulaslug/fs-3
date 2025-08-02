@@ -8,7 +8,7 @@ class FileBatchWriter {
 public:
     FileBatchWriter(FILE *file);
 
-    void append_row(DataRow next_row);
+    void append_row(DataRow& next_row);
 
 private:
     std::unique_ptr<DataBatch> curr_batch;
