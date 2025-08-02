@@ -1,3 +1,5 @@
+#pragma once
+
 #include "mbed.h"
 
 namespace fsdaq {
@@ -10,16 +12,16 @@ static const char *col_names[] = { @COL_NAMES@ };
 static const uint8_t col_name_sizes[] = { @COL_NAME_SIZES@ };
 static const char *col_name_types[] = { @COL_NAME_TYPES@ };
 
-struct BatchRow {
-@BATCH_ROW_STRUCT_FIELDS@
+struct DataRow {
+@DATA_ROW_STRUCT_FIELDS@
 };
 
 #pragma pack(1)
-class Batch {
-@BATCH_STRUCT_FIELDS@
+class DataBatch {
+@DATA_BATCH_STRUCT_FIELDS@
 
 public:
-    void setRow(BatchRow row, int idx) {
+    void setRow(DataRow row, int idx) {
 @UPDATE_FIELDS_FROM_ROW@
     }
 };
@@ -45,7 +47,7 @@ inline void write_fsdaq_schema(FILE *file) {
     }
 }
 
-inline void write_fsdaq_batch(Batch *batch, FILE *file) {
+inline void write_fsdaq_batch(DataBatch *batch, FILE *file) {
     fwrite(batch, sizeof(*batch), 1, file);
 }
 

@@ -3,7 +3,7 @@
 #include "SDBlockDevice.h"
 #include "Ticker.h"
 #include "VehicleStateManager.hpp"
-#include "fsdaq/encoder_generated_from_dbc.hpp"
+#include "fsdaq/encoder_generated.hpp"
 #include "fsdaq/writer.hpp"
 #include "layouts.h"
 #include "radio.hpp"
@@ -43,7 +43,7 @@ SDBlockDevice sd{
 FATFileSystem fs{"sd"};
 
 FILE *sd_fp;
-fsdaq::BatchFileWriter data_writer{sd_fp};
+fsdaq::FileBatchWriter data_writer{sd_fp};
 
 Layouts eve(PC_12, PC_11, PC_10, PD_2, PB_7, PC_13, EvePresets::CFA800480E3);
 
@@ -186,15 +186,15 @@ void update_dash() {
 // };
 
 int main() {
+    mbed_can.attach([]() { queue.call(&process_can) }, interface::can::RxIrq);
+
     printf("Hello world\n");
 
     // Initializing Dash
-    if (ENABLE_DASH) queue.call(&init_dash);
+    if (ENABLE_DASH) init_dash();
 
     // Initializing SD card
-    if (ENABLE_SD) queue.call(&init_sd);
-
-    queue.dispatch_once();
+    if (ENABLE_SD) init_sd();
 
     // int radio_temp = radio.get_temp();
     // if (radio_temp >= 70 || radio_temp <= 10) {
@@ -211,7 +211,7 @@ int main() {
     // event_queue.call_every(RADIO_UPDATE_HZ, &update_radio())
     if (ENABLE_SD) {
         // TODO::::
-        queue.call_every(SD_UPDATE_HZ, [](){ data_writer.append_row(current_row) });
+        queue.call_every(SD_UPDATE_HZ, []() { data_writer.append_row(current_row) });
     }
     if (ENABLE_DASH) {
         queue.call_every(DASH_UPDATE_HZ, &update_dash);
@@ -521,5 +521,5 @@ int main() {
     });
     queue.call_every(100ms, []() { n++; });
     queue.call()
-    queue.dispatch_forever();
+        queue.dispatch_forever();
 }

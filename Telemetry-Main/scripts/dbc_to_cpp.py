@@ -1,5 +1,6 @@
 import cantools
 import numpy as np
+import math
 from pathlib import Path
 
 # See choose_best_float_type() for explanation
@@ -87,18 +88,24 @@ def choose_best_float_type(s: cantools.db.Signal, tolerance: float):
 
     # Fallback if not exactly representable within 5% tolerance of scale (rare)
     print(
-        f"Warning: Signal ${s.name} not representable as 64 bit float within 5% tolerance; ignoring!"
+        f"Warning: Signal {s.name} not representable as 64 bit float within {tolerance} tolerance; ignoring!"
     )
     return "f6"
 
+def generate_encoder_hpp(db: cantools.db.Database, rows_per_batch: int = 80):
+    out_file = open(Path(__file__).parent.parent / "fsdaq" / "encoder_generated.hpp", "w")
+    template_file = open(Path(__file__).parent.parent / "fsdaq" / "encoder_generated.hpp.in", "r")
+    template = template_file.read()
 
-def generate_cpp_code(signal_to_fsdaq_datatype: dict[str, str], rows_per_batch: int = 80):
     assert rows_per_batch % 8 == 0
 
-    out_file = open(Path(__file__).parent / "encoder_generated_from_dbc.hpp", "w")
-    template_file = open(Path(__file__).parent / "encoder_generated_from_dbc.hpp.in", "r")
+    signal_to_fsdaq_datatype: dict[str, str] = {}
 
-    template = template_file.read()
+    for msg in db.messages:
+        for signal in msg.signals:
+            signal_to_fsdaq_datatype[signal.name] = get_fsdaq_type_for_dbc_signal(signal)
+            # print(signal.name)
+
     template = template.replace("@COLS@", str(len(signal_to_fsdaq_datatype)))
     template = template.replace("@ROWS_PER_BATCH@", str(rows_per_batch))
 
@@ -114,38 +121,74 @@ def generate_cpp_code(signal_to_fsdaq_datatype: dict[str, str], rows_per_batch: 
     update_fields_from_row = []
     for col_name, fsdaq_type in signal_to_fsdaq_datatype.items():
         if fsdaq_type == "b0":
-            batch_struct_fields.append(" "*4 + "uint8_t" + " " + col_name + "[ROWS_PER_BATCH/8];")
-            update_fields_from_row.append(" "*8 + "this->" + col_name + "[idx/8] |= row." + col_name + " << idx%8;")
+            batch_struct_fields.append(" "*4 + f"uint8_t {col_name}[ROWS_PER_BATCH/8];")
+            update_fields_from_row.append(" "*8 + f"this->{col_name}[idx/8] |= row.{col_name} << idx%8;")
         else:
-            batch_struct_fields.append(" "*4 + FSDAQ_TYPE_TO_C_TYPE[fsdaq_type] + " " + col_name + "[ROWS_PER_BATCH];")
-            update_fields_from_row.append(" "*8 + "this->" + col_name + "[idx] = row." + col_name + ";")
-        batch_row_struct_fields.append(" "*4 + FSDAQ_TYPE_TO_C_TYPE[fsdaq_type] + " " + col_name + ";")
-    template = template.replace("@BATCH_STRUCT_FIELDS@", "\n".join(batch_struct_fields))
-    template = template.replace("@BATCH_ROW_STRUCT_FIELDS@", "\n".join(batch_row_struct_fields))
+            batch_struct_fields.append(" "*4 + FSDAQ_TYPE_TO_C_TYPE[fsdaq_type] + f" {col_name}[ROWS_PER_BATCH];")
+            update_fields_from_row.append(" "*8 + f"this->{col_name}[idx] = row.{col_name};")
+        batch_row_struct_fields.append(" "*4 + FSDAQ_TYPE_TO_C_TYPE[fsdaq_type] + f" {col_name};")
+    template = template.replace("@DATA_BATCH_STRUCT_FIELDS@", "\n".join(batch_struct_fields))
+    template = template.replace("@DATA_ROW_STRUCT_FIELDS@", "\n".join(batch_row_struct_fields))
 
     template = template.replace("@UPDATE_FIELDS_FROM_ROW@", "\n".join(update_fields_from_row))
-
-    
     
     out_file.write(template)
     out_file.close()
     template_file.close()
 
+def generate_can_processor_hpp(db: cantools.db.Database):
+    out_file = open(Path(__file__).parent.parent / "fsdaq" / "can_processor_generated.hpp", "w")
+    template_file = open(Path(__file__).parent.parent / "fsdaq" / "can_processor_generated.hpp.in", "r")
+    template = template_file.read()
+
+    can_message_ids = []
+    for msg in db.messages:
+        can_message_ids.append(" "*4 + f"{msg.name} = {hex(msg.frame_id)},")
+
+    template = template.replace("@MESSAGE_IDS@", "\n".join(can_message_ids))
+
+    out_file.write(template)
+    out_file.close()
+    template_file.close()
+
+def generate_can_processor_cpp(db: cantools.db.Database):
+    out_file = open(Path(__file__).parent.parent / "fsdaq" / "can_processor_generated.cpp", "w")
+    template_file = open(Path(__file__).parent.parent / "fsdaq" / "can_processor_generated.cpp.in", "r")
+    template = template_file.read()
+
+    can_message_processing = []
+    for msg in db.messages:
+        msg_processing_lines = [" "*4 + f"case {msg.name}:"]
+        for signal in msg.signals:
+            if signal.is_float:
+                raise ValueError("can't handle float signals yet!")
+            # msg_processing_lines.append(" "*8 + f"current_row->{signal.name} = 100;")
+            raw_buf_type = f"{signal.is_signed and "" or "u"}int{8 * math.ceil(signal.length / 8)}_t"
+            byte_offset = signal.start / 8
+            bit_offset_in_byte = signal.start % 8
+            # underlying_bytes = 
+            last_byte_idx = math.ceil(signal.length / 8)
+            msg_processing_lines.append(" "*8 + f"{raw_buf_type} raw_{signal.name};");
+
+            msg_processing_lines.append("");
+        msg_processing_lines.append(" "*8 + "break;")
+        can_message_processing.append("\n".join(msg_processing_lines))
+
+    template = template.replace("@CAN_MESSAGE_PROCESSING@", "\n\n".join(can_message_processing))
+
+    out_file.write(template)
+    out_file.close()
+    template_file.close()
+
+
 
 if __name__ == "__main__":
-    # for debugging purposes
+    # for debugging purposes:
     np.set_printoptions(formatter={"float_kind": "{:.8f}".format})
 
     db = cantools.db.Database()
-
     db.add_dbc_file("../CANbus.dbc")
 
-    signal_to_datatype: dict[str, str] = {}
-
-    for msg in db.messages:
-        for signal in msg.signals:
-            signal_to_datatype[signal.name] = get_fsdaq_type_for_dbc_signal(signal)
-            # print(signal.name)
 
     # for k, v in signal_to_datatype.items():
     #     v = str(v).removeprefix("(DataType(")
@@ -154,7 +197,9 @@ if __name__ == "__main__":
 
     # n = 50
     # generate_nanoarrow_code({k: signal_to_datatype[k] for k in list(signal_to_datatype)[:n]}, 8)
-    generate_cpp_code(signal_to_datatype)
+    generate_encoder_hpp(db, rows_per_batch=80)
+    generate_can_processor_hpp(db)
+    generate_can_processor_cpp(db)
 
 
 
