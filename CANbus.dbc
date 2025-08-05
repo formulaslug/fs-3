@@ -61,7 +61,6 @@ BO_ 390 SME_RPDO_Throttle_Demand: 8 ETC
 BO_ 646 SME_RPDO_Max_Currents: 8 ETC
    SG_ SME_CURRLIM_ChargeCurrentLim : 0|16@1+ (1,0) [0|65535] "A" Vector__XXX
    SG_ SME_CURRLIM_DischargeCurrentLim : 16|16@1+ (1,0) [0|65535] "A" Vector__XXX
-   SG_ SME_CURRLIM_UNUSED_INT_1 : 32|32@1+ (1,0) [0|0] "" Vector__XXX
 
 BO_ 1154 SME_TPDO_Torque_speed: 8 SME
    SG_ SME_TRQSPD_SOC_Low_Traction : 32|1@1+ (1,0) [0|1] "" Vector__XXX
