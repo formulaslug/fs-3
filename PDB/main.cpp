@@ -1,7 +1,7 @@
 #include "mbed.h"
-#include <vector>
-#include <numeric>
 #include <map>
+#include <numeric>
+#include <vector>
 
 DigitalOut dcdc_ctrl(PB_5);
 DigitalOut reset_ctrl(PA_1);
@@ -14,7 +14,7 @@ AnalogIn viout(PB_0);
 
 CAN* can;
 
-EventQueue queue(32* EVENTS_EVENT_SIZE);
+EventQueue queue(32 * EVENTS_EVENT_SIZE);
 
 uint16_t glv;
 
@@ -31,7 +31,6 @@ vector<uint8_t> dash_curr_vec;
 vector<uint8_t> ex1_curr_vec;
 vector<uint8_t> etc_curr_vec;
 
-
 uint8_t rtm_curr;
 uint8_t bps_curr;
 uint8_t bspd_curr;
@@ -44,7 +43,6 @@ uint8_t acc_curr;
 uint8_t dash_curr;
 uint8_t ex1_curr;
 uint8_t etc_curr;
-
 
 enum DEVICES {
     RTM = 1,
@@ -61,14 +59,12 @@ enum DEVICES {
     ETC = 14
 };
 
-
 void send_PDB_TPDO_POWER_A();
 void send_PDB_TPDO_POWER_B();
 
 uint8_t read_current();
 
-uint8_t process_current(std::vector<uint8_t> vec);
-
+uint8_t process_current(std::vector<uint8_t> &vec);
 
 void send_PDB_TPDO_POWER_A() {
     CANMessage msg;
@@ -100,13 +96,11 @@ void send_PDB_TPDO_POWER_B() {
     // printf("CAN B sent\n");
 }
 
-
-
-int main(){
+int main() {
     printf("entering main\n");
 
     can = new CAN(PA_11, PA_12, 500000);
-    can->filter(0x188, 0xFF, CANAny); //ACC_TPDO_STATUS TODO: does this even work?
+    can->filter(0x188, 0xFF, CANAny); // ACC_TPDO_STATUS TODO: does this even work?
 
     queue.call_every(200ms, send_PDB_TPDO_POWER_A);
     queue.call_every(200ms, send_PDB_TPDO_POWER_B);
@@ -174,16 +168,20 @@ int main(){
     }
 }
 
-uint8_t process_current(std::vector<uint8_t> vec) {
+uint8_t process_current(std::vector<uint8_t> &vec) {
     vec.push_back(read_current());
     if (vec.size() > 5)
     {
         vec.erase(vec.begin());
     }
-    return std::accumulate(vec.begin(), vec.end(), 0)/vec.size();
+    return std::accumulate(vec.begin(), vec.end(), 0) / vec.size();
 }
 
 uint8_t read_current() {
-    double current_A = ((viout.read() * 3.3) - 1.65) / 0.055;
-    return clamp(static_cast<int>(current_A / 10), 0, 255);
+    // Read the current sensor and store the value as a uint8 [0,255]
+    // Could do this with .read_uint16() but the bitshift would be different
+    // depending on the ADC bitdepth and this is guaranteed to work.
+
+    // TODO: Update DBC with Voltage-Current mappings for each sensor
+    return static_cast<uint8_t>(viout.read() * 255);
 }
