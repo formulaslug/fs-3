@@ -48,7 +48,7 @@ with open(args.input_file, "rb" ) as f:
     data_left = len(data[pos:])
     len_of_frame = sum([x[1] for x in colTypes])
     chunks = np.floor(data_left / len_of_frame)
-    misc_bytes = (data_left % len_of_frame) - 8
+    misc_bytes = (data_left % len_of_frame) #Used to be -8 for footer but ignoring footer
     print(f"chunks left: {chunks}")
     print(f"misc bytes left: {misc_bytes}")
     frames = []
@@ -79,5 +79,6 @@ with open(args.input_file, "rb" ) as f:
         frames.append(pl.DataFrame(frame_pieces))
     df = pl.concat(frames, how="vertical")
     # print(df)
-    print(f"Stuff Left: {ascii(data[pos:])}")
-    df.write_csv(args.output_file)
+    if v: 
+        print(f"Stuff Left: {ascii(data[pos:])}")
+    df.write_parquet(args.output_file)
