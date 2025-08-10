@@ -413,12 +413,15 @@ void BMSThread::threadWorker() {
     } else {
         ThisThread::sleep_for(100ms); // 100 ms
     }
-    if (bmsState == BMSThreadState::BMSFaultRecover) {
+      if (bmsState == BMSThreadState::BMSFaultRecover && !(minVoltage <= BMS_FAULT_VOLTAGE_THRESHOLD_LOW ||
+          maxVoltage >= BMS_FAULT_VOLTAGE_THRESHOLD_HIGH ||
+          minTemp <= BMS_FAULT_TEMP_THRESHOLD_LOW ||
+          maxTemp >= BMS_FAULT_TEMP_THRESHOLD_HIGH)) {
         bmsState = BMSThreadState::BMSIdle;
     }
   }
 }
 
 void BMSThread::throwBmsFault() {
-    // bmsState = BMSThreadState::BMSFault;
+    bmsState = BMSThreadState::BMSFault;
 }
