@@ -4,6 +4,5 @@
     <mapping directory="" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/.." vcs="Git" />
     <mapping directory="$PROJECT_DIR$/lib-mbed-ltc681x" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/mbed-os" vcs="Git" />
   </component>
 </project>
