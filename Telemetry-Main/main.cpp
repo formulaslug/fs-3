@@ -13,9 +13,9 @@ constexpr bool ENABLE_RADIO = false;
 constexpr bool ENABLE_SD = true;
 constexpr bool ENABLE_DASH = true;
 
-constexpr auto SD_UPDATE_HZ = 10ms;
-constexpr auto DASH_UPDATE_HZ = 100ms;
-constexpr auto RADIO_UPDATE_HZ = 1ms;
+constexpr chrono::duration SD_UPDATE_HZ = 10ms;
+constexpr chrono::duration DASH_UPDATE_HZ = 100ms;
+constexpr chrono::duration RADIO_UPDATE_HZ = 1ms;
 
 DigitalIn xbee_spi_attn(PA_9);
 DigitalOut xbee_spi_cs(PC_8);
@@ -222,22 +222,11 @@ int main() {
         current_row.SME_THROTL_MaxSpeed = state.smeThrottleDemand.MAX_SPEED;
         current_row.SME_THROTL_Forward = state.smeThrottleDemand.FORWARD;
         current_row.SME_THROTL_Reverse = state.smeThrottleDemand.REVERSE;
-        current_row.SME_THROTL_UNUSED_BIT_1 = 0;
         current_row.SME_THROTL_PowerReady = state.smeThrottleDemand.POWER_READY;
-        current_row.SME_THROTL_UNUSED_BIT_2 = 0;
-        current_row.SME_THROTL_UNUSED_BIT_3 = 0;
-        current_row.SME_THROTL_UNUSED_BIT_4 = 0;
-        current_row.SME_THROTL_UNUSED_BIT_5 = 0;
         current_row.SME_THROTL_MBB_Alive = state.smeThrottleDemand.MBB_ALIVE;
-        current_row.SME_THROTL_UNUSED_BIT_6 = 0;
-        current_row.SME_THROTL_UNUSED_BIT_7 = 0;
-        current_row.SME_THROTL_UNUSED_BIT_8 = 0;
-        current_row.SME_THROTL_UNUSED_BIT_9 = 0;
-        current_row.SME_THROTL_UNUSED_SHORT_1 = 0;
 
         current_row.SME_CURRLIM_ChargeCurrentLim = state.smeMaxCurrents.CHARGE_CURRENT;
         current_row.SME_CURRLIM_DischargeCurrentLim = state.smeMaxCurrents.DISCHARGE_CURRENT;
-        current_row.SME_CURRLIM_UNUSED_INT_1 = 0;
 
         current_row.SME_TRQSPD_Speed = state.smeTrqSpd.SPEED;
         current_row.SME_TRQSPD_Torque = state.smeTrqSpd.TORQUE;

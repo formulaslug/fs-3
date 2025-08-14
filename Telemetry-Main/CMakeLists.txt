@@ -9,7 +9,7 @@ project(TelemetryMain
         LANGUAGES C CXX ASM)
 include(../mbed-os/tools/cmake/mbed_project_setup.cmake)
 
-add_subdirectory(../mbed-os ../mbed-os-build)
+add_subdirectory(../mbed-os mbed-os)
 
 add_library(libradio STATIC ../XBeeRadio/libradio/src/radio.cpp)
 target_include_directories(libradio PUBLIC ../XBeeRadio/libradio/src/)
@@ -25,5 +25,5 @@ target_link_libraries(fsdaq mbed-core-flags)
 
 set(CMAKE_CXX_STANDARD 20)
 add_executable(${PROJECT_NAME} main.cpp VehicleStateManager.cpp)
-target_link_libraries(${PROJECT_NAME} mbed-os dash fsdaq libradio mbed-storage-sd mbed-storage-fat)
+target_link_libraries(${PROJECT_NAME} mbed-os mbed-storage-sd mbed-storage-fat dash fsdaq libradio)
 mbed_set_post_build(${PROJECT_NAME})

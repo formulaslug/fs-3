@@ -7,7 +7,6 @@ namespace fsdaq {
         : curr_batch(std::make_unique<DataBatch>()), fp(file) {}
 
     void FileBatchWriter::append_row(DataRow& next_row) {
-        // printf("setRow()\n");
         curr_batch->setRow(next_row, row_idx);
 
         row_idx++;

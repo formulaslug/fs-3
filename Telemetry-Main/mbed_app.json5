@@ -10,19 +10,19 @@
 
       // Enable the SD card library component (creates the mbed-storage-* cmake
       // libraries for us to link against)
-      "target.features_add": ["STORAGE"],
       "target.components_add": ["SD"],
+      //"target.features_add": ["STORAGE"],
 
       // SPI frequencies
       "sd.INIT_FREQUENCY": 160000, //should be 100khz - 400khz
       "sd.TRX_FREQUENCY": 250000000, // 25MHz
     },
-    //"NUCLEO_L432KC": {
-    //  "sd.SPI_MOSI": "D2",
-    //  "sd.SPI_MISO": "A5",
-    //  "sd.SPI_CLK": "A4",
-    //  "sd.SPI_CS": "D3",
-    //},
+    "NUCLEO_L432KC": { // CURRENTLY UNUSED (Dash PCB uses an F446RE)
+      "sd.SPI_MOSI": "D2",
+      "sd.SPI_MISO": "A5",
+      "sd.SPI_CLK": "A4",
+      "sd.SPI_CS": "D3",
+    },
     "NUCLEO_F446RE": {
       "sd.SPI_MOSI": "PB_15",
       "sd.SPI_MISO": "PB_14",

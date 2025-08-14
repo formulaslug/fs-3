@@ -1,6 +1,5 @@
 import cantools
 import numpy as np
-import math
 from pathlib import Path
 
 # See choose_best_float_type() for explanation
@@ -19,6 +18,23 @@ FSDAQ_TYPE_TO_C_TYPE = {
     "f5": "float",
     "f6": "double",
 }
+
+C_TYPE_TO_TYPE_SUFFIX = {
+    "bool": "",
+    "uint8_t": "u",
+    "int8_t": "",
+    "uint16_t": "u",
+    "int16_t": "",
+    "uint32_t": "u",
+    "int32_t": "",
+    "int64_t": "ll",
+    "uint64_t": "ull",
+    "float": "f",
+    "double": "",
+}
+
+fsdaq_folder_path = Path(__file__).parent.parent / "fsdaq"
+
 
 # Find the appropriate type to represent a given signal.
 # - If length==1, bool is used
@@ -45,9 +61,9 @@ def get_fsdaq_type_for_dbc_signal(
             ("u5", 0, 2**32 - 1),
             ("i5", -(2**31), 2**31 - 1),
         ]
-        for arrow_type, min_val, max_val in candidates:
+        for fsdaq_type, min_val, max_val in candidates:
             if decoded_min >= min_val and decoded_max <= max_val:
-                return arrow_type
+                return fsdaq_type
         return "i5" if s.is_signed else "u5"
 
     return choose_best_float_type(s, float_tolerance)
@@ -92,9 +108,10 @@ def choose_best_float_type(s: cantools.db.Signal, tolerance: float):
     )
     return "f6"
 
+
 def generate_encoder_hpp(db: cantools.db.Database, rows_per_batch: int = 80):
-    out_file = open(Path(__file__).parent.parent / "fsdaq" / "encoder_generated.hpp", "w")
-    template_file = open(Path(__file__).parent.parent / "fsdaq" / "encoder_generated.hpp.in", "r")
+    out_file = open(fsdaq_folder_path / "encoder_generated.hpp", "w")
+    template_file = open(fsdaq_folder_path / "encoder_generated.hpp.in", "r")
     template = template_file.read()
 
     assert rows_per_batch % 8 == 0
@@ -103,15 +120,19 @@ def generate_encoder_hpp(db: cantools.db.Database, rows_per_batch: int = 80):
 
     for msg in db.messages:
         for signal in msg.signals:
-            signal_to_fsdaq_datatype[signal.name] = get_fsdaq_type_for_dbc_signal(signal)
+            signal_to_fsdaq_datatype[signal.name] = get_fsdaq_type_for_dbc_signal(
+                signal
+            )
             # print(signal.name)
 
     template = template.replace("@COLS@", str(len(signal_to_fsdaq_datatype)))
     template = template.replace("@ROWS_PER_BATCH@", str(rows_per_batch))
 
+    # fmt: off
     col_names = ", ".join(['"' + col + '"' for col in signal_to_fsdaq_datatype.keys()])
     col_name_sizes = ", ".join([str(len(col_name)) for col_name in signal_to_fsdaq_datatype.keys()])
     col_name_types = ", ".join(['"' + fsdaq_type + '"' for fsdaq_type in signal_to_fsdaq_datatype.values()])
+    # fmt: on
     template = template.replace("@COL_NAMES@", col_names)
     template = template.replace("@COL_NAME_SIZES@", col_name_sizes)
     template = template.replace("@COL_NAME_TYPES@", col_name_types)
@@ -119,6 +140,7 @@ def generate_encoder_hpp(db: cantools.db.Database, rows_per_batch: int = 80):
     batch_struct_fields = []
     batch_row_struct_fields = []
     update_fields_from_row = []
+    # fmt: off
     for col_name, fsdaq_type in signal_to_fsdaq_datatype.items():
         if fsdaq_type == "b0":
             batch_struct_fields.append(" "*4 + f"uint8_t {col_name}[ROWS_PER_BATCH/8];")
@@ -131,56 +153,184 @@ def generate_encoder_hpp(db: cantools.db.Database, rows_per_batch: int = 80):
     template = template.replace("@DATA_ROW_STRUCT_FIELDS@", "\n".join(batch_row_struct_fields))
 
     template = template.replace("@UPDATE_FIELDS_FROM_ROW@", "\n".join(update_fields_from_row))
-    
+    # fmt: on
+
     out_file.write(template)
     out_file.close()
     template_file.close()
 
-# def generate_can_processor_hpp(db: cantools.db.Database):
-#     out_file = open(Path(__file__).parent.parent / "fsdaq" / "can_processor_generated.hpp", "w")
-#     template_file = open(Path(__file__).parent.parent / "fsdaq" / "can_processor_generated.hpp.in", "r")
-#     template = template_file.read()
-#
-#     can_message_ids = []
-#     for msg in db.messages:
-#         can_message_ids.append(" "*4 + f"{msg.name} = {hex(msg.frame_id)},")
-#
-#     template = template.replace("@MESSAGE_IDS@", "\n".join(can_message_ids))
-#
-#     out_file.write(template)
-#     out_file.close()
-#     template_file.close()
 
-# def generate_can_processor_cpp(db: cantools.db.Database):
-#     out_file = open(Path(__file__).parent.parent / "fsdaq" / "can_processor_generated.cpp", "w")
-#     template_file = open(Path(__file__).parent.parent / "fsdaq" / "can_processor_generated.cpp.in", "r")
-#     template = template_file.read()
-#
-#     can_message_processing = []
-#     for msg in db.messages:
-#         msg_processing_lines = [" "*4 + f"case {msg.name}:"]
-#         for signal in msg.signals:
-#             if signal.is_float:
-#                 raise ValueError("can't handle float signals yet!")
-#             # msg_processing_lines.append(" "*8 + f"current_row->{signal.name} = 100;")
-#             raw_buf_type = f"{signal.is_signed and "" or "u"}int{8 * math.ceil(signal.length / 8)}_t"
-#             byte_offset = math.floor(signal.start / 8)
-#             end_byte_offset = math.floor(signal.start + signal.length / 8)
-#             bit_offset_in_byte = signal.start % 8
-#             # underlying_bytes = 
-#             last_byte_idx = math.ceil(signal.length / 8)
-#             msg_processing_lines.append(" "*8 + f"{raw_buf_type} raw_{signal.name};");
-#
-#             msg_processing_lines.append("");
-#         msg_processing_lines.append(" "*8 + "break;")
-#         can_message_processing.append("\n".join(msg_processing_lines))
-#
-#     template = template.replace("@CAN_MESSAGE_PROCESSING@", "\n\n".join(can_message_processing))
-#
-#     out_file.write(template)
-#     out_file.close()
-#     template_file.close()
+def generate_can_processor_hpp(db: cantools.db.Database):
+    out_file = open(fsdaq_folder_path / "can_processor_generated.hpp", "w")
+    template_file = open(fsdaq_folder_path / "can_processor_generated.hpp.in", "r")
+    template = template_file.read()
 
+    can_message_ids = []
+    for msg in db.messages:
+        can_message_ids.append(" " * 4 + f"{msg.name} = {hex(msg.frame_id)},")
+
+    template = template.replace("@MESSAGE_IDS@", "\n".join(can_message_ids))
+
+    out_file.write(template)
+    out_file.close()
+    template_file.close()
+
+
+# The following contains logic taken from cantools:
+# https://github.com/cantools/cantools/blob/master/src/cantools/database/can/c_source.py#L753
+def calculate_signal_unpacking_segments(signal: cantools.db.Signal):
+    segments = []
+    byte_index, bit_offset = divmod(signal.start, 8)
+    bits_left = signal.length
+
+    while bits_left > 0:
+        if signal.byte_order == "big_endian":
+            if bits_left >= (bit_offset + 1):
+                length = bit_offset + 1
+                bit_offset = 7
+                shift = -(bits_left - length)
+                mask = (1 << length) - 1
+            else:
+                length = bits_left
+                shift = bit_offset - length + 1
+                mask = (1 << length) - 1
+                mask <<= bit_offset - length + 1
+        else:
+            shift = (bits_left - signal.length) + bit_offset
+
+            if bits_left >= (8 - bit_offset):
+                length = 8 - bit_offset
+                mask = (1 << length) - 1
+                mask <<= bit_offset
+                bit_offset = 0
+            else:
+                length = bits_left
+                mask = (1 << length) - 1
+                mask <<= bit_offset
+
+        if shift < 0:
+            shift = -shift
+            shift_direction = "left"
+        else:
+            shift_direction = "right"
+
+        segments.append((byte_index, shift, shift_direction, mask))
+
+        bits_left -= length
+        byte_index += 1
+
+    return segments
+
+
+# The following contains logic taken from cantools:
+# https://github.com/cantools/cantools/blob/master/src/cantools/database/can/c_source.py#L753
+def generate_can_processor_cpp(db: cantools.db.Database):
+    out_file = open(fsdaq_folder_path / "can_processor_generated.cpp", "w")
+    template_file = open(fsdaq_folder_path / "can_processor_generated.cpp.in", "r")
+    template = template_file.read()
+
+    can_message_processing = []
+    for msg in db.messages:
+        msg_processing_lines = []
+        variable_lines = []
+        for signal in msg.signals:
+            # if signal.is_float:
+            #     raise ValueError("can't handle float signals yet!")
+            # # msg_processing_lines.append(" "*8 + f"current_row->{signal.name} = 100;")
+            # raw_buf_type = f"{signal.is_signed and "" or "u"}int{8 * math.ceil(signal.length / 8)}_t"
+
+            # end_byte_offset = math.floor(signal.start + signal.length / 8)
+
+            fsdaq_type = get_fsdaq_type_for_dbc_signal(signal)
+            fsdaq_type_length = 2 ** int(fsdaq_type[1])
+            if fsdaq_type_length < 8:
+                fsdaq_type_length = 8
+
+            segments = calculate_signal_unpacking_segments(signal)
+            # The cantools logic only checks if is_float or is_signed; but since
+            # we're also applying scale and offset inline, which can't be done
+            # across multiple byte segments, we have to check len(segments) too
+            needs_conversion_variable = (
+                len(segments) > 1 or signal.conversion.is_float or signal.is_signed
+            )
+
+            # fmt: off
+            conversion_type_length = (
+                8 if signal.length <= 8
+                else 16 if signal.length <= 16
+                else 32 if signal.length <= 32
+                else 64
+            ) # fmt: on
+
+            conversion_type_name = f'uint{conversion_type_length}_t'
+
+            if needs_conversion_variable:
+                variable = " "*8 + f'{conversion_type_name} {signal.name};'
+                variable_lines.append(variable)
+
+            for i, (index, shift, shift_direction, mask) in enumerate(segments):
+                unpack_fmt = "({var_type})(({var_type})(msg.data[{src_idx}] & 0x{mask:02x}u) {shift_op} {shift_count}u)"
+                line_fmt = " "*8 + "{lhs} {op} {unpack}{scale_offset}; // {type_info}"
+
+                scale_offset = (f" * {signal.scale}" if signal.scale != 1 else "") + (f" + {signal.offset}" if signal.offset != 0 else "")
+
+                line = line_fmt.format(
+                    lhs = ("" if needs_conversion_variable else "current_row->") + signal.name,
+                    op = "=" if i == 0 else "|=",
+                    unpack = unpack_fmt.format(
+                        var_type=f"uint{conversion_type_length}_t",
+                        src_idx=index,
+                        mask=mask,
+                        shift_op="<<" if shift_direction=="left" else ">>",
+                        shift_count=shift,
+                    ),
+                    scale_offset = "" if needs_conversion_variable else scale_offset,
+                    type_info = FSDAQ_TYPE_TO_C_TYPE[fsdaq_type] + " *" + str(signal.scale) + " +" + str(signal.offset),
+                )
+                msg_processing_lines.append(line)
+
+            if signal.conversion.is_float:
+                conversion = " "*8 + f'memcpy(&current_row->{signal.name}, &{signal.name}, sizeof(current_row->{signal.name}));'
+                msg_processing_lines.append(conversion)
+            elif signal.is_signed:
+                mask = ((1 << (conversion_type_length - signal.length)) - 1)
+                # If raw integer length is different than final integer variable
+                # length, it requires a sign-extension
+                if mask != 0:
+                    mask <<= signal.length
+                    sign_extension = (
+                        " "*8 + "if (({name} & (1{suffix} << {shift})) != 0{suffix}) {"
+                        " "*8 + "    {name} |= 0x{mask:x}{suffix};"
+                        " "*8 + "}\n"
+                    ).format(
+                        name=signal.name,
+                        shift=signal.length - 1,
+                        mask=mask,
+                        suffix={ 8: 'u', 16: 'u', 32: 'u', 64: 'ull' }[conversion_type_length],
+                    )
+                    msg_processing_lines.extend(sign_extension.splitlines())
+
+                conversion = " "*8 + f'current_row->{signal.name} = (int{conversion_type_length}_t){signal.name};'
+                msg_processing_lines.append(conversion)
+
+            # msg_processing_lines.append(" "*8 + f"{raw_buf_type} raw_{signal.name};");
+
+            msg_processing_lines.append("");
+        msg_processing_lines.append(" " * 8 + "break;")
+
+        can_message_processing.append(" " * 4 + f"case {msg.name}:")
+        if len(variable_lines) > 0:
+            can_message_processing.append("\n".join(variable_lines) + "\n")
+        can_message_processing.append("\n".join(msg_processing_lines))
+        can_message_processing.append("")
+
+    template = template.replace(
+        "@CAN_MESSAGE_PROCESSING@", "\n".join(can_message_processing)
+    )
+
+    out_file.write(template)
+    out_file.close()
+    template_file.close()
 
 
 if __name__ == "__main__":
@@ -191,10 +341,8 @@ if __name__ == "__main__":
     db.add_dbc_file("../CANbus.dbc")
 
     generate_encoder_hpp(db, rows_per_batch=80)
-    # generate_can_processor_hpp(db)
-    # generate_can_processor_cpp(db)
-
-
+    generate_can_processor_hpp(db)
+    generate_can_processor_cpp(db)
 
 
 # OLD NANOARROW GENERATION CODE:
