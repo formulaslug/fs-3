@@ -286,7 +286,8 @@ void BMSThread::threadWorker() {
     if (minVoltage <= BMS_FAULT_VOLTAGE_THRESHOLD_LOW ||
         maxVoltage >= BMS_FAULT_VOLTAGE_THRESHOLD_HIGH ||
         minTemp <= BMS_FAULT_TEMP_THRESHOLD_LOW ||
-        maxTemp >= BMS_FAULT_TEMP_THRESHOLD_HIGH) {
+        (maxTemp >= BMS_FAULT_TEMP_THRESHOLD_HIGH && !charging) ||
+        (maxTemp >= BMS_FAULT_TEMP_THRESHOLD_CHARGING_HIGH && charging)) {
         
         if (minVoltage <= BMS_FAULT_VOLTAGE_THRESHOLD_LOW) {
             printf("Voltage too low: %d\n", minVoltage);
@@ -329,6 +330,8 @@ void BMSThread::threadWorker() {
             bmsState = BMSThreadState::BMSFaultRecover;
             ThisThread::sleep_for(10ms);
         }
+    } else if (bmsState == BMSThreadState::BMSFaultRecover) {
+        bmsState = BMSThreadState::BMSIdle;
     }
 
     if (bmsState == BMSThreadState::BMSIdle && balanceAllowed) {
@@ -400,11 +403,7 @@ void BMSThread::threadWorker() {
         msg->cell_temp_high = cell_temp_high; // assigning the booleans
         msg->cell_temp_low = cell_temp_low; // assigning the booleans
         msg->cell_temp_high_charging = cell_temp_high_charging; // assigning the booleans
-        bmsEventMailbox->put((BmsEvent *)msg);
-
-
-        										//put() enqueues the newly allocated BmsEvent obj msg into the mailbox
-        // 										will later be processed
+        bmsEventMailbox->put((BmsEvent *)msg); // put() enqueues the newly allocated BmsEvent obj msg into the mailbox will later be processed
     }
     
 
@@ -412,12 +411,6 @@ void BMSThread::threadWorker() {
         ThisThread::sleep_for(500ms); // longer duty cycle when charging, 500 default
     } else {
         ThisThread::sleep_for(100ms); // 100 ms
-    }
-      if (bmsState == BMSThreadState::BMSFaultRecover && !(minVoltage <= BMS_FAULT_VOLTAGE_THRESHOLD_LOW ||
-          maxVoltage >= BMS_FAULT_VOLTAGE_THRESHOLD_HIGH ||
-          minTemp <= BMS_FAULT_TEMP_THRESHOLD_LOW ||
-          maxTemp >= BMS_FAULT_TEMP_THRESHOLD_HIGH)) {
-        bmsState = BMSThreadState::BMSIdle;
     }
   }
 }
