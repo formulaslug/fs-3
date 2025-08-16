@@ -18,6 +18,11 @@ uint16_t soc = 0;
 
 bool enable = false;
 
+// 8/15/2025: We used the 12V AC/DC FS-2's charger board to power the FS-3 acc
+// fans for fast charging, as we couldn't repair our 12V power supply in time.
+// This PWMs the fans to limit how much current they draw (the AC/DC can't
+// supply enough for 100% on both).
+PwmOut fan_hack_pwm(D5);
 
 AnalogIn control_pilot(PIN_CONTROL_PILOT);
 AnalogIn proximity_pilot(PIN_PROXIMITY_PILOT);
@@ -27,6 +32,9 @@ EventQueue queue = EventQueue(EVENTS_EVENT_SIZE * 32);
 
 int main()
 {
+   // See comment above
+   fan_hack_pwm.period_us(40);
+   fan_hack_pwm.write(0.5);
 
    printf("main()\n");
    initIO();
