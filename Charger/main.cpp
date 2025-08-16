@@ -22,7 +22,7 @@ bool enable = false;
 // fans for fast charging, as we couldn't repair our 12V power supply in time.
 // This PWMs the fans to limit how much current they draw (the AC/DC can't
 // supply enough for 100% on both).
-PwmOut fan_hack_pwm(D5);
+PwmOut fan_hack_pwm(PB_1);
 
 AnalogIn control_pilot(PIN_CONTROL_PILOT);
 AnalogIn proximity_pilot(PIN_PROXIMITY_PILOT);
