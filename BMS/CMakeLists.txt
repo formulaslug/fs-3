@@ -21,7 +21,7 @@ include(../mbed-os/tools/cmake/mbed_toolchain_setup.cmake)
 project(BMS) # TODO: change this to your project name
 include(mbed_project_setup)
 
-add_subdirectory(../mbed-os ../mbed-os-build) # Load Mbed OS build targets.  Must be added before any other subdirectories
+add_subdirectory(../mbed-os mbed-os) # Load Mbed OS build targets.  Must be added before any other subdirectories
 # Tell CMake to build lib-mbed-ltc681x
 add_subdirectory(lib-mbed-ltc681x)
 
