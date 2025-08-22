@@ -3,6 +3,7 @@
 #include "Ticker.h"
 #include "VehicleStateManager.hpp"
 #include "dash/layouts.h"
+#include "data_logger.hpp"
 #include "fsdaq/encoder_generated.hpp"
 #include "fsdaq/file_batch_writer.hpp"
 #include "radio.hpp"
@@ -13,9 +14,9 @@ constexpr bool ENABLE_RADIO = false;
 constexpr bool ENABLE_SD = true;
 constexpr bool ENABLE_DASH = true;
 
-constexpr auto SD_UPDATE_HZ = 10ms;
-constexpr auto DASH_UPDATE_HZ = 100ms;
-constexpr auto RADIO_UPDATE_HZ = 1ms;
+constexpr chrono::duration SD_UPDATE_HZ = 10ms;
+constexpr chrono::duration DASH_UPDATE_HZ = 100ms;
+constexpr chrono::duration RADIO_UPDATE_HZ = 1ms;
 
 DigitalIn xbee_spi_attn(PA_9);
 DigitalOut xbee_spi_cs(PC_8);
@@ -26,23 +27,7 @@ auto mbed_can = CAN(PB_8, PB_9, 500000);
 auto can = MbedCAN(mbed_can);
 auto vsm = VehicleStateManager(&can, PC_5, PC_1, PC_0);
 
-// SDBlockDevice - lowest-level interfaces with the SD card.
-// Pin configurations and transfer speeds are set in mbed_app.json.
-SDBlockDevice sd{
-    // clang-format off
-    MBED_CONF_SD_SPI_MOSI,
-    MBED_CONF_SD_SPI_MISO,
-    MBED_CONF_SD_SPI_CLK,
-    MBED_CONF_SD_SPI_CS,
-    MBED_CONF_SD_TRX_FREQUENCY,
-    // clang-format on
-};
-// FATFileSystem - Creates a FAT filesystem on the SDBlockDevice.
-// "sd" is the name of the filesystem; i.e. filepaths are /sd/...
-FATFileSystem fs{"sd"};
-
-FILE *sd_fp;
-// fsdaq::FileBatchWriter data_writer{sd_fp};
+fsdaq::DataLogger data_logger{};
 fsdaq::DataRow current_row{};
 
 Layouts eve(PC_12, PC_11, PC_10, PD_2, PB_7, PC_13, EvePresets::CFA800480E3);
@@ -54,70 +39,11 @@ void error_quit(std::string msg) {
     while (1) {};
 }
 
-void init_sd() {
-    printf("mounting sdfilesystem...\n");
-    int error = fs.mount(&sd);
-    if (error) {
-        // Reformat if we can't mount the filesystem.
-        // This should only happen on the first boot
-        printf("No filesystem found, attempting to reformat...\n");
-        error = fs.reformat(&sd);
-        if (error)
-            error_quit("Error: could not reformat SD card! Is the SD card plugged in?\n");
-    }
-
-    printf("mkdir...\n");
-    mkdir("/sd/fsdaq", 0777);
-
-    DIR *dp;
-    struct dirent *ep;
-
-    printf("opendir...\n");
-    dp = opendir("/sd/fsdaq");
-
-    vector<string> existing_filenames{};
-
-    if (dp == NULL) {
-        error_quit("Couldn't open fsdaq directory!\n");
-    }
-    while ((ep = readdir(dp))) {
-        existing_filenames.push_back(ep->d_name);
-    }
-    closedir(dp);
-
-    printf("finding max_num...\n");
-    int max_num = 0;
-    for (auto it = existing_filenames.begin(); it != existing_filenames.end(); ++it) {
-        bool is_valid = true;
-        for (char c : *it) {
-            if (c == '.' && (*it).ends_with(".fsdaq")) break;
-            if (!isdigit(c)) is_valid = false;
-        }
-        if (!is_valid) continue;
-
-        int fnum = std::stoi(*it);
-        max_num = max(max_num, fnum);
-    }
-
-    printf("fopen...\n");
-    sd_fp = fopen(("/sd/fsdaq/" + std::to_string(max_num + 1) + ".fsdaq").c_str(), "w+");
-    if (sd_fp == NULL) {
-        error_quit("Error opening file!");
-    }
-
-    printf("Initialized SD card: writing to %d.fsdaq!\n", max_num + 1);
-
-    fwrite("FSDAQ001", 8, 1, sd_fp);
-    fsdaq::write_fsdaq_schema(sd_fp);
-}
-
 void init_dash() {
-    eve.init(EvePresets::CFA800480E3);
-    ThisThread::sleep_for(10ms);
 }
 
 void update_radio() {
-    // printf("RADIO!\n");
+    // prebd31ac1intf("RADIO!\n");
 }
 
 int n = 0;
@@ -185,21 +111,22 @@ void update_dash() {
 int main() {
     printf("Hello world\n");
 
-    ThisThread::sleep_for(500ms);
-
     // Initializing Dash
-    if (ENABLE_DASH) { init_dash(); update_dash(); }
+    if (ENABLE_DASH) {
+        eve.init(EvePresets::CFA800480E3);
+        update_dash();
+    }
 
-    // Initializing SD card
-    if (ENABLE_SD) init_sd();
-
-    fsdaq::FileBatchWriter data_writer{sd_fp};
+    // Initializing Data Logging
+    if (ENABLE_SD) {
+        data_logger.init_logging();
+    }
 
     // event_queue.call_every(RADIO_UPDATE_HZ, &update_radio())
 
     if (ENABLE_SD) {
         // TODO::::
-        queue.call_every(SD_UPDATE_HZ, [&data_writer]() { data_writer.append_row(current_row); });
+        queue.call_every(SD_UPDATE_HZ, [&]() { data_logger.append_row(current_row); });
 
         // mbed_can.attach(
         //     []() { queue.call([]() { data_writer.append_row(current_row); }); },
@@ -222,22 +149,11 @@ int main() {
         current_row.SME_THROTL_MaxSpeed = state.smeThrottleDemand.MAX_SPEED;
         current_row.SME_THROTL_Forward = state.smeThrottleDemand.FORWARD;
         current_row.SME_THROTL_Reverse = state.smeThrottleDemand.REVERSE;
-        current_row.SME_THROTL_UNUSED_BIT_1 = 0;
         current_row.SME_THROTL_PowerReady = state.smeThrottleDemand.POWER_READY;
-        current_row.SME_THROTL_UNUSED_BIT_2 = 0;
-        current_row.SME_THROTL_UNUSED_BIT_3 = 0;
-        current_row.SME_THROTL_UNUSED_BIT_4 = 0;
-        current_row.SME_THROTL_UNUSED_BIT_5 = 0;
         current_row.SME_THROTL_MBB_Alive = state.smeThrottleDemand.MBB_ALIVE;
-        current_row.SME_THROTL_UNUSED_BIT_6 = 0;
-        current_row.SME_THROTL_UNUSED_BIT_7 = 0;
-        current_row.SME_THROTL_UNUSED_BIT_8 = 0;
-        current_row.SME_THROTL_UNUSED_BIT_9 = 0;
-        current_row.SME_THROTL_UNUSED_SHORT_1 = 0;
 
         current_row.SME_CURRLIM_ChargeCurrentLim = state.smeMaxCurrents.CHARGE_CURRENT;
         current_row.SME_CURRLIM_DischargeCurrentLim = state.smeMaxCurrents.DISCHARGE_CURRENT;
-        current_row.SME_CURRLIM_UNUSED_INT_1 = 0;
 
         current_row.SME_TRQSPD_Speed = state.smeTrqSpd.SPEED;
         current_row.SME_TRQSPD_Torque = state.smeTrqSpd.TORQUE;

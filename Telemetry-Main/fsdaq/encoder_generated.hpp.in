@@ -51,5 +51,9 @@ inline void write_fsdaq_batch(DataBatch *batch, FILE *file) {
     fwrite(batch, sizeof(*batch), 1, file);
 }
 
+inline void write_fsdaq_header(FILE *file) {
+    fwrite("FSDAQ001", 8, 1, file);
+}
+
     
 } // namespace fsdaq

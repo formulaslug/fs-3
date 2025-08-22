@@ -254,39 +254,49 @@ void Layouts::drawLayout3(Faults faults, float acc_volt, uint8_t acc_temp,
   //----------\SOC bars----------------------
 
   //--------indicator lights------------------
-  bool curr_green = true;
-  setMainColor(green);
-  if (faults.fans && curr_green) {
-    setMainColor(red);
-  }
-  drawRect(Point{1, 1}, Point{73, 73}); //fans
-  if (faults.precharge && curr_green) {
-    setMainColor(red);
-    curr_green = false;
-  }
-  else if (!faults.precharge && !curr_green) {
-    setMainColor(green);
-    curr_green = true;
-  }
-  drawRect(Point{75, 1}, Point{147, 73}); //pc
-  if (faults.shutdown && curr_green) {
-    setMainColor(red);
-    curr_green = false;
-  }
-  else if (!faults.shutdown && !curr_green) {
-    setMainColor(green);
-    curr_green = true;
-  }
-  drawRect(Point{1, 75}, Point{73, 147}); //shdn
-  if (!rtds && curr_green) {
-    setMainColor(red);
-    curr_green = false;
-  }
-  else if (rtds && !curr_green) {
-    setMainColor(green);
-    curr_green = true;
-  }
-  drawRect(Point{75, 75}, Point{147, 147}); //rtds
+  // bool curr_green = true;
+  // setMainColor(green);
+  // if (faults.fans && curr_green) {
+  //   setMainColor(red);
+  // }
+  // drawRect(Point{1, 1}, Point{73, 73}); //fans
+  // if (faults.precharge && curr_green) {
+  //   setMainColor(red);
+  //   curr_green = false;
+  // }
+  // else if (!faults.precharge && !curr_green) {
+  //   setMainColor(green);
+  //   curr_green = true;
+  // }
+  // drawRect(Point{75, 1}, Point{147, 73}); //pc
+  // if (faults.shutdown && curr_green) {
+  //   setMainColor(red);
+  //   curr_green = false;
+  // }
+  // else if (!faults.shutdown && !curr_green) {
+  //   setMainColor(green);
+  //   curr_green = true;
+  // }
+  // drawRect(Point{1, 75}, Point{73, 147}); //shdn
+  // if (!rtds && curr_green) {
+  //   setMainColor(red);
+  //   curr_green = false;
+  // }
+  // else if (rtds && !curr_green) {
+  //   setMainColor(green);
+  //   curr_green = true;
+  // }
+  // drawRect(Point{75, 75}, Point{147, 147}); //rtds
+
+  Color fan_color = faults.fans ? red : green;
+  Color precharge_color = faults.precharge ? red : green;
+  Color shutdown_color = faults.shutdown ? red : green;
+  Color rtds_color = rtds ? green : red;
+  drawRect(Point{1, 1}, Point{73, 73}, fan_color);
+  drawRect(Point{75, 1}, Point{147, 73}, precharge_color);
+  drawRect(Point{1, 75}, Point{73, 147}, shutdown_color);
+  drawRect(Point{75, 75}, Point{147, 147}, rtds_color);
+
   //-----------\indicator lights--------------------
   //---------MC warning box----------
   Color mc_volts_bg = Color {18, 219, 255};
