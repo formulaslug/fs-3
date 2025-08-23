@@ -16,6 +16,13 @@ int unpacketize(uint8_t *data, Packet *packet) {
 
     Segment *segment = &packet->segments[data[1]];
 
+    // if (segment->segment_number == 0) {
+    //     printf("First segment just came in!");
+    // }
+
+    // printf("Segment %d just came in\n", segment->segment_number);
+    // printf("ID: %02x\n", segment->packet_id);
+
     memcpy(segment->segment_data, data, segment->data_size+4);
     if (segment->packet_id != packet->id) {
         printf("WARNING: Packets came out of order, data loss expected (ID %02x != %02x)\n", segment->packet_id, packet->id);
