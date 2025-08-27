@@ -4,7 +4,7 @@
 
 namespace fsdaq {
 
-DataLogger::DataLogger() : sd{}, fatfs{"sd"} { }
+DataLogger::DataLogger() : sd{}, fatfs{"sd"} {}
 
 DataLogger::~DataLogger() {
     fclose(sd_fp);
@@ -15,18 +15,24 @@ bool DataLogger::init_logging() {
     bool success = init_sd();
     if (!success) return false;
 
+    timer.start();
+
     fsdaq::write_fsdaq_header(sd_fp);
     fsdaq::write_fsdaq_schema(sd_fp);
 
     return true;
 }
 
-/* 
- * Append a row to the current fsdaq data batch. 
+/*
+ * Append a row to the current fsdaq data batch.
  * init() must have been called first!
  */
 void DataLogger::append_row(fsdaq::DataRow &next_row) {
-    current_batch.setRow(next_row, row_idx);
+    // TODO: Do we care that this will insert the time into the row when it's
+    // finished/added rather than in the middle or beginning of its duration?
+    // Should we move ownership of the timer logic from main to data_logger?
+    const uint32_t elapsed_time_ms = duration_cast<chrono::milliseconds>(timer.elapsed_time()).count();
+    current_batch.set_row(next_row, row_idx, elapsed_time_ms);
 
     row_idx++;
     if (row_idx == fsdaq::ROWS_PER_BATCH) {
@@ -94,4 +100,4 @@ bool DataLogger::init_sd() {
     return true;
 }
 
-}
+} // namespace fsdaq

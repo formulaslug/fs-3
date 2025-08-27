@@ -8,20 +8,26 @@ namespace fsdaq {
 static const int COLS = @COLS@;
 static const int ROWS_PER_BATCH = @ROWS_PER_BATCH@;
 
-static const char *col_names[] = { @COL_NAMES@ };
-static const uint8_t col_name_sizes[] = { @COL_NAME_SIZES@ };
-static const char *col_name_types[] = { @COL_NAME_TYPES@ };
+static const char *col_names[] = { "Time_ms", @COL_NAMES@ };
+static const uint8_t col_name_sizes[] = { 7, @COL_NAME_SIZES@ };
+static const char *col_name_types[] = { "u5", @COL_NAME_TYPES@ };
 
 struct DataRow {
+    uint32_t Time_ms;
+
 @DATA_ROW_STRUCT_FIELDS@
 };
 
 #pragma pack(1)
 class DataBatch {
+    uint32_t Time_ms[ROWS_PER_BATCH];
+
 @DATA_BATCH_STRUCT_FIELDS@
 
 public:
-    void setRow(DataRow row, int idx) {
+    void set_row(DataRow row, int idx, uint32_t current_time_ms) {
+        this->Time_ms[idx] = current_time_ms;
+
 @UPDATE_FIELDS_FROM_ROW@
     }
 };

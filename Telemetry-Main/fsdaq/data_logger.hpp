@@ -26,6 +26,9 @@ private:
     bool init_sd();
     void deinit_sd();
 
+    // Main timer used for the Time_ms data column.
+    Timer timer;
+
     // SDBlockDevice - lowest-level interfaces with the SD card.
     // Pin configurations and transfer speeds are set in mbed_app.json.
     SDBlockDevice sd;
