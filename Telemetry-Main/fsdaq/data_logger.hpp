@@ -3,6 +3,8 @@
 #include "FATFileSystem.h"
 #include "SDBlockDevice.h"
 #include "file_batch_writer.hpp"
+#include "mbed.h"
+#include "radio.hpp"
 #include <cstdio>
 
 namespace fsdaq {

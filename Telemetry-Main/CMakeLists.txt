@@ -13,9 +13,10 @@ add_subdirectory(../mbed-os ../mbed-os-build)
 
 set(CMAKE_CXX_STANDARD 20)
 
-add_library(libradio STATIC ../XBeeRadio/libradio/src/radio.cpp)
-target_include_directories(libradio PUBLIC ../XBeeRadio/libradio/src/)
-target_link_libraries(libradio mbed-os)
+add_subdirectory(../XBeeRadio/libradio libradio)
+# add_library(libradio STATIC ../XBeeRadio/libradio/src/radio.cpp)
+# target_include_directories(libradio PUBLIC ../XBeeRadio/libradio/src/)
+# target_link_libraries(libradio mbed-os)
 
 add_library(dash STATIC ./dash/BT817Q.cpp ./dash/layouts.cpp)
 target_include_directories(dash PUBLIC ./dash)
@@ -23,7 +24,7 @@ target_link_libraries(dash mbed-core-flags)
 
 add_library(fsdaq STATIC ./fsdaq/file_batch_writer.cpp ./fsdaq/data_logger.cpp) # ./fsdaq/can_processor_generated.cpp
 target_include_directories(fsdaq PUBLIC ./fsdaq)
-target_link_libraries(fsdaq mbed-core-flags mbed-storage-sd mbed-storage-fat)
+target_link_libraries(fsdaq mbed-core-flags mbed-storage-sd mbed-storage-fat libradio)
 
 add_executable(${PROJECT_NAME} main.cpp VehicleStateManager.cpp)
 target_link_libraries(${PROJECT_NAME} mbed-os dash fsdaq libradio mbed-storage-sd mbed-storage-fat)

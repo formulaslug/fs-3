@@ -6,22 +6,22 @@
 #include "data_logger.hpp"
 #include "fsdaq/encoder_generated.hpp"
 #include "fsdaq/file_batch_writer.hpp"
-#include "radio.hpp"
 #include <stdbool.h>
 #include <string>
 
-constexpr bool ENABLE_RADIO = false;
+constexpr bool ENABLE_RADIO = true;
 constexpr bool ENABLE_SD = true;
 constexpr bool ENABLE_DASH = true;
 
 constexpr chrono::duration SD_UPDATE_HZ = 10ms;
 constexpr chrono::duration DASH_UPDATE_HZ = 100ms;
-constexpr chrono::duration RADIO_UPDATE_HZ = 1ms;
+constexpr chrono::duration RADIO_UPDATE_HZ = 100ms;
 
-DigitalIn xbee_spi_attn(PA_9);
-DigitalOut xbee_spi_cs(PC_8);
-SPI xbee_spi(PA_7, PA_6, PA_5);
-XBeeRadio radio(xbee_spi, xbee_spi_cs, xbee_spi_attn);
+// Everything pertaining to XBee radio (TODO: clean)
+DigitalIn xbee_spi_attn{PA_9};
+DigitalOut xbee_spi_cs{PC_8};
+SPI xbee_spi{PA_7, PA_6, PA_5};
+XBeeRadio radio{xbee_spi, xbee_spi_cs, xbee_spi_attn};
 
 auto mbed_can = CAN(PB_8, PB_9, 500000);
 auto can = MbedCAN(mbed_can);
@@ -37,13 +37,6 @@ EventQueue queue{EVENTS_QUEUE_SIZE};
 void error_quit(std::string msg) {
     printf("%s\n", msg.c_str());
     while (1) {};
-}
-
-void init_dash() {
-}
-
-void update_radio() {
-    // prebd31ac1intf("RADIO!\n");
 }
 
 int n = 0;
@@ -122,7 +115,10 @@ int main() {
         data_logger.init_logging();
     }
 
-    // event_queue.call_every(RADIO_UPDATE_HZ, &update_radio())
+
+    if (ENABLE_RADIO) {
+        queue.call_every(RADIO_UPDATE_HZ, [&](){ radio.transmit((uint8_t*)&current_row, sizeof(current_row)); });
+    }
 
     if (ENABLE_SD) {
         // TODO::::
