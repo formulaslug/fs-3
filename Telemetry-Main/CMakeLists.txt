@@ -22,7 +22,7 @@ add_library(dash STATIC ./dash/BT817Q.cpp ./dash/layouts.cpp)
 target_include_directories(dash PUBLIC ./dash)
 target_link_libraries(dash mbed-core-flags)
 
-add_library(fsdaq STATIC ./fsdaq/file_batch_writer.cpp ./fsdaq/data_logger.cpp) # ./fsdaq/can_processor_generated.cpp
+add_library(fsdaq STATIC ./fsdaq/data_logger.cpp) # ./fsdaq/can_processor_generated.cpp
 target_include_directories(fsdaq PUBLIC ./fsdaq)
 target_link_libraries(fsdaq mbed-core-flags mbed-storage-sd mbed-storage-fat libradio)
 

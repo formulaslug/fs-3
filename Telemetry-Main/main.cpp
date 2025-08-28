@@ -5,7 +5,6 @@
 #include "dash/layouts.h"
 #include "data_logger.hpp"
 #include "fsdaq/encoder_generated.hpp"
-#include "fsdaq/file_batch_writer.hpp"
 #include <stdbool.h>
 #include <string>
 
@@ -16,12 +15,6 @@ constexpr bool ENABLE_DASH = true;
 constexpr chrono::duration SD_UPDATE_HZ = 10ms;
 constexpr chrono::duration DASH_UPDATE_HZ = 100ms;
 constexpr chrono::duration RADIO_UPDATE_HZ = 100ms;
-
-// Everything pertaining to XBee radio (TODO: clean)
-DigitalIn xbee_spi_attn{PA_9};
-DigitalOut xbee_spi_cs{PC_8};
-SPI xbee_spi{PA_7, PA_6, PA_5};
-XBeeRadio radio{xbee_spi, xbee_spi_cs, xbee_spi_attn};
 
 auto mbed_can = CAN(PB_8, PB_9, 500000);
 auto can = MbedCAN(mbed_can);
@@ -115,9 +108,9 @@ int main() {
         data_logger.init_logging();
     }
 
-
     if (ENABLE_RADIO) {
-        queue.call_every(RADIO_UPDATE_HZ, [&](){ radio.transmit((uint8_t*)&current_row, sizeof(current_row)); });
+        // queue.call_every(RADIO_UPDATE_HZ, [&](){ radio.transmit((uint8_t*)&current_row, sizeof(current_row)); });
+        data_logger.radio_enabled = true;
     }
 
     if (ENABLE_SD) {

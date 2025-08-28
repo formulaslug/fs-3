@@ -779,6 +779,34 @@ inline void write_fsdaq_schema(FILE *file) {
     }
 }
 
+inline size_t bufwrite_fsdaq_schema(uint8_t *dest) {
+    size_t offset = 0;
+    uint32_t m = COLS;
+    uint32_t n = ROWS_PER_BATCH;
+    memcpy(dest, &m, sizeof(m));
+    offset += sizeof(m);
+    memcpy(dest + offset, &n, sizeof(n));
+    offset += sizeof(n);
+
+    for (int i=0; i<COLS; i++) {
+        const uint8_t col_len = col_name_sizes[i];
+        const char *col = col_names[i];
+
+        memcpy(dest + offset, &col_len, sizeof(col_len));
+        offset += sizeof(col_len);
+        memcpy(dest + offset, &col, col_len);
+        offset += col_len;
+    }
+
+    for (int i=0; i<COLS; i++) {
+        const char *col_type = col_name_types[i];
+        memcpy(dest, &col_type, 2);
+        offset += 2;
+    }
+
+    return offset;
+}
+
 inline void write_fsdaq_batch(DataBatch *batch, FILE *file) {
     fwrite(batch, sizeof(*batch), 1, file);
 }

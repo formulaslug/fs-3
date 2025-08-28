@@ -35,9 +35,23 @@ void DataLogger::append_row(fsdaq::DataRow &next_row) {
     current_batch.set_row(next_row, row_idx, elapsed_time_ms);
 
     row_idx++;
+    static int n = 0;
     if (row_idx == fsdaq::ROWS_PER_BATCH) {
         write_fsdaq_batch(&current_batch, sd_fp);
         row_idx = 0;
+
+        n++;
+        if (n%5==0) {
+            static uint8_t buf[2000] = {'s', 0};
+            bufwrite_fsdaq_schema(buf + 1);
+        }
+        if (n%2==0) {
+            static uint8_t buf[32791] = {'b', 0};
+            memcpy(buf + 1, &current_batch, sizeof(current_batch));
+
+            radio.transmit(buf, 32791);
+        }
+        radio.transmit((uint8_t*)&current_batch, sizeof(current_batch));
     }
 }
 

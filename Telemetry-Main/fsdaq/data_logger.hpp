@@ -2,7 +2,7 @@
 
 #include "FATFileSystem.h"
 #include "SDBlockDevice.h"
-#include "file_batch_writer.hpp"
+#include "encoder_generated.hpp"
 #include "mbed.h"
 #include "radio.hpp"
 #include <cstdio>
@@ -20,6 +20,8 @@ public:
      * batch.
      */
     void append_row(fsdaq::DataRow& next_row);
+
+    bool radio_enabled = false;
 private:
     /* 
      * Initializes the SD Card block device, mounts the FATFileSystem, and opens
@@ -43,6 +45,13 @@ private:
     // The current batch of data that we're appending rows to.
     fsdaq::DataBatch current_batch{};
     int row_idx;
+
+    // Everything pertaining to XBee radio (TODO: clean)
+    DigitalIn xbee_spi_attn{PA_9};
+    DigitalOut xbee_spi_cs{PC_8};
+    SPI xbee_spi{PA_7, PA_6, PA_5};
+    XBeeRadio radio{xbee_spi, xbee_spi_cs, xbee_spi_attn};
+
 };
 
 }
