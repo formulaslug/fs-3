@@ -6,3 +6,4 @@ AllowShortBlocksOnASingleLine: Always
 IndentAccessModifiers: false
 AccessModifierOffset: -4
 AlignAfterOpenBracket: BlockIndent # DontAlign
+PointerAlignment: Left
