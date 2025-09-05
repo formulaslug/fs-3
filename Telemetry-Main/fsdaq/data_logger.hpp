@@ -2,7 +2,7 @@
 
 #include "FATFileSystem.h"
 #include "SDBlockDevice.h"
-#include "file_batch_writer.hpp"
+#include "encoder_generated.hpp"
 #include "mbed.h"
 #include "radio.hpp"
 #include <cstdio>

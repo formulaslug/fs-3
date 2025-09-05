@@ -5,7 +5,7 @@
 #include "dash/layouts.h"
 #include "data_logger.hpp"
 #include "fsdaq/encoder_generated.hpp"
-#include "fsdaq/file_batch_writer.hpp"
+#include "radio.hpp"
 #include <stdbool.h>
 #include <string>
 
