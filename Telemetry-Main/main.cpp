@@ -27,7 +27,13 @@ auto mbed_can = CAN(PB_8, PB_9, 500000);
 auto can = MbedCAN(mbed_can);
 auto vsm = VehicleStateManager(&can, PC_5, PC_1, PC_0);
 
+// This still causes static initialization order fiasco, since DataLogger
+// has a non-trivial constructor (which is called before main())!!!
+// TODO: replace internal memeber variables (SDBlockDevice, etc) with deffered
+// static initialization (eg. via optional.emplace(), singleton, COFU)
 fsdaq::DataLogger data_logger{};
+// TODO: Make DataBatch and DataRow templated over row count, and make a
+// separate one for radio (with smaller row count)
 fsdaq::DataRow current_row{};
 
 Layouts eve(PC_12, PC_11, PC_10, PD_2, PB_7, PC_13, EvePresets::CFA800480E3);

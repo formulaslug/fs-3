@@ -34,7 +34,7 @@ private:
 
     // SDBlockDevice - lowest-level interfaces with the SD card.
     // Pin configurations and transfer speeds are set in mbed_app.json.
-    SDBlockDevice& sd;
+    SDBlockDevice sd;
     // FATFileSystem - Creates a FAT filesystem on the SDBlockDevice.
     // "sd" is the name of the filesystem; i.e. filepaths are /sd/...
     FATFileSystem fatfs;
