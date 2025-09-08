@@ -9,7 +9,7 @@ cmake-build-*/
 build/
 
 # VS Code config files
-.vscode/
+# .vscode/
 
 # Python stuff
 *.pyc

@@ -1,0 +1,42 @@
+{
+    "version": "1.4",
+    "configurations": [
+        {
+            "name": "default",
+            "id": "conf1",
+            "imageType": "application",
+            "targetDevice": "ATtiny1616",
+            "imagePath": "./out/TelemetryPeripheral/default.elf",
+            "packs": [
+                {
+                    "name": "ATtiny_DFP",
+                    "vendor": "Microchip",
+                    "version": "3.2.268"
+                }
+            ],
+            "fileSet": "default",
+            "toolchain": "default-AVR-GCC",
+            "toolProperties": "default-tool-base",
+            "device": "ATtiny1616"
+        }
+    ],
+    "propertyGroups": [
+        {
+            "name": "default-AVR-GCC",
+            "type": "toolchain",
+            "provider": "microchip.toolchains:avr-gcc@7.3.0",
+            "properties": {}
+        }
+    ],
+    "fileSets": [
+        {
+            "name": "default",
+            "files": [
+                {
+                    "include": "**/*",
+                    "exclude": "**/(_build|out|cmake|.vscode)/**/*"
+                }
+            ]
+        }
+    ]
+}

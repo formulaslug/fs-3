@@ -1,0 +1,9 @@
+{
+    "makefile.configureOnOpen": false,
+    "cmake.buildDirectory": "${workspaceFolder}/_build/TelemetryPeripheral/default",
+    "clangd.arguments": [
+        "-background-index",
+        "-compile-commands-dir=_build/TelemetryPeripheral/default",
+    ],
+    "cmake.sourceDirectory": "C:/Projects/FormulaSlug/fs-3/TelemetryPeripheral/cmake/TelemetryPeripheral/default"
+}
