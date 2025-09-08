@@ -14,9 +14,6 @@ add_subdirectory(../mbed-os ../mbed-os-build)
 set(CMAKE_CXX_STANDARD 20)
 
 add_subdirectory(../XBeeRadio/libradio libradio)
-# add_library(libradio STATIC ../XBeeRadio/libradio/src/radio.cpp)
-# target_include_directories(libradio PUBLIC ../XBeeRadio/libradio/src/)
-# target_link_libraries(libradio mbed-os)
 
 add_library(dash STATIC ./dash/BT817Q.cpp ./dash/layouts.cpp)
 target_include_directories(dash PUBLIC ./dash)
