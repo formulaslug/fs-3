@@ -32,13 +32,13 @@ private:
     // Main timer used for the Time_ms data column.
     Timer timer;
 
-    // SDBlockDevice - lowest-level interfaces with the SD card.
-    // Pin configurations and transfer speeds are set in mbed_app.json.
+    // Lowest-level interface with the SD card. Pin configurations and transfer
+    // speeds are set in mbed_app.json.
     SDBlockDevice sd;
-    // FATFileSystem - Creates a FAT filesystem on the SDBlockDevice.
-    // "sd" is the name of the filesystem; i.e. filepaths are /sd/...
+    // Creates a FAT filesystem on the SDBlockDevice. "sd" is the name of the
+    // filesystem; i.e. filepaths are /sd/...
     FATFileSystem fatfs;
-    // File pointer to the file opened on the SD card
+    // Standard libc file handle to the DAQ file on the SD card filesystem
     FILE* sd_fp;
 
     // The current batch of data that we're appending rows to.
