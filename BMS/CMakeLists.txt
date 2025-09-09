@@ -4,6 +4,8 @@
 cmake_minimum_required(VERSION 3.19)
 cmake_policy(VERSION 3.19)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
+
 # Initialize Mbed OS build system.
 # Note: This block must be before the project() call.
 set(MBED_APP_JSON_PATH mbed_app.json5)
@@ -18,10 +20,10 @@ set(STLINK_LOAD_ADDRESS 0x8000000)
 set(STLINK_ARGS --connect-under-reset)
 
 include(../mbed-os/tools/cmake/mbed_toolchain_setup.cmake)
-project(BMS) # TODO: change this to your project name
+project(BMS)
 include(mbed_project_setup)
 
-add_subdirectory(../mbed-os mbed-os) # Load Mbed OS build targets.  Must be added before any other subdirectories
+add_subdirectory(../mbed-os mbed-os)
 # Tell CMake to build lib-mbed-ltc681x
 add_subdirectory(lib-mbed-ltc681x)
 
@@ -37,10 +39,6 @@ add_executable(BMS src/main.cpp
         src/LTC6811.h
         src/LTC6811.cpp
         src/StateOfCharge.cpp
-
 )
-target_link_libraries(BMS
-        mbed-os
-        lib-mbed-ltc681x
-) # Can also link to mbed-baremetal here
+target_link_libraries(BMS mbed-os lib-mbed-ltc681x) # Can also link to mbed-baremetal here
 mbed_set_post_build(BMS) # Must call this for each target to set up bin file creation, code upload, etc
