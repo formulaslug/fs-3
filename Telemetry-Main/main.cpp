@@ -13,15 +13,7 @@ constexpr bool ENABLE_RADIO = true;
 constexpr bool ENABLE_SD = true;
 constexpr bool ENABLE_DASH = true;
 
-constexpr chrono::duration SD_UPDATE_HZ = 10ms;
 constexpr chrono::duration DASH_UPDATE_HZ = 100ms;
-constexpr chrono::duration RADIO_UPDATE_HZ = 100ms;
-
-// Everything pertaining to XBee radio (TODO: clean)
-DigitalIn xbee_spi_attn{PA_9};
-DigitalOut xbee_spi_cs{PC_8};
-SPI xbee_spi{PA_7, PA_6, PA_5};
-XBeeRadio radio{xbee_spi, xbee_spi_cs, xbee_spi_attn};
 
 auto mbed_can = CAN(PB_8, PB_9, 500000);
 auto can = MbedCAN(mbed_can);

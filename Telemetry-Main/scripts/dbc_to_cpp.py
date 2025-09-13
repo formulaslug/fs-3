@@ -93,8 +93,8 @@ def choose_best_float_type(s: cantools.db.Signal, tolerance: float):
     return "f6"
 
 def generate_encoder_hpp(db: cantools.db.Database, rows_per_batch: int = 80):
-    out_file = open(Path(__file__).parent.parent / "fsdaq" / "encoder_generated.hpp", "w")
-    template_file = open(Path(__file__).parent.parent / "fsdaq" / "encoder_generated.hpp.in", "r")
+    out_file = open(Path(__file__).parent.parent / "fsdaq" / "generated_types.hpp", "w")
+    template_file = open(Path(__file__).parent.parent / "fsdaq" / "generated_types.hpp.in", "r")
     template = template_file.read()
 
     assert rows_per_batch % 8 == 0

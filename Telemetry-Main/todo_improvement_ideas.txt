@@ -1,0 +1,8 @@
+This that we'd love to implement but have a lack of manpower for atm:
+
+- Reimplement automatic laptime counter algorithm using VDM GPS lat/long readings
+  - Would need a button on the dash or some way to set the gps "home base"?
+  - From there, "if close to home base again, increment lap counter"
+- Figure out how to detect car shutting off (capacitor -> adc?)
+  - write last fsdaq batch, flush file handle
+- Send TMAIN CAN messages (brake pressure, steering column sensor)

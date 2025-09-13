@@ -1,3 +1,5 @@
+// TODO: USE UPDATED FILES (9/12/25)
+
 #include "data_logger.hpp"
 #include "encoder_generated.hpp"
 #include "mbed.h"
@@ -18,26 +20,22 @@ bool DataLogger::init_logging() {
     timer.start();
 
     fsdaq::write_fsdaq_header(sd_fp);
-    fsdaq::write_fsdaq_schema(sd_fp);
+    fsdaq::write_fsdaq_schema<DataLogger::ROWS_PER_BATCH_SDCARD>(sd_fp);
 
     return true;
 }
 
-/*
- * Append a row to the current fsdaq data batch.
- * init() must have been called first!
- */
 void DataLogger::append_row(fsdaq::DataRow &next_row) {
     // TODO: Do we care that this will insert the time into the row when it's
     // finished/added rather than in the middle or beginning of its duration?
     // Should we move ownership of the timer logic from main to data_logger?
     const uint32_t elapsed_time_ms = duration_cast<chrono::milliseconds>(timer.elapsed_time()).count();
-    current_batch.set_row(next_row, row_idx, elapsed_time_ms);
+    sd_current_batch.set_row(next_row, sd_row_idx, elapsed_time_ms);
 
-    row_idx++;
-    if (row_idx == fsdaq::ROWS_PER_BATCH) {
-        write_fsdaq_batch(&current_batch, sd_fp);
-        row_idx = 0;
+    sd_row_idx++;
+    if (sd_row_idx == fsdaq::DataLogger::ROWS_PER_BATCH_SDCARD) {
+        write_fsdaq_batch(&sd_current_batch, sd_fp);
+        sd_row_idx = 0;
     }
 }
 

@@ -9,7 +9,7 @@ project(TelemetryMain
         LANGUAGES C CXX ASM)
 include(../mbed-os/tools/cmake/mbed_project_setup.cmake)
 
-add_subdirectory(../mbed-os ../mbed-os-build)
+add_subdirectory(../mbed-os mbed-os)
 
 set(CMAKE_CXX_STANDARD 20)
 
@@ -19,7 +19,7 @@ add_library(dash STATIC ./dash/BT817Q.cpp ./dash/layouts.cpp)
 target_include_directories(dash PUBLIC ./dash)
 target_link_libraries(dash mbed-core-flags)
 
-add_library(fsdaq STATIC ./fsdaq/data_logger.cpp) # ./fsdaq/can_processor_generated.cpp
+add_library(fsdaq STATIC ./fsdaq/data_logger.cpp ./fsdaq/encoder.cpp) # ./fsdaq/can_processor_generated.cpp
 target_include_directories(fsdaq PUBLIC ./fsdaq)
 target_link_libraries(fsdaq mbed-core-flags mbed-storage-sd mbed-storage-fat libradio)
 
