@@ -9,7 +9,7 @@
 #include <stdbool.h>
 #include <string>
 
-constexpr bool ENABLE_RADIO = true;
+constexpr bool ENABLE_RADIO = false;
 constexpr bool ENABLE_SD = true;
 constexpr bool ENABLE_DASH = true;
 
