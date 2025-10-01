@@ -135,7 +135,7 @@ struct SME_THROTTLE_DEMAND_t {
     uint8_t padding_34 : 1;             // bit 34 (used for alignment)
     uint8_t POWER_READY : 1;            // bit 35
     uint8_t padding2 : 4;               // bits 36-39
-    uint8_t MBB_ALIVE: 1;               // bit 40
+    uint8_t MBB_ALIVE: 4;               // bits 40-43
 };
 
 struct SME_TRQSPD_t {
