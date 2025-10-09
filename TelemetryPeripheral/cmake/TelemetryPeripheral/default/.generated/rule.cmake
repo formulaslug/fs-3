@@ -1,6 +1,6 @@
 # The following functions contains all the flags passed to the different build stages.
 
-set(PACK_REPO_PATH "C:/Users/Goob/.mchp_packs" CACHE PATH "Path to the root of a pack repository.")
+set(PACK_REPO_PATH "/home/jack/.mchp_packs" CACHE PATH "Path to the root of a pack repository.")
 
 function(TelemetryPeripheral_default_default_AVR_GCC_assemble_rule target)
     set(options

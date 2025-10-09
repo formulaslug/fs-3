@@ -7,6 +7,7 @@
 
 OUT_DIRECTORY = out/TelemetryPeripheral
 BUILD_DIRECTORY = _build/TelemetryPeripheral/default
+CMAKE_DIRECTORY = cmake/TelemetryPeripheral/default
 
 # Require avrdude and the avr toolchain (avr-gcc) to be present in PATH
 ifeq (, $(shell which avrdude))
@@ -18,20 +19,31 @@ endif
 
 .PHONY: *
 
-default: all
+default:
+	$(error "Must run one of make br/bl/fr/fl!")
+br:
+	WHEEL_POSITION=BR $(MAKE) build upload
+bl:
+	$(MAKE) WHEEL_POSITION=BL build upload
+fr:
+	$(MAKE) WHEEL_POSITION=FR build upload
+fl:
+	$(MAKE) WHEEL_POSITION=FL build upload
 
-all: build hex upload
+build: configure
+	ninja -C build
+
+configure:
+	cmake -S $(CMAKE_DIRECTORY) -B $(BUILD_DIRECTORY) -GNinja -DWHEEL_POSITION=$(WHEEL_POSITION)
 
 build:
 	ninja -C $(BUILD_DIRECTORY)
 
-# todo: is this working correctly? Seems like the .hex is waaay smaller than the .elf
-hex:
-	avr-objcopy -O ihex $(OUT_DIRECTORY)/default.elf $(OUT_DIRECTORY)/default.hex
-
+# /dev/ttyACM0 /dev/ttyUSB0
 upload:
-	# /dev/ttyACM0 /dev/ttyUSB0
 	avrdude -c serialupdi -p attiny1616 -P ch9102 -e -U flash:w:out/TelemetryPeripheral/default.elf
 
 link_compile_commands:
 	ln -s $(BUILD_DIRECTORY)/compile_commands.json .
+
+

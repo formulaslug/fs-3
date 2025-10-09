@@ -1,3 +1,5 @@
+cmake_minimum_required(VERSION 3.24.0)
+
 # Make AVR-LibC work with the attiny1616.
 # From device-specs/specs-attiny1616 of the avr-gcc toolchain:
 # /*
@@ -31,4 +33,13 @@
 add_definitions(
     -D__AVR_DEV_LIB_NAME__=tn1616
     -D__AVR_DEVICE_NAME__=attiny1616
+
+    # This allows us to switch which CAN message we send at comptime using the
+    # WHEEL_POSITION macro:
+    -DWHEEL_POSITION=${WHEEL_POSITION}
 )
+
+if(NOT DEFINED WHEEL_POSITION)
+    message(WARNING "WHEEL_POSITION must be one of BR/BL/FR/FL!")
+endif()
+
