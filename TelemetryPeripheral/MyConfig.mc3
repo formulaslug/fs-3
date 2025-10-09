@@ -1,4 +1,4 @@
-<config configVersion="1.1" device="ATtiny1616" deviceLibraryClass="com.microchip.mcc.mcu8.Mcu8AVRPeripheralLibrary" coreVersion="5.7.1">
+<config configVersion="1.2" device="ATtiny1616" deviceLibraryClass="com.microchip.mcc.mcu8.Mcu8AVRPeripheralLibrary" coreVersion="5.8.2">
    <usedPackages class="java.util.ArrayList"/>
    <usedClasses class="java.util.TreeMap">
       <entry>
@@ -67,8 +67,8 @@
       </entry>
    </usedClasses>
    <usedLibraries class="java.util.ArrayList">
-      <ILibraryFile class="com.microchip.mcc.core.library.BaseLibraryFile" libraryClass="com.microchip.mcc.foundationservices.library.FoundationServicesLibrary" version="0.2.3"/>
       <ILibraryFile class="com.microchip.mcc.core.library.BaseLibraryFile" libraryClass="com.microchip.mcc.mcu8.Mcu8AVRPeripheralLibrary" version="2.9.1"/>
+      <ILibraryFile class="com.microchip.mcc.core.library.BaseLibraryFile" libraryClass="com.microchip.mcc.foundationservices.library.FoundationServicesLibrary" version="0.2.3"/>
    </usedLibraries>
    <tokenMap class="java.util.TreeMap">
       <entry>
@@ -177,7 +177,7 @@
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="ADC0" name="selectedChannels"/>
-         <value>{&quot;type&quot;:&quot;table&quot;,&quot;key&quot;:&quot;selectedChannels&quot;,&quot;dataArray&quot;: [{&quot;Pin&quot;:&quot;PIN_AIN9&quot;,&quot;Channel&quot;:&quot;PIN_AIN9&quot;,&quot;Custom Name&quot;:&quot;channel_PIN_AIN9&quot;},{&quot;Pin&quot;:&quot;Internal Channel&quot;,&quot;Channel&quot;:&quot;Temp_sensor/DAC1&quot;,&quot;Custom Name&quot;:&quot;channel_Temp sensor/DAC1&quot;},{&quot;Pin&quot;:&quot;Internal Channel&quot;,&quot;Channel&quot;:&quot;GND&quot;,&quot;Custom Name&quot;:&quot;channel_GND&quot;},{&quot;Pin&quot;:&quot;Internal Channel&quot;,&quot;Channel&quot;:&quot;Internal_Ref&quot;,&quot;Custom Name&quot;:&quot;channel_Internal Ref&quot;},{&quot;Pin&quot;:&quot;Internal Channel&quot;,&quot;Channel&quot;:&quot;PTC/DAC2&quot;,&quot;Custom Name&quot;:&quot;channel_PTC/DAC2&quot;},{&quot;Pin&quot;:&quot;Internal Channel&quot;,&quot;Channel&quot;:&quot;DAC0/DAC0&quot;,&quot;Custom Name&quot;:&quot;channel_DAC0/DAC0&quot;}] }</value>
+         <value>{&quot;type&quot;:&quot;table&quot;,&quot;key&quot;:&quot;selectedChannels&quot;,&quot;dataArray&quot;: [{&quot;Pin&quot;:&quot;PIN_AIN9&quot;,&quot;Channel&quot;:&quot;PIN_AIN9&quot;,&quot;Custom Name&quot;:&quot;channel_PIN_AIN9&quot;},{&quot;Pin&quot;:&quot;Internal Channel&quot;,&quot;Channel&quot;:&quot;Temp_sensor/DAC1&quot;,&quot;Custom Name&quot;:&quot;channel_Temp sensor/DAC1&quot;},{&quot;Pin&quot;:&quot;Internal Channel&quot;,&quot;Channel&quot;:&quot;PTC/DAC2&quot;,&quot;Custom Name&quot;:&quot;channel_PTC/DAC2&quot;},{&quot;Pin&quot;:&quot;Internal Channel&quot;,&quot;Channel&quot;:&quot;GND&quot;,&quot;Custom Name&quot;:&quot;channel_GND&quot;},{&quot;Pin&quot;:&quot;Internal Channel&quot;,&quot;Channel&quot;:&quot;DAC0/DAC0&quot;,&quot;Custom Name&quot;:&quot;channel_DAC0/DAC0&quot;},{&quot;Pin&quot;:&quot;Internal Channel&quot;,&quot;Channel&quot;:&quot;Internal_Ref&quot;,&quot;Custom Name&quot;:&quot;channel_Internal Ref&quot;}] }</value>
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="ADC0" name="smpAcmNumber"/>
@@ -757,7 +757,7 @@
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="ADC1" name="selectedChannels"/>
-         <value>{&quot;type&quot;:&quot;table&quot;,&quot;key&quot;:&quot;selectedChannels&quot;,&quot;dataArray&quot;: [{&quot;Pin&quot;:&quot;PIN_AIN3&quot;,&quot;Channel&quot;:&quot;PIN_AIN3&quot;,&quot;Custom Name&quot;:&quot;channel_PIN_AIN3&quot;},{&quot;Pin&quot;:&quot;PIN_AIN2&quot;,&quot;Channel&quot;:&quot;PIN_AIN2&quot;,&quot;Custom Name&quot;:&quot;channel_PIN_AIN2&quot;},{&quot;Pin&quot;:&quot;PIN_AIN7&quot;,&quot;Channel&quot;:&quot;PIN_AIN7&quot;,&quot;Custom Name&quot;:&quot;channel_PIN_AIN7&quot;},{&quot;Pin&quot;:&quot;PIN_AIN6&quot;,&quot;Channel&quot;:&quot;PIN_AIN6&quot;,&quot;Custom Name&quot;:&quot;channel_PIN_AIN6&quot;},{&quot;Pin&quot;:&quot;PIN_AIN8&quot;,&quot;Channel&quot;:&quot;PIN_AIN8&quot;,&quot;Custom Name&quot;:&quot;channel_PIN_AIN8&quot;},{&quot;Pin&quot;:&quot;PIN_AIN1&quot;,&quot;Channel&quot;:&quot;PIN_AIN1&quot;,&quot;Custom Name&quot;:&quot;channel_PIN_AIN1&quot;},{&quot;Pin&quot;:&quot;Internal Channel&quot;,&quot;Channel&quot;:&quot;GND&quot;,&quot;Custom Name&quot;:&quot;channel_GND&quot;},{&quot;Pin&quot;:&quot;Internal Channel&quot;,&quot;Channel&quot;:&quot;DAC0/DAC0&quot;,&quot;Custom Name&quot;:&quot;channel_DAC0/DAC0&quot;},{&quot;Pin&quot;:&quot;Internal Channel&quot;,&quot;Channel&quot;:&quot;Internal_Ref&quot;,&quot;Custom Name&quot;:&quot;channel_Internal Ref&quot;},{&quot;Pin&quot;:&quot;Internal Channel&quot;,&quot;Channel&quot;:&quot;Temp_sensor/DAC1&quot;,&quot;Custom Name&quot;:&quot;channel_Temp sensor/DAC1&quot;},{&quot;Pin&quot;:&quot;Internal Channel&quot;,&quot;Channel&quot;:&quot;PTC/DAC2&quot;,&quot;Custom Name&quot;:&quot;channel_PTC/DAC2&quot;}] }</value>
+         <value>{&quot;type&quot;:&quot;table&quot;,&quot;key&quot;:&quot;selectedChannels&quot;,&quot;dataArray&quot;: [{&quot;Pin&quot;:&quot;PIN_AIN3&quot;,&quot;Channel&quot;:&quot;PIN_AIN3&quot;,&quot;Custom Name&quot;:&quot;channel_PIN_AIN3&quot;},{&quot;Pin&quot;:&quot;PIN_AIN2&quot;,&quot;Channel&quot;:&quot;PIN_AIN2&quot;,&quot;Custom Name&quot;:&quot;channel_PIN_AIN2&quot;},{&quot;Pin&quot;:&quot;PIN_AIN7&quot;,&quot;Channel&quot;:&quot;PIN_AIN7&quot;,&quot;Custom Name&quot;:&quot;channel_PIN_AIN7&quot;},{&quot;Pin&quot;:&quot;PIN_AIN6&quot;,&quot;Channel&quot;:&quot;PIN_AIN6&quot;,&quot;Custom Name&quot;:&quot;channel_PIN_AIN6&quot;},{&quot;Pin&quot;:&quot;PIN_AIN8&quot;,&quot;Channel&quot;:&quot;PIN_AIN8&quot;,&quot;Custom Name&quot;:&quot;channel_PIN_AIN8&quot;},{&quot;Pin&quot;:&quot;PIN_AIN1&quot;,&quot;Channel&quot;:&quot;PIN_AIN1&quot;,&quot;Custom Name&quot;:&quot;channel_PIN_AIN1&quot;},{&quot;Pin&quot;:&quot;Internal Channel&quot;,&quot;Channel&quot;:&quot;Internal_Ref&quot;,&quot;Custom Name&quot;:&quot;channel_Internal Ref&quot;},{&quot;Pin&quot;:&quot;Internal Channel&quot;,&quot;Channel&quot;:&quot;Temp_sensor/DAC1&quot;,&quot;Custom Name&quot;:&quot;channel_Temp sensor/DAC1&quot;},{&quot;Pin&quot;:&quot;Internal Channel&quot;,&quot;Channel&quot;:&quot;DAC0/DAC0&quot;,&quot;Custom Name&quot;:&quot;channel_DAC0/DAC0&quot;},{&quot;Pin&quot;:&quot;Internal Channel&quot;,&quot;Channel&quot;:&quot;PTC/DAC2&quot;,&quot;Custom Name&quot;:&quot;channel_PTC/DAC2&quot;},{&quot;Pin&quot;:&quot;Internal Channel&quot;,&quot;Channel&quot;:&quot;GND&quot;,&quot;Custom Name&quot;:&quot;channel_GND&quot;}] }</value>
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="ADC1" name="smpAcmNumber"/>
@@ -1825,7 +1825,7 @@
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="I2CSIMPLE" name="pubSubI2CSIMPLE_I2CMASTER/Functions"/>
-         <value>2131.1873056467257</value>
+         <value>2389.0276088756023</value>
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="I2CSIMPLE" name="useCaseComboBoxSettings"/>
@@ -4809,11 +4809,11 @@
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="SPIMASTER" name="pubSubSPIMASTERConfigurations"/>
-         <value>6868.272368965921</value>
+         <value>2774.039943886908</value>
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="SPIMASTER" name="pubSubspiSubscriber"/>
-         <value>6541.3546642550655</value>
+         <value>3430.3062747646964</value>
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="SPIMASTER" name="spiSubscriber"/>
@@ -4825,7 +4825,7 @@
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="SPIMASTER" name="validate"/>
-         <value>0.6015196605996197</value>
+         <value>0.46994341675296847</value>
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.PropertyTokenKey" moduleName="SPIMASTER" name="spiConfigurations%0%dataInputSample"/>
