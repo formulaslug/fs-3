@@ -50,9 +50,11 @@ void mcp2515_request_to_send(bool txb0, bool txb1, bool txb2) {
 
 void mcp2515_fill_txbuf0(uint32_t id, uint8_t data[], uint8_t dlc) {
     //                  WRITE       ADDR        SIDH                       SIDL[7:5]          EID8  EID0  DLC  DATA
-    char write_buf[] = {0b00000010, 0b00110001, (id & 0b11111111000) >> 3, (id & 0b111) << 5, 0x00, 0x00, dlc, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+    // char write_buf[] = {0b00000010, 0b00110001, (id & 0b11111111000) >> 3, (id & 0b111) << 5, 0x00, 0x00, dlc & 0x0F, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+    //                  LOAD TX     SIDH                       SIDL[7:5]          EID8  EID0  DLC         DATA
+    char write_buf[] = {0b01000000, (id & 0b11111111000) >> 3, (id & 0b111) << 5, 0x00, 0x00, dlc & 0x0F, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
     for (int i=0; i < dlc; i++) {
-        write_buf[5+i] = data[i];
+        write_buf[6+i] = data[i];
     }
     // clang-format on
     IO_PA4_SetLow();
@@ -60,10 +62,10 @@ void mcp2515_fill_txbuf0(uint32_t id, uint8_t data[], uint8_t dlc) {
     IO_PA4_SetHigh();
 };
 void mcp2515_fill_txbuf1(uint32_t id, uint8_t data[], uint8_t dlc) {
-    //                  WRITE       ADDR        SIDH                       SIDL[7:5]          EID8  EID0  DLC  DATA
-    char write_buf[] = {0b00000010, 0b01000001, (id & 0b11111111000) >> 3, (id & 0b111) << 5, 0x00, 0x00, dlc, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+    //                  LOAD TX     SIDH                       SIDL[7:5]          EID8  EID0  DLC         DATA
+    char write_buf[] = {0b01000010, (id & 0b11111111000) >> 3, (id & 0b111) << 5, 0x00, 0x00, dlc & 0x0F, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
     for (int i=0; i < dlc; i++) {
-        write_buf[5+i] = data[i];
+        write_buf[6+i] = data[i];
     }
     // clang-format on
     IO_PA4_SetLow();
@@ -71,10 +73,10 @@ void mcp2515_fill_txbuf1(uint32_t id, uint8_t data[], uint8_t dlc) {
     IO_PA4_SetHigh();
 };
 void mcp2515_fill_txbuf2(uint32_t id, uint8_t data[], uint8_t dlc) {
-    //                  WRITE       ADDR        SIDH                       SIDL[7:5]          EID8  EID0  DLC  DATA
-    char write_buf[] = {0b00000010, 0b01010001, (id & 0b11111111000) >> 3, (id & 0b111) << 5, 0x00, 0x00, dlc, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+    //                  LOAD TX     SIDH                       SIDL[7:5]          EID8  EID0  DLC         DATA
+    char write_buf[] = {0b01000100, (id & 0b11111111000) >> 3, (id & 0b111) << 5, 0x00, 0x00, dlc & 0x0F, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
     for (int i=0; i < dlc; i++) {
-        write_buf[5+i] = data[i];
+        write_buf[6+i] = data[i];
     }
     // clang-format on
     IO_PA4_SetLow();
@@ -108,12 +110,22 @@ void mcp2515_fill_txbuf2(uint32_t id, uint8_t data[], uint8_t dlc) {
 //  ADC_MUXPOS_AIN10_gc = PB_1
 //  ADC_MUXPOS_AIN11_gc = PB_0
 
+#define FR 0
+#define FL 1
+#define BR 2
+#define BL 3
+
+#define HAS_TIRETEMP_1x8 false
+#define HAS_TIRETEMP_1x1 false
+
 #if WHEEL_POSITION == FR
     #define TPERIPH_TPDO_DATA_ID 0x1A3
     #define TPERIPH_TPDO_TIRETEMP_ID 0x2A2
 #elif WHEEL_POSITION == FL
     #define TPERIPH_TPDO_DATA_ID 0x1A2
     #define TPERIPH_TPDO_TIRETEMP_ID 0x2A1
+    #undef HAS_TIRETEMP_1x8
+    #define HAS_TIRETEMP_1x8 true
 #elif WHEEL_POSITION == BR
     #define TPERIPH_TPDO_DATA_ID 0x1A5
     #define TPERIPH_TPDO_TIRETEMP_ID 0x2A4
@@ -121,16 +133,16 @@ void mcp2515_fill_txbuf2(uint32_t id, uint8_t data[], uint8_t dlc) {
     #define TPERIPH_TPDO_DATA_ID 0x1A4
     #define TPERIPH_TPDO_TIRETEMP_ID 0x2A3
 #else
-    #error ""
+    #error "WHEEL_POSITION must be one of BR/BL/FR/FL!"
 #endif
 
 int main() {
     SYSTEM_Initialize();
     DELAY_milliseconds(100);
 
-    // Will not succeed initialization if sensor is not connected!!!
-    d6t_8lh_setup();
-    // d6t_1a_setup();
+    // Setup will block if sensor is not connected!!!
+    if (HAS_TIRETEMP_1x8) d6t_8lh_setup();
+    if (HAS_TIRETEMP_1x1) d6t_1a_setup();
 
     SPI0_OpenConfiguration(MASTER0_CONFIG);
 
@@ -153,36 +165,37 @@ int main() {
         // SPI0_WriteBlock(buf_adc, sizeof(buf_adc));
         // IO_PA4_SetHigh();
 
+        if (HAS_TIRETEMP_1x8) {
+            d6t_1a_loop();
 
-        // ADC_MUXPOS_AIN5_gc I2C0_example_writeNBytes()
-        // I2C0_SetAddress(0x0A << 1 );
-        // char i2c_buf[1] = {0x4C};
-        // I2C0_SetBuffer(i2c_buf, 1);
-        // I2C0_MasterWrite();
-        // I2C0_SetBuffer(i2c_buf, 1);
-        // I2C0_MasterRead();
-
-        // --- Code to read from temp sensors using I2C ---
-
-        // Re-read from the d6t-8lh's pixel buffers
-        d6t_8lh_loop();
-        // d6t_1a_loop();
-
-        uint8_t pixels8lh[N_PIXEL] = {0};
-        for (int i=0; i<N_PIXEL; i++) {
-            pixels8lh[i] = (uint8_t)(d6t_8lh_pix_data[i]);
+            uint8_t pixels1a[N_PIXEL] = {0};
+            for (int i=0; i<N_PIXEL; i++) {
+                pixels1a[i] = (uint8_t)(d6t_1a_pix_data[i]);
+            }
         }
-        // uint8_t pixels1a[N_PIXEL] = {0};
-        // for (int i=0; i<N_PIXEL; i++) {
-        //     pixels1a[i] = (uint8_t)(d6t_1a_pix_data[i]);
-        // }
+        if (HAS_TIRETEMP_1x8) {
+            d6t_8lh_loop();
 
-        mcp2515_fill_txbuf0(TPERIPH_TPDO_TIRETEMP_ID, pixels8lh, 8);
+            uint8_t pixels8lh[N_PIXEL] = {0};
+            for (int i=0; i<N_PIXEL; i++) {
+                pixels8lh[i] = (uint8_t)(d6t_8lh_pix_data[i]);
+            }
 
-        uint8_t data[] = {(wheel_speed & 0xFF00) >> 8, wheel_speed & 0xFF, (sus_travel & 0xFF00) >> 8, sus_travel & 0xFF, 0x00, 0x3F, 0x00};
-        mcp2515_fill_txbuf1(TPERIPH_TPDO_DATA_ID, data, 7);
+            mcp2515_fill_txbuf0(TPERIPH_TPDO_TIRETEMP_ID, pixels8lh, 8);
+        }
 
-        mcp2515_request_to_send(true, true, false);
+        uint8_t tpdo_data[] = {
+            (wheel_speed & 0xFF00) >> 8,
+            wheel_speed & 0xFF,
+            (sus_travel & 0xFF00) >> 8,
+            sus_travel & 0xFF, 
+            0x00,
+            0x00,
+            0x00,
+        };
+        mcp2515_fill_txbuf1(TPERIPH_TPDO_DATA_ID, tpdo_data, 7);
+
+        mcp2515_request_to_send(HAS_TIRETEMP_1x8, true, false);
 
         DELAY_milliseconds(100);
     }

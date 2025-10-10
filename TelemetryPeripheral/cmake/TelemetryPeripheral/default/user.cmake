@@ -23,8 +23,7 @@ cmake_minimum_required(VERSION 3.24.0)
 # * as needed so that
 # *
 # *     #include <avr/io.h>
-# *
-# * will include the desired device header.  For ATmega8A the supplement
+# * * will include the desired device header.  For ATmega8A the supplement
 # * to *cpp_avrlibc would read
 # *
 # *     -D__AVR_DEV_LIB_NAME__=m8a
@@ -40,6 +39,6 @@ add_definitions(
 )
 
 if(NOT DEFINED WHEEL_POSITION)
-    message(WARNING "WHEEL_POSITION must be one of BR/BL/FR/FL!")
+    message(WARNING "WHEEL_POSITION must be set to one of BR/BL/FR/FL!")
 endif()
 

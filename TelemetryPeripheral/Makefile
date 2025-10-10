@@ -21,14 +21,14 @@ endif
 
 default:
 	$(error "Must run one of make br/bl/fr/fl!")
-br:
-	WHEEL_POSITION=BR $(MAKE) build upload
-bl:
-	$(MAKE) WHEEL_POSITION=BL build upload
 fr:
-	$(MAKE) WHEEL_POSITION=FR build upload
+	$(MAKE) WHEEL_POSITION=0 build upload
 fl:
-	$(MAKE) WHEEL_POSITION=FL build upload
+	$(MAKE) WHEEL_POSITION=1 build upload
+br:
+	$(MAKE) WHEEL_POSITION=2 build upload
+bl:
+	$(MAKE) WHEEL_POSITION=3 build upload
 
 build: configure
 	ninja -C build
