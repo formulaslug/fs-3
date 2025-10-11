@@ -25,7 +25,8 @@ XBeeRadio radio{xbee_spi, xbee_spi_cs, xbee_spi_attn};
 
 auto mbed_can = CAN(PB_8, PB_9, 500000);
 auto can = MbedCAN(mbed_can);
-auto vsm = VehicleStateManager(&can, PC_5, PC_1, PC_0);
+// auto vsm = VehicleStateManager(&can, PC_5, PC_1, PC_0);
+auto vsm = VehicleStateManager(&can, PC_5, PA_0, PA_1);
 
 // This still causes static initialization order fiasco, since DataLogger
 // has a non-trivial constructor (which is called before main())!!!
