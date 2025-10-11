@@ -125,7 +125,7 @@ void mcp2515_fill_txbuf2(uint32_t id, uint8_t data[], uint8_t dlc) {
     #define TPERIPH_TPDO_DATA_ID 0x1A2
     #define TPERIPH_TPDO_TIRETEMP_ID 0x2A1
     #undef HAS_TIRETEMP_1x8
-    #define HAS_TIRETEMP_1x8 true
+    #define HAS_TIRETEMP_1x8 false
 #elif WHEEL_POSITION == BR
     #define TPERIPH_TPDO_DATA_ID 0x1A5
     #define TPERIPH_TPDO_TIRETEMP_ID 0x2A4
@@ -154,7 +154,8 @@ int main() {
     while (true) {
 
         const uint16_t wheel_speed = ADC1_GetConversion(ADC_MUXPOS_AIN9_gc) * pow(2, 16 - 10); 
-        const uint16_t sus_travel = ADC1_GetConversion(ADC_MUXPOS_AIN2_gc) * pow(2, 16 - 10); 
+        const uint16_t sus_travel_voltage = ADC1_GetConversion(ADC_MUXPOS_AIN2_gc) * pow(2, 16 - 10); 
+        const uint16_t sus_travel = (pow(2, 16) - sus_travel_voltage) / pow(2, 16) * 5000;
 
         // // clang-format off
         // //                WRITE       ADDR        SIDH        SIDL[7:5]   EID8  EID0  DLC         DATA                                          
@@ -185,10 +186,10 @@ int main() {
         }
 
         uint8_t tpdo_data[] = {
-            (wheel_speed & 0xFF00) >> 8,
             wheel_speed & 0xFF,
-            (sus_travel & 0xFF00) >> 8,
+            (wheel_speed & 0xFF00) >> 8,
             sus_travel & 0xFF, 
+            (sus_travel & 0xFF00) >> 8,
             0x00,
             0x00,
             0x00,
