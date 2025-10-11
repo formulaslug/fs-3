@@ -307,19 +307,125 @@ void Layouts::drawLayout3(Faults faults, float acc_volt, uint8_t acc_temp,
   drawText(36, 110, "SHTD", 23);
   drawText(110, 110, "RTD", 23);
 
-  //___MC and ACC______
+  //___ACC Voltage and ACC Temp______
   drawFormattedText(275, 110,
     "%003.1f V", 1, OPT_CENTER, acc_volt);
   drawFormattedText(550, 110,
    "%03d'C", 1, OPT_CENTER, acc_temp);
 
   //___GLV, CTRL and MTR______
-  // drawFormattedText(75, 225, "GLV\n%03d V     ", 24, OPT_CENTER, glv);
-  // drawFormattedText(225, 225, "CTRL\n%03d'C     ", 24, OPT_CENTER, ctrl_temp);
+  // drawFormattedText(275, 225, "GLV\n%03d V     ", 24, OPT_CENTER, glv);
+  // drawFormattedText(225, 225, "MC\n%003.1f'V     ", 24, OPT_CENTER, ctrl_v);
   // drawFormattedText(375, 225, "MTR\n%03d'C     ", 24, OPT_CENTER, mtr_temp);
 
   //____SOC number
   drawText(525,300, "SOC", 31);
   drawFormattedText(550, 250, "%03d    ", 2, OPT_CENTER, soc);
+  endFrame();
+}
+
+
+void Layouts::drawLayout4(Faults faults, float acc_volt, uint8_t acc_temp,
+                          float ctrl_v, uint8_t mtr_temp, uint8_t soc,
+                          float glv, bool rtds, int tick, float brake_r, float brake_f) {
+  //--------init-------------
+  if (failure == startFrame()) {
+    return;
+  }
+  clear(255, 255, 255); // white background for frame
+  loadFonts();
+  //-----------\init-------------
+
+  //--------------SOC bars---------------
+  setMainColor(green);
+  bool pastPoint = false;
+  for (int j = 1; j <= 10; j++) {
+    // segmented soc
+    uint16_t segTopLeftY = 480 - j * 45;
+    uint16_t segBotRightY = segTopLeftY + 20;
+    if (soc < j * 10 && !pastPoint) {
+      setMainColor(mid_gray);
+      pastPoint = true;
+    }
+    drawRect(Point{700, segTopLeftY}, {795, segBotRightY});
+  }
+  //----------\SOC bars----------------------
+
+  //--------indicator lights------------------
+  Color fan_color = faults.fans ? red : green;
+  Color precharge_color = faults.precharge ? red : green;
+  Color shutdown_color = faults.shutdown ? red : green;
+  Color rtds_color = rtds ? green : red;
+  drawRect(Point{1, 1}, Point{73, 73}, fan_color);
+  drawRect(Point{75, 1}, Point{147, 73}, precharge_color);
+  drawRect(Point{1, 75}, Point{73, 147}, shutdown_color);
+  drawRect(Point{75, 75}, Point{147, 147}, rtds_color);
+  //-----------\indicator lights--------------------
+
+  //---------MC warning box----------
+  Color mc_volts_bg = Color {18, 219, 255};
+  if (acc_volt < ACC_WARNING_VOLT) { // flash the box to alarm driver if MC volts below warning point
+    if (tick % 2 == 0) {
+      mc_volts_bg = red;
+    }
+    else {
+      mc_volts_bg = Color {255, 255, 0};
+    }
+  }
+  else if (acc_volt < ACC_WARNING2) {
+    mc_volts_bg = red;
+  }
+  else if (acc_volt < ACC_WARNING3) {
+    mc_volts_bg = Color{255, 155, 0};
+  }
+  setMainColor(mc_volts_bg);
+  drawRect(Point{155, 0}, {390, 205});
+  //--------------\MC warning box-------
+
+  //---------ACC TEMP warning box----------
+  Color acc_temp_bg = Color {18, 219, 255};
+  if (acc_temp > ACC_WARNING_TEMP) {//flash the box to alarm driver if MC volts below warning point
+    if (tick % 2 == 0) {
+      acc_temp_bg = red;
+    }
+    else {
+      acc_temp_bg = Color {255, 255, 0};
+    }
+  }
+  setMainColor(acc_temp_bg);
+  drawRect(Point{395, 0}, {695, 205});
+  //--------------\ACC TEMP warning box-------
+
+  //--------------TEXT-----------------
+  setMainColor(black);
+
+  //___status indicators_____
+  drawText(36, 36, "FANS", 23);
+  drawText(110, 36, "PCHG", 23);
+  drawText(36, 110, "SHTD", 23);
+  drawText(110, 110, "RTD", 23);
+
+  //___Acc Temp n V______
+  drawFormattedText(275, 110,
+    "%003.1f V", 1, OPT_CENTER, acc_volt);
+  drawFormattedText(550, 110,
+   "%03d'C", 1, OPT_CENTER, acc_temp);
+
+  //___GLV, CTRL and MTR______
+  drawFormattedText(275, 250, "GLV %03.1f V     ", 24, OPT_CENTER, glv);
+  drawFormattedText(550, 400, "CTRL %003.1f V     ", 24, OPT_CENTER, ctrl_v);
+
+
+  //_____Brake Balance
+    int bb_f = 100*( brake_f / (brake_f + brake_r));
+    int bb_r = 100-bb_f;
+  drawFormattedText(275, 320,"BB %02d/$02d", 2, OPT_CENTER, bb_f, bb_r);
+  // drawFormattedText(375, 225, "MTR\n%03d'C     ", 24, OPT_CENTER, mtr_temp);
+
+  //____SOC number
+  drawText(525,300, "SOC", 31);
+  drawFormattedText(550, 250, "%03d    ", 2, OPT_CENTER, soc);
+
+
   endFrame();
 }

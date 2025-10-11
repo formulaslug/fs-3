@@ -10,7 +10,7 @@
 #include <string>
 
 constexpr bool ENABLE_RADIO = false;
-constexpr bool ENABLE_SD = true;
+constexpr bool ENABLE_SD = false;
 constexpr bool ENABLE_DASH = true;
 
 constexpr chrono::duration SD_UPDATE_HZ = 10ms;
@@ -94,16 +94,29 @@ void update_dash() {
     // // params.speed++;
     // eve.drawStandardLayout2(params);
 
-    eve.drawLayout3(
+    // eve.drawLayout3(
+    //     Faults{false, static_cast<bool>(!vsm_state.accStatus.PRECHARGE_DONE), static_cast<bool>(!vsm_state.accStatus.SHUTDOWN_STATE)},
+    //     static_cast<float>(vsm_state.accPower.PACK_VOLTAGE / 100.0),
+    //     max_temp,
+    //     vsm_state.smeTemp.CONTROLLER_TEMP,
+    //     vsm_state.smeTemp.MOTOR_TEMP,
+    //     vsm_state.accPower.SOC,
+    //     static_cast<float>(vsm_state.pdbPowerA.GLV_VOLTAGE),
+    //     static_cast<bool>(vsm_state.etcStatus.RTD),
+    //     n
+    // );
+    eve.drawLayout4(
         Faults{false, static_cast<bool>(!vsm_state.accStatus.PRECHARGE_DONE), static_cast<bool>(!vsm_state.accStatus.SHUTDOWN_STATE)},
         static_cast<float>(vsm_state.accPower.PACK_VOLTAGE / 100.0),
         max_temp,
-        vsm_state.smeTemp.CONTROLLER_TEMP,
+        vsm_state.smeTemp.DC_BUS_V,
         vsm_state.smeTemp.MOTOR_TEMP,
         vsm_state.accPower.SOC,
         static_cast<float>(vsm_state.pdbPowerA.GLV_VOLTAGE),
         static_cast<bool>(vsm_state.etcStatus.RTD),
-        n
+        n,
+        vsm_state.brake_sensor_r,
+        vsm_state.brake_sensor_f
     );
 }
 

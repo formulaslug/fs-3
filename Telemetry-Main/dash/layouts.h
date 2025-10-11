@@ -137,6 +137,19 @@ public:
                     int tick //pass in tick to allow flashing/blinking
                     );
 
+  void drawLayout4(Faults faults,
+                    float acc_volt,
+                    uint8_t acc_temp,
+                    float ctrl_v,
+                    uint8_t mtr_temp,
+                    uint8_t soc,
+                    float glv,
+                    bool rtds,
+                    int tick, //pass in tick to allow flashing/blinking
+                    float brake_r,
+                    float brake_f
+                    );
+
   void drawTestLayout(int var);
 };
 
