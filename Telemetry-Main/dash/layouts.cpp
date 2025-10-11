@@ -419,7 +419,7 @@ void Layouts::drawLayout4(Faults faults, float acc_volt, uint8_t acc_temp,
   //_____Brake Balance
     int bb_f = 100*( brake_f / (brake_f + brake_r));
     int bb_r = 100-bb_f;
-  drawFormattedText(275, 320,"BB %02d/$02d", 2, OPT_CENTER, bb_f, bb_r);
+  drawFormattedText(275, 320,"BB %02d/%02d", 2, OPT_CENTER, bb_f, bb_r);
   // drawFormattedText(375, 225, "MTR\n%03d'C     ", 24, OPT_CENTER, mtr_temp);
 
   //____SOC number
