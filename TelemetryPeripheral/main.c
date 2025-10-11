@@ -115,23 +115,26 @@ void mcp2515_fill_txbuf2(uint32_t id, uint8_t data[], uint8_t dlc) {
 #define BR 2
 #define BL 3
 
-#define HAS_TIRETEMP_1x8 false
-#define HAS_TIRETEMP_1x1 false
-
 #if WHEEL_POSITION == FR
     #define TPERIPH_TPDO_DATA_ID 0x1A3
     #define TPERIPH_TPDO_TIRETEMP_ID 0x2A2
+    #define HAS_TIRETEMP_1x8 false
+    #define HAS_TIRETEMP_1x1 false
 #elif WHEEL_POSITION == FL
     #define TPERIPH_TPDO_DATA_ID 0x1A2
     #define TPERIPH_TPDO_TIRETEMP_ID 0x2A1
-    #undef HAS_TIRETEMP_1x8
-    #define HAS_TIRETEMP_1x8 false
+    #define HAS_TIRETEMP_1x8 true
+    #define HAS_TIRETEMP_1x1 false
 #elif WHEEL_POSITION == BR
     #define TPERIPH_TPDO_DATA_ID 0x1A5
     #define TPERIPH_TPDO_TIRETEMP_ID 0x2A4
+    #define HAS_TIRETEMP_1x8 false
+    #define HAS_TIRETEMP_1x1 false
 #elif WHEEL_POSITION == BL
     #define TPERIPH_TPDO_DATA_ID 0x1A4
     #define TPERIPH_TPDO_TIRETEMP_ID 0x2A3
+    #define HAS_TIRETEMP_1x8 true
+    #define HAS_TIRETEMP_1x1 false
 #else
     #error "WHEEL_POSITION must be one of BR/BL/FR/FL!"
 #endif
