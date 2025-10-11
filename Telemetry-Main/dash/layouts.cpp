@@ -413,7 +413,7 @@ void Layouts::drawLayout4(Faults faults, float acc_volt, uint8_t acc_temp,
 
   //___GLV, CTRL and MTR______
   drawFormattedText(275, 250, "GLV %03.1f V     ", 31, OPT_CENTER, glv);
-  drawFormattedText(5, 250, "CTRL %003.1f V     ", 31, OPT_CENTER, ctrl_v);
+  drawFormattedText(275, 370, "CTRL %003.1f V     ", 31, OPT_CENTER, ctrl_v);
 
 
   //_____Brake Balance

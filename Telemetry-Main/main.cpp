@@ -112,7 +112,7 @@ void update_dash() {
         vsm_state.smeTemp.DC_BUS_V/10,
         vsm_state.smeTemp.MOTOR_TEMP,
         vsm_state.accPower.SOC,
-        vsm_state.accStatus.GLV_VOLTAGE,
+        vsm_state.accStatus.GLV_VOLTAGE/10,
         static_cast<bool>(vsm_state.etcStatus.RTD),
         n,
         vsm_state.brake_sensor_r,
