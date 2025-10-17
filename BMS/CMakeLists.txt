@@ -11,6 +11,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 set(MBED_APP_JSON_PATH mbed_app.json5)
 # set(CUSTOM_TARGETS_JSON_PATH custom_targets.json) # If you need a custom target, use this line to specify the custom_targets.json
 
+# Create a CMake Library target for the onewire-mbed-os library.
 add_library(onewire-mbed-os STATIC ./onewire-mbed-os/OneWire.cpp)
 target_include_directories(onewire-mbed-os PUBLIC ./onewire-mbed-os)
 target_link_libraries(onewire-mbed-os mbed-core-flags)
@@ -41,6 +42,7 @@ add_executable(BMS src/main.cpp
         src/LTC6811.h
         src/LTC6811.cpp
         src/StateOfCharge.cpp
+        src/DS18B20.cpp
 )
 target_link_libraries(BMS mbed-os lib-mbed-ltc681x onewire-mbed-os)
 mbed_set_post_build(BMS)

@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 
-#include "OneWire.h"
+#include "DS18B20.h"
 #include "mbed.h"
 
 #include "BmsThread.h"
@@ -80,130 +80,19 @@ int8_t state_of_charge;
 vector<uint16_t> lastCurrentReadings;
 
 status_msg status_message;
+tray_temps_msg tray_temps_message;
 
 OneWire ds18b20_bus{PB_6};
-
-constexpr bool ds18b20_parasite_mode = true; // For debugging only
-
-// uint64_t A = 0x28ddff2f11000052;
-uint64_t A = 0x520000112fffdd28;
-// uint64_t B = 0x28bdaa3011000074;
-uint64_t B = 0x7400001130aabd28;
-// uint64_t C = 0x28a7fd2f11000086;
-uint64_t C = 0x860000112ffda728;
-uint64_t ds18b20_addresses[] = { A, B, C };
-
-void ds18b20_debug_search_for_address() {
-    uint8_t addr[8];
-
-    if (!ds18b20_bus.search(addr)) {
-        printf("No more addresses.\r\n\r\n");
-        ds18b20_bus.reset_search();
-        ThisThread::sleep_for(250ms);
-        return;
-    }
-
-    printf("ROM = ");
-    for (uint8_t byte : addr) {
-        printf(" %x", byte);
-    }
-
-    if (OneWire::crc8(addr, 7) != addr[7]) {
-        printf("CRC is not valid!\r\n\r\n");
-        return;
-    }
-
-    // the first ROM byte indicates which chip
-    switch (addr[0]) {
-    case 0x10:
-        printf("  Chip = DS18S20 (type_s) = 1\r\n"); // or old DS1820
-        break;
-    case 0x28:
-        printf("  Chip = DS18B20 (type_s) = 0\r\n");
-        break;
-    case 0x22:
-        printf("  Chip = DS1822  (type_s) = 0\r\n");
-        break;
-    default:
-        printf("Device is not a DS18x20 family device.\r\n");
-        return;
-    }
-
-}
-
-void ds18b20_start_conversion(uint64_t address) {
-    ds18b20_bus.reset();
-    ds18b20_bus.select((uint8_t*)&address);
-    ds18b20_bus.write(0x44, ds18b20_parasite_mode ? 1 : 0); // start conversion, with parasite power on at the end
-}
-
-uint8_t ds18b20_retrieve_conversion(uint64_t address, bool type_s = false){
-    // we might do a ds18b20.depower() here, but the reset will take care of it.
-    uint8_t present = ds18b20_bus.reset();
-    ds18b20_bus.select((uint8_t*)&address);
-    ds18b20_bus.write(0xBE); // Read Scratchpad
-
-    printf("  Data = %x \r\n\r\n", present);
-    uint8_t data[12];
-    for (int i = 0; i < 9; i++) { // we need 9 bytes
-        data[i] = ds18b20_bus.read();
-        printf(" %x", data[i]);
-    }
-    printf("\r\n");
-    printf(" CRC= %x \r\n\r\n", OneWire::crc8(data, 8));
-
-    // Convert the data to actual temperature
-    // because the result is a 16 bit signed integer, it should
-    // be stored to an "int16_t" type, which is always 16 bits
-    // even when compiled on a 32 bit processor.
-    int16_t raw = ((data[1] << 8) | data[0]);
-    if (type_s) {
-        raw = raw << 3; // 9 bit resolution default
-        if (data[7] == 0x10) {
-            // "count remain" gives full 12 bit resolution
-            raw = (raw & 0xFFF0) + 12 - data[6];
-        }
-    } else {
-        uint8_t cfg = (data[4] & 0x60);
-        // at lower res, the low bits are undefined, so let's zero them
-        if (cfg == 0x00)
-            raw = raw & ~7; // 9 bit resolution, 93.75 ms
-        else if (cfg == 0x20)
-            raw = raw & ~3; // 10 bit res, 187.5 ms
-        else if (cfg == 0x40)
-            raw = raw & ~1; // 11 bit res, 375 ms
-                            //// default is 12 bit resolution, 750 ms conversion time
-    }
-    uint8_t celsius_x2 = raw / 8;
-    // float celsius = (float)raw / 16.0;
-    // fahrenheit = celsius * 1.8 + 32.0;
-    return celsius_x2;
-}
+DS18B20 temp_bolted_connection {ds18b20_bus, 0x860000112ffda728};
+DS18B20 temp_busbar            {ds18b20_bus, 0x520000112fffdd28};
+DS18B20 temp_pack_fuse         {ds18b20_bus, 0x7400001130aabd28};
+DS18B20 ds18b20_sensors[] = { temp_bolted_connection, temp_busbar, temp_pack_fuse };
+bool tray_temp_sensors_ready = true;
 
 int main() {
     printf("main\n");
 
     // while (true) { ds18b20_debug_search_for_address(); }
-
-    while (true) {
-        for (uint64_t addr : ds18b20_addresses) {
-            ds18b20_start_conversion(addr);
-            ThisThread::sleep_for(10ms);
-        }
-
-        ThisThread::sleep_for(1000ms); // maybe 750ms is enough, maybe not
-
-        constexpr int num_ds18b20 = sizeof(ds18b20_addresses) / sizeof(ds18b20_addresses[0]);
-        uint8_t temps_celcius_x2[num_ds18b20];
-        for (int i=0; i < num_ds18b20; i++) {
-            temps_celcius_x2[i] = ds18b20_retrieve_conversion(ds18b20_addresses[i]);
-            ThisThread::sleep_for(10ms);
-        }
-
-        printf("%d %d %d", temps_celcius_x2[0], temps_celcius_x2[1], temps_celcius_x2[2]);
-
-        ThisThread::sleep_for(1s);
-    }
 
     osThreadSetPriority(osThreadGetId(), osPriorityHigh7);
 
@@ -382,6 +271,23 @@ int main() {
         status_message.prechargeDone = prechargeDone;
         status_message.imdFault = !imd_status_pin.read();
 
+        if (tray_temp_sensors_ready) {
+            for (DS18B20 ds : ds18b20_sensors) {
+                ds.start_conversion();
+            }
+            tray_temp_sensors_ready = false;
+
+            queue.call_in(750ms, [](){
+                tray_temps_message.temp_bolted_connection = temp_bolted_connection.retrieve_conversion();
+                tray_temps_message.temp_busbar = temp_busbar.retrieve_conversion();
+                tray_temps_message.temp_pack_fuse = temp_pack_fuse.retrieve_conversion();
+
+                tray_temp_sensors_ready = true;
+
+                // printf("%d %d %d", tray_temps_message.temp_bolted_connection, tray_temps_message.temp_busbar, tray_temps_message.temp_pack_fuse);
+            });
+        }
+
         // Current sensor math, look at ACC board (AMP_Curr_Sensor) and datasheet
 
         // divided by 0.625, according to datasheet
@@ -469,7 +375,7 @@ void initIO() {
 
 void canSendMain() {
 
-    canSend(&status_message, packVoltagemV / 10, state_of_charge, (int16_t)(filteredTsCurrent / 10), fan_percent, allVoltages, allTemps);
+    canSend(&status_message, &tray_temps_message, packVoltagemV / 10, state_of_charge, (int16_t)(filteredTsCurrent / 10), fan_percent, allVoltages, allTemps);
 }
 
 void sendSync() {
