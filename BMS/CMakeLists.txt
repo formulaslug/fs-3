@@ -11,7 +11,9 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 set(MBED_APP_JSON_PATH mbed_app.json5)
 # set(CUSTOM_TARGETS_JSON_PATH custom_targets.json) # If you need a custom target, use this line to specify the custom_targets.json
 
-# If you need any custom upload method configuration for your target, do that here
+add_library(onewire-mbed-os STATIC ./onewire-mbed-os/OneWire.cpp)
+target_include_directories(onewire-mbed-os PUBLIC ./onewire-mbed-os)
+target_link_libraries(onewire-mbed-os mbed-core-flags)
 
 # Configure upload method for ST-LINK
 set(UPLOAD_METHOD_DEFAULT STLINK)
@@ -24,7 +26,7 @@ project(BMS)
 include(mbed_project_setup)
 
 add_subdirectory(../mbed-os mbed-os)
-# Tell CMake to build lib-mbed-ltc681x
+
 add_subdirectory(lib-mbed-ltc681x)
 
 add_executable(BMS src/main.cpp
@@ -40,5 +42,5 @@ add_executable(BMS src/main.cpp
         src/LTC6811.cpp
         src/StateOfCharge.cpp
 )
-target_link_libraries(BMS mbed-os lib-mbed-ltc681x) # Can also link to mbed-baremetal here
-mbed_set_post_build(BMS) # Must call this for each target to set up bin file creation, code upload, etc
+target_link_libraries(BMS mbed-os lib-mbed-ltc681x onewire-mbed-os)
+mbed_set_post_build(BMS)
