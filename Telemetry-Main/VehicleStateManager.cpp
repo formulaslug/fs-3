@@ -9,7 +9,7 @@
 #include "CANProtocol.hpp"
 #include "mbed.h"
 
-#define LAP_COUNT_HEADING_THRESHOLD 10          //  degrees
+#define LAP_COUNT_HEADING_THRESHOLD 10                  //  degrees
 #define LAP_COUNT_TIME_THRESHOLD ((int) 30e9)           //  microseconds
 
 VehicleStateManager::VehicleStateManager(
@@ -206,8 +206,8 @@ void VehicleStateManager::resetLapCounter() {
     _vehicleState.lap_latitude_f = _vehicleState.vdmGpsLatLong.LATITUDE;
     _vehicleState.lap_longitude_f = _vehicleState.vdmGpsLatLong.LONGITUDE;
     _vehicleState.lap_heading_f = (float) (_vehicleState.vdmGpsData.TRUE_COURSE % 36000) * 0.01f; // scale
-                                                                                                     // to
-                                                                                                     // 0-35999
+                                                                                                  // to
+                                                                                                  // 0-35999
     _vehicleState.lap_counter = 0;
 
     _lapTimer.reset();
