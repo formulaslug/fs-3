@@ -1,245 +1,245 @@
 VERSION ""
 
 
-NS_ :
-    NS_DESC_
-    CM_
-    BA_DEF_
-    BA_
-    VAL_
-    CAT_DEF_
-    CAT_
-    FILTER
-    BA_DEF_DEF_
-    EV_DATA_
-    ENVVAR_DATA_
-    SGTYPE_
-    SGTYPE_VAL_
-    BA_DEF_SGTYPE_
-    BA_SGTYPE_
-    SIG_TYPE_REF_
-    VAL_TABLE_
-    SIG_GROUP_
-    SIG_VALTYPE_
-    SIGTYPE_VALTYPE_
-    BO_TX_BU_
-    BA_DEF_REL_
-    BA_REL_
-    BA_DEF_DEF_REL_
-    BU_SG_REL_
-    BU_EV_REL_
-    BU_BO_REL_
-    SG_MUL_VAL_
+NS_ : 
+	NS_DESC_
+	CM_
+	BA_DEF_
+	BA_
+	VAL_
+	CAT_DEF_
+	CAT_
+	FILTER
+	BA_DEF_DEF_
+	EV_DATA_
+	ENVVAR_DATA_
+	SGTYPE_
+	SGTYPE_VAL_
+	BA_DEF_SGTYPE_
+	BA_SGTYPE_
+	SIG_TYPE_REF_
+	VAL_TABLE_
+	SIG_GROUP_
+	SIG_VALTYPE_
+	SIGTYPE_VALTYPE_
+	BO_TX_BU_
+	BA_DEF_REL_
+	BA_REL_
+	BA_DEF_DEF_REL_
+	BU_SG_REL_
+	BU_EV_REL_
+	BU_BO_REL_
+	SG_MUL_VAL_
 
-BS_: 
+BS_:
 
-BU_: SME ACC ETC PDB TMAIN VDM TPERIPH_FL TPERIPH_FR TPERIPH_BL TPERIPH_BR SMPC CHARGER_BOARD 
+BU_: SME ACC ETC PDB TMAIN VDM TPERIPH_FL TPERIPH_FR TPERIPH_BL TPERIPH_BR SMPC CHARGER_BOARD
 
 
 BO_ 2147483648 VECTOR__INDEPENDENT_SIG_MSG: 0 Vector__XXX
-   SG_ ACC_STATUS_PRECARGE_DONE : 5|1@1+ (1,0) [0|0] "" Vector__XXX
-   SG_ ACC_SEG5_VOLTS_CELL0 : 0|8@1+ (0.01,2) [2|4.55] "V" Vector__XXX
-   SG_ ACC_SEG5_VOLTS_CELL1 : 8|8@1+ (0.01,2) [2|4.55] "V" Vector__XXX
-   SG_ ACC_SEG5_VOLTS_CELL2 : 16|8@1+ (0.01,2) [2|4.55] "V" Vector__XXX
-   SG_ ACC_SEG5_VOLTS_CELL4 : 32|8@1+ (0.01,2) [2|4.55] "V" Vector__XXX
-   SG_ ACC_SEG5_VOLTS_CELL3 : 24|8@1+ (0.01,2) [2|4.55] "V" Vector__XXX
-   SG_ ACC_SEG5_VOLTS_CELL5 : 40|8@1+ (0.01,2) [2|4.55] "V" Vector__XXX
-   SG_ ACC_SEG5_TEMPS_CELL1 : 8|8@1- (1,0) [-128|127] "C" Vector__XXX
-   SG_ ACC_SEG5_TEMPS_CELL2 : 16|8@1- (1,0) [-128|127] "C" Vector__XXX
-   SG_ ACC_SEG5_TEMPS_CELL0 : 0|8@1- (1,0) [-128|127] "C" Vector__XXX
-   SG_ ACC_SEG5_TEMPS_CELL4 : 32|8@1- (1,0) [-128|127] "C" Vector__XXX
-   SG_ ACC_SEG5_TEMPS_CELL3 : 24|8@1- (1,0) [-128|127] "C" Vector__XXX
-   SG_ ACC_SEG5_TEMPS_CELL5 : 40|8@1- (1,0) [-128|127] "C" Vector__XXX
+ SG_ ACC_STATUS_PRECARGE_DONE : 5|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ ACC_SEG5_VOLTS_CELL0 : 0|8@1+ (0.01,2) [2|4.55] "V" Vector__XXX
+ SG_ ACC_SEG5_VOLTS_CELL1 : 8|8@1+ (0.01,2) [2|4.55] "V" Vector__XXX
+ SG_ ACC_SEG5_VOLTS_CELL2 : 16|8@1+ (0.01,2) [2|4.55] "V" Vector__XXX
+ SG_ ACC_SEG5_VOLTS_CELL4 : 32|8@1+ (0.01,2) [2|4.55] "V" Vector__XXX
+ SG_ ACC_SEG5_VOLTS_CELL3 : 24|8@1+ (0.01,2) [2|4.55] "V" Vector__XXX
+ SG_ ACC_SEG5_VOLTS_CELL5 : 40|8@1+ (0.01,2) [2|4.55] "V" Vector__XXX
+ SG_ ACC_SEG5_TEMPS_CELL1 : 8|8@1- (1,0) [-128|127] "C" Vector__XXX
+ SG_ ACC_SEG5_TEMPS_CELL2 : 16|8@1- (1,0) [-128|127] "C" Vector__XXX
+ SG_ ACC_SEG5_TEMPS_CELL0 : 0|8@1- (1,0) [-128|127] "C" Vector__XXX
+ SG_ ACC_SEG5_TEMPS_CELL4 : 32|8@1- (1,0) [-128|127] "C" Vector__XXX
+ SG_ ACC_SEG5_TEMPS_CELL3 : 24|8@1- (1,0) [-128|127] "C" Vector__XXX
+ SG_ ACC_SEG5_TEMPS_CELL5 : 40|8@1- (1,0) [-128|127] "C" Vector__XXX
 
 BO_ 128 SYNC: 0 ETC
 
 BO_ 390 SME_RPDO_Throttle_Demand: 8 ETC
-   SG_ SME_THROTL_PowerReady : 35|1@1+ (1,0) [0|1] "" Vector__XXX
-   SG_ SME_THROTL_MBB_Alive : 40|4@1+ (1,0) [0|15] "" Vector__XXX
-   SG_ SME_THROTL_Reverse : 33|1@1+ (1,0) [0|1] "" Vector__XXX
-   SG_ SME_THROTL_Forward : 32|1@1+ (1,0) [0|1] "" Vector__XXX
-   SG_ SME_THROTL_MaxSpeed : 16|16@1- (1,0) [-32768|32767] "RPM" Vector__XXX
-   SG_ SME_THROTL_TorqueDemand : 0|16@1- (1,0) [-32767|32767] "Q15" Vector__XXX
+ SG_ SME_THROTL_PowerReady : 35|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ SME_THROTL_MBB_Alive : 40|4@1+ (1,0) [0|15] "" Vector__XXX
+ SG_ SME_THROTL_Reverse : 33|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ SME_THROTL_Forward : 32|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ SME_THROTL_MaxSpeed : 16|16@1- (1,0) [-32768|32767] "RPM" Vector__XXX
+ SG_ SME_THROTL_TorqueDemand : 0|16@1- (1,0) [-32767|32767] "Q15" Vector__XXX
 
 BO_ 646 SME_RPDO_Max_Currents: 8 ETC
-   SG_ SME_CURRLIM_ChargeCurrentLim : 0|16@1+ (1,0) [0|65535] "A" Vector__XXX
-   SG_ SME_CURRLIM_DischargeCurrentLim : 16|16@1+ (1,0) [0|65535] "A" Vector__XXX
+ SG_ SME_CURRLIM_ChargeCurrentLim : 0|16@1+ (1,0) [0|65535] "A" Vector__XXX
+ SG_ SME_CURRLIM_DischargeCurrentLim : 16|16@1+ (1,0) [0|65535] "A" Vector__XXX
 
 BO_ 1154 SME_TPDO_Torque_speed: 8 SME
-   SG_ SME_TRQSPD_SOC_Low_Traction : 32|1@1+ (1,0) [0|1] "" Vector__XXX
-   SG_ SME_TRQSPD_SOC_Low_Hydraulic : 33|1@1+ (1,0) [0|1] "" Vector__XXX
-   SG_ SME_TRQSPD_Reverse : 34|1@1+ (1,0) [0|1] "" Vector__XXX
-   SG_ SME_TRQSPD_Forward : 35|1@1+ (1,0) [0|1] "" Vector__XXX
-   SG_ SME_TRQSPD_Park_Brake : 36|1@1+ (1,0) [0|1] "" Vector__XXX
-   SG_ SME_TRQSPD_Pedal_Brake : 37|1@1+ (1,0) [0|1] "" Vector__XXX
-   SG_ SME_TRQSPD_Controller_Overtermp : 38|1@1+ (1,0) [0|1] "" Vector__XXX
-   SG_ SME_TRQSPD_Key_switch_overvolt : 39|1@1+ (1,0) [0|1] "" Vector__XXX
-   SG_ SME_TRQSPD_Key_switch_undervolt : 40|1@1+ (1,0) [0|1] "" Vector__XXX
-   SG_ SME_TRQSPD_Running : 41|1@1+ (1,0) [0|1] "" Vector__XXX
-   SG_ SME_TRQSPD_Traction : 42|1@1+ (1,0) [0|1] "" Vector__XXX
-   SG_ SME_TRQSPD_Hydraulic : 43|1@1+ (1,0) [0|1] "" Vector__XXX
-   SG_ SME_TRQSPD_Powering_Enabled : 44|1@1+ (1,0) [0|1] "" Vector__XXX
-   SG_ SME_TRQSPD_Powering_Ready : 45|1@1+ (1,0) [0|1] "" Vector__XXX
-   SG_ SME_TRQSPD_contactor_closed : 47|1@1+ (1,0) [0|1] "" Vector__XXX
-   SG_ SME_TRQSPD_Precharging : 46|1@1+ (1,0) [0|1] "" Vector__XXX
-   SG_ SME_TRQSPD_Speed : 0|16@1+ (1,0) [-32768|32767] "RPM" Vector__XXX
-   SG_ SME_TRQSPD_MotorFlags : 48|16@1+ (1,0) [0|65535] "" Vector__XXX
-   SG_ SME_TRQSPD_Torque : 16|16@1- (1,0) [-32767|32767] "Q15" Vector__XXX
+ SG_ SME_TRQSPD_SOC_Low_Traction : 32|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ SME_TRQSPD_SOC_Low_Hydraulic : 33|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ SME_TRQSPD_Reverse : 34|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ SME_TRQSPD_Forward : 35|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ SME_TRQSPD_Park_Brake : 36|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ SME_TRQSPD_Pedal_Brake : 37|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ SME_TRQSPD_Controller_Overtermp : 38|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ SME_TRQSPD_Key_switch_overvolt : 39|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ SME_TRQSPD_Key_switch_undervolt : 40|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ SME_TRQSPD_Running : 41|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ SME_TRQSPD_Traction : 42|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ SME_TRQSPD_Hydraulic : 43|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ SME_TRQSPD_Powering_Enabled : 44|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ SME_TRQSPD_Powering_Ready : 45|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ SME_TRQSPD_contactor_closed : 47|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ SME_TRQSPD_Precharging : 46|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ SME_TRQSPD_Speed : 0|16@1+ (1,0) [-32768|32767] "RPM" Vector__XXX
+ SG_ SME_TRQSPD_MotorFlags : 48|16@1+ (1,0) [0|65535] "" Vector__XXX
+ SG_ SME_TRQSPD_Torque : 16|16@1- (1,0) [-32767|32767] "Q15" Vector__XXX
 
 BO_ 1666 SME_TPDO_Temperature: 8 SME
-   SG_ SME_TEMP_FaultLevel : 40|8@1+ (1,0) [0|255] "" Vector__XXX
-   SG_ SME_TEMP_FaultCode : 32|8@1+ (1,0) [0|255] "" Vector__XXX
-   SG_ SME_TEMP_DC_Bus_V : 16|16@1+ (0.1,0) [0|6553.5] "V" Vector__XXX
-   SG_ SME_TEMP_ControllerTemperature : 8|8@1+ (1,-40) [0|255] "C" Vector__XXX
-   SG_ SME_TEMP_MotorTemperature : 0|8@1+ (1,-40) [0|255] "C" Vector__XXX
-   SG_ SME_TEMP_BusCurrent : 48|16@1- (0.1,0) [-3276.8|3276.7] "A" Vector__XXX
+ SG_ SME_TEMP_FaultLevel : 40|8@1+ (1,0) [0|255] "" Vector__XXX
+ SG_ SME_TEMP_FaultCode : 32|8@1+ (1,0) [0|255] "" Vector__XXX
+ SG_ SME_TEMP_DC_Bus_V : 16|16@1+ (0.1,0) [0|6553.5] "V" Vector__XXX
+ SG_ SME_TEMP_ControllerTemperature : 8|8@1+ (1,-40) [0|255] "C" Vector__XXX
+ SG_ SME_TEMP_MotorTemperature : 0|8@1+ (1,-40) [0|255] "C" Vector__XXX
+ SG_ SME_TEMP_BusCurrent : 48|16@1- (0.1,0) [-3276.8|3276.7] "A" Vector__XXX
 
 BO_ 392 ACC_TPDO_STATUS: 8 ACC
-   SG_ ACC_STATUS_BMS_FAULT : 0|1@1+ (1,0) [0|0] "" Vector__XXX
-   SG_ ACC_STATUS_IMD_FAULT : 1|1@1+ (1,0) [0|0] "" Vector__XXX
-   SG_ ACC_STATUS_SHUTDOWN_STATE : 2|1@1+ (1,0) [0|0] "" Vector__XXX
-   SG_ ACC_STATUS_PRECHARGE_DONE : 3|1@1+ (1,0) [0|0] "" Vector__XXX
-   SG_ ACC_STATUS_PRECHARGING : 4|1@1+ (1,0) [0|0] "" Vector__XXX
-   SG_ ACC_STATUS_CELL_TOO_LOW : 8|1@1+ (1,0) [0|0] "" Vector__XXX
-   SG_ ACC_STATUS_CELL_TOO_HIGH : 9|1@1+ (1,0) [0|0] "" Vector__XXX
-   SG_ ACC_STATUS_TEMP_TOO_LOW : 10|1@1+ (1,0) [0|0] "" Vector__XXX
-   SG_ ACC_STATUS_TEMP_TOO_HIGH : 11|1@1+ (1,0) [0|0] "" Vector__XXX
-   SG_ ACC_STATUS_TEMP_TOO_HIGH_CRG : 12|1@1+ (1,0) [0|0] "" Vector__XXX
-   SG_ ACC_STATUS_CHARGING : 5|1@1+ (1,0) [0|0] "" Vector__XXX
-   SG_ ACC_STATUS_GLV_VOLTAGE : 16|16@1+ (1,0) [0|65.635] "mV" Vector__XXX
-   SG_ ACC_STATUS_CELL_FAULT_INDEX : 32|32@1+ (1,0) [0|0] "" Vector__XXX
-   SG_ ACC_STATUS_BALANCING : 13|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ ACC_STATUS_BMS_FAULT : 0|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ ACC_STATUS_IMD_FAULT : 1|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ ACC_STATUS_SHUTDOWN_STATE : 2|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ ACC_STATUS_PRECHARGE_DONE : 3|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ ACC_STATUS_PRECHARGING : 4|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ ACC_STATUS_CELL_TOO_LOW : 8|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ ACC_STATUS_CELL_TOO_HIGH : 9|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ ACC_STATUS_TEMP_TOO_LOW : 10|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ ACC_STATUS_TEMP_TOO_HIGH : 11|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ ACC_STATUS_TEMP_TOO_HIGH_CRG : 12|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ ACC_STATUS_CHARGING : 5|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ ACC_STATUS_GLV_VOLTAGE : 16|16@1+ (1,0) [0|65.635] "mV" Vector__XXX
+ SG_ ACC_STATUS_CELL_FAULT_INDEX : 32|32@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ ACC_STATUS_BALANCING : 13|1@1+ (1,0) [0|0] "" Vector__XXX
 
 BO_ 648 ACC_TPDO_POWER: 8 ACC
-   SG_ ACC_POWER_PACK_VOLTAGE : 0|16@1+ (0.01,0) [0|655.35] "V" Vector__XXX
-   SG_ ACC_POWER_SOC : 16|8@1+ (1,0) [0|255] "Percentage" Vector__XXX
-   SG_ ACC_POWER_CURRENT : 24|16@1- (0.1,0) [-3276.8|3276.7] "A" Vector__XXX
+ SG_ ACC_POWER_PACK_VOLTAGE : 0|16@1+ (0.01,0) [0|655.35] "V" Vector__XXX
+ SG_ ACC_POWER_SOC : 16|8@1+ (1,0) [0|255] "Percentage" Vector__XXX
+ SG_ ACC_POWER_CURRENT : 24|16@1- (0.1,0) [-3276.8|3276.7] "A" Vector__XXX
 
 BO_ 401 ACC_TPDO_SEG0_VOLTS: 6 ACC
-   SG_ ACC_SEG0_VOLTS_CELL0 : 0|8@1+ (0.01,2) [2|4.55] "V" Vector__XXX
-   SG_ ACC_SEG0_VOLTS_CELL1 : 8|8@1+ (0.01,2) [2|4.55] "V" Vector__XXX
-   SG_ ACC_SEG0_VOLTS_CELL2 : 16|8@1+ (0.01,2) [2|4.55] "V" Vector__XXX
-   SG_ ACC_SEG0_VOLTS_CELL3 : 24|8@1+ (0.01,2) [2|4.55] "V" Vector__XXX
-   SG_ ACC_SEG0_VOLTS_CELL4 : 32|8@1+ (0.01,2) [2|4.55] "V" Vector__XXX
-   SG_ ACC_SEG0_VOLTS_CELL5 : 40|8@1+ (0.01,2) [2|4.55] "V" Vector__XXX
+ SG_ ACC_SEG0_VOLTS_CELL0 : 0|8@1+ (0.01,2) [2|4.55] "V" Vector__XXX
+ SG_ ACC_SEG0_VOLTS_CELL1 : 8|8@1+ (0.01,2) [2|4.55] "V" Vector__XXX
+ SG_ ACC_SEG0_VOLTS_CELL2 : 16|8@1+ (0.01,2) [2|4.55] "V" Vector__XXX
+ SG_ ACC_SEG0_VOLTS_CELL3 : 24|8@1+ (0.01,2) [2|4.55] "V" Vector__XXX
+ SG_ ACC_SEG0_VOLTS_CELL4 : 32|8@1+ (0.01,2) [2|4.55] "V" Vector__XXX
+ SG_ ACC_SEG0_VOLTS_CELL5 : 40|8@1+ (0.01,2) [2|4.55] "V" Vector__XXX
 
 BO_ 657 ACC_TPDO_SEG0_TEMPS: 6 ACC
-   SG_ ACC_SEG0_TEMPS_CELL0 : 0|8@1- (1,0) [-128|127] "C" Vector__XXX
-   SG_ ACC_SEG0_TEMPS_CELL1 : 8|8@1- (1,0) [-128|127] "C" Vector__XXX
-   SG_ ACC_SEG0_TEMPS_CELL2 : 16|8@1- (1,0) [-128|127] "C" Vector__XXX
-   SG_ ACC_SEG0_TEMPS_CELL3 : 24|8@1- (1,0) [-128|127] "C" Vector__XXX
-   SG_ ACC_SEG0_TEMPS_CELL4 : 32|8@1- (1,0) [-128|127] "C" Vector__XXX
-   SG_ ACC_SEG0_TEMPS_CELL5 : 40|8@1- (1,0) [-128|127] "C" Vector__XXX
+ SG_ ACC_SEG0_TEMPS_CELL0 : 0|8@1- (1,0) [-128|127] "C" Vector__XXX
+ SG_ ACC_SEG0_TEMPS_CELL1 : 8|8@1- (1,0) [-128|127] "C" Vector__XXX
+ SG_ ACC_SEG0_TEMPS_CELL2 : 16|8@1- (1,0) [-128|127] "C" Vector__XXX
+ SG_ ACC_SEG0_TEMPS_CELL3 : 24|8@1- (1,0) [-128|127] "C" Vector__XXX
+ SG_ ACC_SEG0_TEMPS_CELL4 : 32|8@1- (1,0) [-128|127] "C" Vector__XXX
+ SG_ ACC_SEG0_TEMPS_CELL5 : 40|8@1- (1,0) [-128|127] "C" Vector__XXX
 
 BO_ 402 ACC_TPDO_SEG1_VOLTS: 6 ACC
-   SG_ ACC_SEG1_VOLTS_CELL0 : 0|8@1+ (0.01,2) [2|4.55] "V" Vector__XXX
-   SG_ ACC_SEG1_VOLTS_CELL1 : 8|8@1+ (0.01,2) [2|4.55] "V" Vector__XXX
-   SG_ ACC_SEG1_VOLTS_CELL2 : 16|8@1+ (0.01,2) [2|4.55] "V" Vector__XXX
-   SG_ ACC_SEG1_VOLTS_CELL3 : 24|8@1+ (0.01,2) [2|4.55] "V" Vector__XXX
-   SG_ ACC_SEG1_VOLTS_CELL4 : 32|8@1+ (0.01,2) [2|4.55] "V" Vector__XXX
-   SG_ ACC_SEG1_VOLTS_CELL5 : 40|8@1+ (0.01,2) [2|4.55] "V" Vector__XXX
+ SG_ ACC_SEG1_VOLTS_CELL0 : 0|8@1+ (0.01,2) [2|4.55] "V" Vector__XXX
+ SG_ ACC_SEG1_VOLTS_CELL1 : 8|8@1+ (0.01,2) [2|4.55] "V" Vector__XXX
+ SG_ ACC_SEG1_VOLTS_CELL2 : 16|8@1+ (0.01,2) [2|4.55] "V" Vector__XXX
+ SG_ ACC_SEG1_VOLTS_CELL3 : 24|8@1+ (0.01,2) [2|4.55] "V" Vector__XXX
+ SG_ ACC_SEG1_VOLTS_CELL4 : 32|8@1+ (0.01,2) [2|4.55] "V" Vector__XXX
+ SG_ ACC_SEG1_VOLTS_CELL5 : 40|8@1+ (0.01,2) [2|4.55] "V" Vector__XXX
 
 BO_ 658 ACC_TPDO_SEG1_TEMPS: 6 ACC
-   SG_ ACC_SEG1_TEMPS_CELL0 : 0|8@1- (1,0) [-128|127] "C" Vector__XXX
-   SG_ ACC_SEG1_TEMPS_CELL1 : 8|8@1- (1,0) [-128|127] "C" Vector__XXX
-   SG_ ACC_SEG1_TEMPS_CELL2 : 16|8@1- (1,0) [-128|127] "C" Vector__XXX
-   SG_ ACC_SEG1_TEMPS_CELL3 : 24|8@1- (1,0) [-128|127] "C" Vector__XXX
-   SG_ ACC_SEG1_TEMPS_CELL4 : 32|8@1- (1,0) [-128|127] "C" Vector__XXX
-   SG_ ACC_SEG1_TEMPS_CELL5 : 40|8@1- (1,0) [-128|127] "C" Vector__XXX
+ SG_ ACC_SEG1_TEMPS_CELL0 : 0|8@1- (1,0) [-128|127] "C" Vector__XXX
+ SG_ ACC_SEG1_TEMPS_CELL1 : 8|8@1- (1,0) [-128|127] "C" Vector__XXX
+ SG_ ACC_SEG1_TEMPS_CELL2 : 16|8@1- (1,0) [-128|127] "C" Vector__XXX
+ SG_ ACC_SEG1_TEMPS_CELL3 : 24|8@1- (1,0) [-128|127] "C" Vector__XXX
+ SG_ ACC_SEG1_TEMPS_CELL4 : 32|8@1- (1,0) [-128|127] "C" Vector__XXX
+ SG_ ACC_SEG1_TEMPS_CELL5 : 40|8@1- (1,0) [-128|127] "C" Vector__XXX
 
 BO_ 403 ACC_TPDO_SEG2_VOLTS: 6 ACC
-   SG_ ACC_SEG2_VOLTS_CELL0 : 0|8@1+ (0.01,2) [2|4.55] "V" Vector__XXX
-   SG_ ACC_SEG2_VOLTS_CELL1 : 8|8@1+ (0.01,2) [2|4.55] "V" Vector__XXX
-   SG_ ACC_SEG2_VOLTS_CELL2 : 16|8@1+ (0.01,2) [2|4.55] "V" Vector__XXX
-   SG_ ACC_SEG2_VOLTS_CELL3 : 24|8@1+ (0.01,2) [2|4.55] "V" Vector__XXX
-   SG_ ACC_SEG2_VOLTS_CELL4 : 32|8@1+ (0.01,2) [2|4.55] "V" Vector__XXX
-   SG_ ACC_SEG2_VOLTS_CELL5 : 40|8@1+ (0.01,2) [2|4.55] "V" Vector__XXX
+ SG_ ACC_SEG2_VOLTS_CELL0 : 0|8@1+ (0.01,2) [2|4.55] "V" Vector__XXX
+ SG_ ACC_SEG2_VOLTS_CELL1 : 8|8@1+ (0.01,2) [2|4.55] "V" Vector__XXX
+ SG_ ACC_SEG2_VOLTS_CELL2 : 16|8@1+ (0.01,2) [2|4.55] "V" Vector__XXX
+ SG_ ACC_SEG2_VOLTS_CELL3 : 24|8@1+ (0.01,2) [2|4.55] "V" Vector__XXX
+ SG_ ACC_SEG2_VOLTS_CELL4 : 32|8@1+ (0.01,2) [2|4.55] "V" Vector__XXX
+ SG_ ACC_SEG2_VOLTS_CELL5 : 40|8@1+ (0.01,2) [2|4.55] "V" Vector__XXX
 
 BO_ 659 ACC_TPDO_SEG2_TEMPS: 6 ACC
-   SG_ ACC_SEG2_TEMPS_CELL0 : 0|8@1- (1,0) [-128|127] "C" Vector__XXX
-   SG_ ACC_SEG2_TEMPS_CELL1 : 8|8@1- (1,0) [-128|127] "C" Vector__XXX
-   SG_ ACC_SEG2_TEMPS_CELL2 : 16|8@1- (1,0) [-128|127] "C" Vector__XXX
-   SG_ ACC_SEG2_TEMPS_CELL3 : 24|8@1- (1,0) [-128|127] "C" Vector__XXX
-   SG_ ACC_SEG2_TEMPS_CELL4 : 32|8@1- (1,0) [-128|127] "C" Vector__XXX
-   SG_ ACC_SEG2_TEMPS_CELL5 : 40|8@1- (1,0) [-128|127] "C" Vector__XXX
+ SG_ ACC_SEG2_TEMPS_CELL0 : 0|8@1- (1,0) [-128|127] "C" Vector__XXX
+ SG_ ACC_SEG2_TEMPS_CELL1 : 8|8@1- (1,0) [-128|127] "C" Vector__XXX
+ SG_ ACC_SEG2_TEMPS_CELL2 : 16|8@1- (1,0) [-128|127] "C" Vector__XXX
+ SG_ ACC_SEG2_TEMPS_CELL3 : 24|8@1- (1,0) [-128|127] "C" Vector__XXX
+ SG_ ACC_SEG2_TEMPS_CELL4 : 32|8@1- (1,0) [-128|127] "C" Vector__XXX
+ SG_ ACC_SEG2_TEMPS_CELL5 : 40|8@1- (1,0) [-128|127] "C" Vector__XXX
 
 BO_ 404 ACC_TPDO_SEG3_VOLTS: 6 ACC
-   SG_ ACC_SEG3_VOLTS_CELL0 : 0|8@1+ (0.01,2) [2|4.55] "V" Vector__XXX
-   SG_ ACC_SEG3_VOLTS_CELL1 : 8|8@1+ (0.01,2) [2|4.55] "V" Vector__XXX
-   SG_ ACC_SEG3_VOLTS_CELL2 : 16|8@1+ (0.01,2) [2|4.55] "V" Vector__XXX
-   SG_ ACC_SEG3_VOLTS_CELL3 : 24|8@1+ (0.01,2) [2|4.55] "V" Vector__XXX
-   SG_ ACC_SEG3_VOLTS_CELL4 : 32|8@1+ (0.01,2) [2|4.55] "V" Vector__XXX
-   SG_ ACC_SEG3_VOLTS_CELL5 : 40|8@1+ (0.01,2) [2|4.55] "V" Vector__XXX
+ SG_ ACC_SEG3_VOLTS_CELL0 : 0|8@1+ (0.01,2) [2|4.55] "V" Vector__XXX
+ SG_ ACC_SEG3_VOLTS_CELL1 : 8|8@1+ (0.01,2) [2|4.55] "V" Vector__XXX
+ SG_ ACC_SEG3_VOLTS_CELL2 : 16|8@1+ (0.01,2) [2|4.55] "V" Vector__XXX
+ SG_ ACC_SEG3_VOLTS_CELL3 : 24|8@1+ (0.01,2) [2|4.55] "V" Vector__XXX
+ SG_ ACC_SEG3_VOLTS_CELL4 : 32|8@1+ (0.01,2) [2|4.55] "V" Vector__XXX
+ SG_ ACC_SEG3_VOLTS_CELL5 : 40|8@1+ (0.01,2) [2|4.55] "V" Vector__XXX
 
 BO_ 660 ACC_TPDO_SEG3_TEMPS: 6 ACC
-   SG_ ACC_SEG3_TEMPS_CELL0 : 0|8@1- (1,0) [-128|127] "C" Vector__XXX
-   SG_ ACC_SEG3_TEMPS_CELL1 : 8|8@1- (1,0) [-128|127] "C" Vector__XXX
-   SG_ ACC_SEG3_TEMPS_CELL2 : 16|8@1- (1,0) [-128|127] "C" Vector__XXX
-   SG_ ACC_SEG3_TEMPS_CELL3 : 24|8@1- (1,0) [-128|127] "C" Vector__XXX
-   SG_ ACC_SEG3_TEMPS_CELL4 : 32|8@1- (1,0) [-128|127] "C" Vector__XXX
-   SG_ ACC_SEG3_TEMPS_CELL5 : 40|8@1- (1,0) [-128|127] "C" Vector__XXX
+ SG_ ACC_SEG3_TEMPS_CELL0 : 0|8@1- (1,0) [-128|127] "C" Vector__XXX
+ SG_ ACC_SEG3_TEMPS_CELL1 : 8|8@1- (1,0) [-128|127] "C" Vector__XXX
+ SG_ ACC_SEG3_TEMPS_CELL2 : 16|8@1- (1,0) [-128|127] "C" Vector__XXX
+ SG_ ACC_SEG3_TEMPS_CELL3 : 24|8@1- (1,0) [-128|127] "C" Vector__XXX
+ SG_ ACC_SEG3_TEMPS_CELL4 : 32|8@1- (1,0) [-128|127] "C" Vector__XXX
+ SG_ ACC_SEG3_TEMPS_CELL5 : 40|8@1- (1,0) [-128|127] "C" Vector__XXX
 
 BO_ 405 ACC_TPDO_SEG4_VOLTS: 6 ACC
-   SG_ ACC_SEG4_VOLTS_CELL0 : 0|8@1+ (0.01,2) [2|4.55] "V" Vector__XXX
-   SG_ ACC_SEG4_VOLTS_CELL1 : 8|8@1+ (0.01,2) [2|4.55] "V" Vector__XXX
-   SG_ ACC_SEG4_VOLTS_CELL2 : 16|8@1+ (0.01,2) [2|4.55] "V" Vector__XXX
-   SG_ ACC_SEG4_VOLTS_CELL3 : 24|8@1+ (0.01,2) [2|4.55] "V" Vector__XXX
-   SG_ ACC_SEG4_VOLTS_CELL4 : 32|8@1+ (0.01,2) [2|4.55] "V" Vector__XXX
-   SG_ ACC_SEG4_VOLTS_CELL5 : 40|8@1+ (0.01,2) [2|4.55] "V" Vector__XXX
+ SG_ ACC_SEG4_VOLTS_CELL0 : 0|8@1+ (0.01,2) [2|4.55] "V" Vector__XXX
+ SG_ ACC_SEG4_VOLTS_CELL1 : 8|8@1+ (0.01,2) [2|4.55] "V" Vector__XXX
+ SG_ ACC_SEG4_VOLTS_CELL2 : 16|8@1+ (0.01,2) [2|4.55] "V" Vector__XXX
+ SG_ ACC_SEG4_VOLTS_CELL3 : 24|8@1+ (0.01,2) [2|4.55] "V" Vector__XXX
+ SG_ ACC_SEG4_VOLTS_CELL4 : 32|8@1+ (0.01,2) [2|4.55] "V" Vector__XXX
+ SG_ ACC_SEG4_VOLTS_CELL5 : 40|8@1+ (0.01,2) [2|4.55] "V" Vector__XXX
 
 BO_ 661 ACC_TPDO_SEG4_TEMPS: 6 ACC
-   SG_ ACC_SEG4_TEMPS_CELL0 : 0|8@1- (1,0) [-128|127] "C" Vector__XXX
-   SG_ ACC_SEG4_TEMPS_CELL1 : 8|8@1- (1,0) [-128|127] "C" Vector__XXX
-   SG_ ACC_SEG4_TEMPS_CELL2 : 16|8@1- (1,0) [-128|127] "C" Vector__XXX
-   SG_ ACC_SEG4_TEMPS_CELL3 : 24|8@1- (1,0) [-128|127] "C" Vector__XXX
-   SG_ ACC_SEG4_TEMPS_CELL4 : 32|8@1- (1,0) [-128|127] "C" Vector__XXX
-   SG_ ACC_SEG4_TEMPS_CELL5 : 40|8@1- (1,0) [-128|127] "C" Vector__XXX
+ SG_ ACC_SEG4_TEMPS_CELL0 : 0|8@1- (1,0) [-128|127] "C" Vector__XXX
+ SG_ ACC_SEG4_TEMPS_CELL1 : 8|8@1- (1,0) [-128|127] "C" Vector__XXX
+ SG_ ACC_SEG4_TEMPS_CELL2 : 16|8@1- (1,0) [-128|127] "C" Vector__XXX
+ SG_ ACC_SEG4_TEMPS_CELL3 : 24|8@1- (1,0) [-128|127] "C" Vector__XXX
+ SG_ ACC_SEG4_TEMPS_CELL4 : 32|8@1- (1,0) [-128|127] "C" Vector__XXX
+ SG_ ACC_SEG4_TEMPS_CELL5 : 40|8@1- (1,0) [-128|127] "C" Vector__XXX
 
 BO_ 2148139008 VDM_GPS_LAT_LONG: 8 VDM
-   SG_ VDM_GPS_Latitude : 7|32@0- (1,0) [0|0] "deg" Vector__XXX
-   SG_ VDM_GPS_Longitude : 39|32@0- (1,0) [0|0] "deg" Vector__XXX
+ SG_ VDM_GPS_Latitude : 7|32@0- (1,0) [-90|90] "deg" Vector__XXX
+ SG_ VDM_GPS_Longitude : 39|32@0- (1,0) [-180|180] "deg" Vector__XXX
 
 BO_ 2148139009 VDM_GPS_DATA: 8 VDM
-   SG_ VDM_GPS_SPEED : 7|16@0+ (0.01,0) [0|0] "mph" Vector__XXX
-   SG_ VDM_GPS_ALTITUDE : 23|16@0- (1,0) [0|0] "ft" Vector__XXX
-   SG_ VDM_GPS_TRUE_COURSE : 39|16@0+ (0.01,0) [0|0] "deg" Vector__XXX
-   SG_ VDM_GPS_SATELLITES_IN_USE : 55|8@0+ (1,0) [0|0] "" Vector__XXX
-   SG_ VDM_GPS_VALID1 : 63|8@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ VDM_GPS_SPEED : 7|16@0+ (0.01,0) [0|65535] "mph" Vector__XXX
+ SG_ VDM_GPS_ALTITUDE : 23|16@0- (1,0) [-32768|32767] "ft" Vector__XXX
+ SG_ VDM_GPS_TRUE_COURSE : 39|16@0+ (0.01,0) [0|65535] "deg" Vector__XXX
+ SG_ VDM_GPS_SATELLITES_IN_USE : 55|8@0+ (1,0) [0|255] "" Vector__XXX
+ SG_ VDM_GPS_VALID1 : 63|8@0+ (1,0) [0|255] "" Vector__XXX
 
 BO_ 2148139010 VDM_DATE_TIME: 8 VDM
-   SG_ VDM_GPS_VALID2 : 7|8@0+ (1,0) [0|0] "" Vector__XXX
-   SG_ VDM_UTC_DATE_YEAR : 15|8@0+ (1,0) [0|0] "years" Vector__XXX
-   SG_ VDM_UTC_DATE_MONTH : 23|8@0+ (1,0) [0|0] "months" Vector__XXX
-   SG_ VDM_UTC_DATE_DAY : 31|8@0+ (1,0) [0|0] "days" Vector__XXX
-   SG_ VDM_UTC_TIME_HOURS : 47|8@0+ (1,0) [0|0] "hours" Vector__XXX
-   SG_ VDM_UTC_TIME_MINUTES : 55|8@0+ (1,0) [0|0] "minutes" Vector__XXX
-   SG_ VDM_UTC_TIME_SECONDS : 63|8@0+ (1,0) [0|0] "seconds" Vector__XXX
+ SG_ VDM_GPS_VALID2 : 7|8@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ VDM_UTC_DATE_YEAR : 15|8@0+ (1,0) [0|0] "years" Vector__XXX
+ SG_ VDM_UTC_DATE_MONTH : 23|8@0+ (1,0) [0|0] "months" Vector__XXX
+ SG_ VDM_UTC_DATE_DAY : 31|8@0+ (1,0) [0|0] "days" Vector__XXX
+ SG_ VDM_UTC_TIME_HOURS : 47|8@0+ (1,0) [0|0] "hours" Vector__XXX
+ SG_ VDM_UTC_TIME_MINUTES : 55|8@0+ (1,0) [0|0] "minutes" Vector__XXX
+ SG_ VDM_UTC_TIME_SECONDS : 63|8@0+ (1,0) [0|0] "seconds" Vector__XXX
 
 BO_ 2148139011 VDM_ACCELERATION: 8 VDM
-   SG_ VDM_X_AXIS_ACCELERATION : 7|16@0- (0.000244141,0) [0|0] "gs" Vector__XXX
-   SG_ VDM_Y_AXIS_ACCELERATION : 23|16@0- (0.000244141,0) [0|0] "gs" Vector__XXX
-   SG_ VDM_Z_AXIS_ACCELERATION : 39|16@0- (0.000244141,0) [0|0] "gs" Vector__XXX
+ SG_ VDM_X_AXIS_ACCELERATION : 7|16@0- (0.000244141,0) [0|0] "gs" Vector__XXX
+ SG_ VDM_Y_AXIS_ACCELERATION : 23|16@0- (0.000244141,0) [0|0] "gs" Vector__XXX
+ SG_ VDM_Z_AXIS_ACCELERATION : 39|16@0- (0.000244141,0) [0|0] "gs" Vector__XXX
 
 BO_ 2148139012 VDM_YAW_RATE: 8 VDM
-   SG_ VDM_X_AXIS_YAW_RATE : 7|16@0- (0.0152588,0) [0|0] "deg/s" Vector__XXX
-   SG_ VDM_Y_AXIS_YAW_RATE : 23|16@0- (0.0152588,0) [0|0] "deg/s" Vector__XXX
-   SG_ VDM_Z_AXIS_YAW_RATE : 39|16@0- (0.0152588,0) [0|0] "deg/s" Vector__XXX
+ SG_ VDM_X_AXIS_YAW_RATE : 7|16@0- (0.0152588,0) [0|0] "deg/s" Vector__XXX
+ SG_ VDM_Y_AXIS_YAW_RATE : 23|16@0- (0.0152588,0) [0|0] "deg/s" Vector__XXX
+ SG_ VDM_Z_AXIS_YAW_RATE : 39|16@0- (0.0152588,0) [0|0] "deg/s" Vector__XXX
 
 BO_ 393 ETC_TPDO_STATUS: 8 ETC
-   SG_ ETC_STATUS_HE1 : 0|16@1+ (1,0) [0|65535] "mV" Vector__XXX
-   SG_ ETC_STATUS_HE2 : 16|16@1+ (1,0) [0|65535] "mV" Vector__XXX
-   SG_ ETC_STATUS_BRAKE_SENSE_VOLTAGE : 32|16@1+ (1,0) [0|65535] "mV" Vector__XXX
-   SG_ ETC_STATUS_RTD_BUTTON : 56|1@1+ (1,0) [0|0] "" Vector__XXX
-   SG_ ETC_STATUS_RTDS : 57|1@1+ (1,0) [0|0] "" Vector__XXX
-   SG_ ETC_STATUS_REVERSE : 58|1@1+ (1,0) [0|0] "" Vector__XXX
-   SG_ ETC_STATUS_BRAKELIGHT : 59|1@1+ (1,0) [0|0] "" Vector__XXX
-   SG_ ETC_STATUS_PEDAL_TRAVEL : 48|8@1+ (1,0) [0|100] "%" Vector__XXX
-   SG_ ETC_STATUS_RTD : 60|1@1+ (1,0) [0|0] "" Vector__XXX
-   SG_ ETC_STATUS_IMPLAUSIBILITY : 61|1@1+ (1,0) [0|0] "" Vector__XXX
-   SG_ ETC_STATUS_TS_ACTIVE : 62|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ ETC_STATUS_HE1 : 0|16@1+ (1,0) [0|65535] "mV" Vector__XXX
+ SG_ ETC_STATUS_HE2 : 16|16@1+ (1,0) [0|65535] "mV" Vector__XXX
+ SG_ ETC_STATUS_BRAKE_SENSE_VOLTAGE : 32|16@1+ (1,0) [0|65535] "mV" Vector__XXX
+ SG_ ETC_STATUS_RTD_BUTTON : 56|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ ETC_STATUS_RTDS : 57|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ ETC_STATUS_REVERSE : 58|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ ETC_STATUS_BRAKELIGHT : 59|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ ETC_STATUS_PEDAL_TRAVEL : 48|8@1+ (1,0) [0|100] "%" Vector__XXX
+ SG_ ETC_STATUS_RTD : 60|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ ETC_STATUS_IMPLAUSIBILITY : 61|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ ETC_STATUS_TS_ACTIVE : 62|1@1+ (1,0) [0|0] "" Vector__XXX
 
 BO_ 410 PDB_TPDO_POWER_A: 8 PDB
-   SG_ PDB_POWER_A_GLV_VOLTAGE : 0|16@1+ (1,0) [0|65535] "mV" Vector__XXX
+ SG_ PDB_POWER_A_GLV_VOLTAGE : 0|16@1+ (1,0) [0|65535] "mV" Vector__XXX
  SG_ PDB_POWER_A_CURRENT_SHUTDOWN : 16|8@1+ (1,0) [0|255] "lsb" Vector__XXX
  SG_ PDB_POWER_A_CURRENT_ACC : 24|8@1+ (1,0) [0|255] "lsb" Vector__XXX
  SG_ PDB_POWER_A_CURRENT_ETC : 32|8@1+ (1,0) [0|255] "lsb" Vector__XXX
@@ -256,134 +256,141 @@ BO_ 666 PDB_TPDO_POWER_B: 8 PDB
  SG_ PDB_POWER_B_CURRENT_EXTRA_2 : 40|8@1+ (1,0) [0|255] "lsb" Vector__XXX
 
 BO_ 416 TMAIN_TPDO_DATA: 8 TMAIN
-   SG_ TMAIN_DATA_BRAKES_F : 0|16@1+ (0.1,0) [0|0] "psi" Vector__XXX
-   SG_ TMAIN_DATA_BRAKES_R : 16|16@1+ (0.1,0) [0|0] "psi" Vector__XXX
+ SG_ TMAIN_DATA_BRAKES_F : 0|16@1+ (0.1,0) [0|0] "psi" Vector__XXX
+ SG_ TMAIN_DATA_BRAKES_R : 16|16@1+ (0.1,0) [0|0] "psi" Vector__XXX
 
 BO_ 418 TPERIPH_FL_TPDO_DATA: 7 TPERIPH_FL
-   SG_ TPERIPH_FL_DATA_WHEELSPEED : 0|16@1- (0.1,0) [0|0] "rpm" Vector__XXX
-   SG_ TPERIPH_FL_DATA_SUSTRAVEL : 16|16@1+ (0.01,0) [0|655.35] "mm" Vector__XXX
-   SG_ TPERIPH_FL_DATA_STRAIN : 32|16@1- (1e-07,0) [0|0] "%" Vector__XXX
-   SG_ TPERIPH_FL_DATA_SIDE_TIRE_TEMP : 48|8@1+ (1,0) [0|255] "C" Vector__XXX
+ SG_ TPERIPH_FL_DATA_WHEELSPEED : 0|16@1- (0.1,0) [0|0] "rpm" Vector__XXX
+ SG_ TPERIPH_FL_DATA_SUSTRAVEL : 16|16@1+ (0.01,0) [0|655.35] "mm" Vector__XXX
+ SG_ TPERIPH_FL_DATA_STRAIN : 32|16@1- (1e-07,0) [0|0] "%" Vector__XXX
+ SG_ TPERIPH_FL_DATA_SIDE_TIRE_TEMP : 48|8@1+ (1,0) [0|255] "C" Vector__XXX
 
 BO_ 419 TPERIPH_FR_TPDO_DATA: 7 TPERIPH_FR
-   SG_ TPERIPH_FR_DATA_WHEELSPEED : 0|16@1- (0.1,0) [0|0] "rpm" Vector__XXX
-   SG_ TPERIPH_FR_DATA_SUSTRAVEL : 16|16@1+ (0.01,0) [0|655.35] "mm" Vector__XXX
-   SG_ TPERIPH_FR_DATA_STRAIN : 32|16@1- (1e-07,0) [0|0] "%" Vector__XXX
-   SG_ TPERIPH_FR_DATA_SIDE_TIRE_TEMP : 48|8@1+ (1,0) [0|255] "C" Vector__XXX
+ SG_ TPERIPH_FR_DATA_WHEELSPEED : 0|16@1- (0.1,0) [0|0] "rpm" Vector__XXX
+ SG_ TPERIPH_FR_DATA_SUSTRAVEL : 16|16@1+ (0.01,0) [0|655.35] "mm" Vector__XXX
+ SG_ TPERIPH_FR_DATA_STRAIN : 32|16@1- (1e-07,0) [0|0] "%" Vector__XXX
+ SG_ TPERIPH_FR_DATA_SIDE_TIRE_TEMP : 48|8@1+ (1,0) [0|255] "C" Vector__XXX
 
 BO_ 420 TPERIPH_BL_TPDO_DATA: 7 TPERIPH_BL
-   SG_ TPERIPH_BL_DATA_WHEELSPEED : 0|16@1- (0.1,0) [0|0] "rpm" Vector__XXX
-   SG_ TPERIPH_BL_DATA_SUSTRAVEL : 16|16@1+ (0.01,0) [0|655.35] "mm" Vector__XXX
-   SG_ TPERIPH_BL_DATA_STRAIN : 32|16@1- (1e-07,0) [0|0] "%" Vector__XXX
-   SG_ TPERIPH_BL_DATA_SIDE_TIRE_TEMP : 48|8@1+ (1,0) [0|255] "C" Vector__XXX
+ SG_ TPERIPH_BL_DATA_WHEELSPEED : 0|16@1- (0.1,0) [0|0] "rpm" Vector__XXX
+ SG_ TPERIPH_BL_DATA_SUSTRAVEL : 16|16@1+ (0.01,0) [0|655.35] "mm" Vector__XXX
+ SG_ TPERIPH_BL_DATA_STRAIN : 32|16@1- (1e-07,0) [0|0] "%" Vector__XXX
+ SG_ TPERIPH_BL_DATA_SIDE_TIRE_TEMP : 48|8@1+ (1,0) [0|255] "C" Vector__XXX
 
 BO_ 421 TPERIPH_BR_TPDO_DATA: 7 TPERIPH_BR
-   SG_ TPERIPH_BR_DATA_WHEELSPEED : 0|16@1- (0.1,0) [0|0] "rpm" Vector__XXX
-   SG_ TPERIPH_BR_DATA_SUSTRAVEL : 16|16@1+ (0.01,0) [0|655.35] "mm" Vector__XXX
-   SG_ TPERIPH_BR_DATA_STRAIN : 32|16@1- (1e-07,0) [0|0] "%" Vector__XXX
-   SG_ TPERIPH_BR_DATA_SIDE_TIRE_TEMP : 48|8@1+ (1,0) [0|255] "C" Vector__XXX
+ SG_ TPERIPH_BR_DATA_WHEELSPEED : 0|16@1- (0.1,0) [0|0] "rpm" Vector__XXX
+ SG_ TPERIPH_BR_DATA_SUSTRAVEL : 16|16@1+ (0.01,0) [0|655.35] "mm" Vector__XXX
+ SG_ TPERIPH_BR_DATA_STRAIN : 32|16@1- (1e-07,0) [0|0] "%" Vector__XXX
+ SG_ TPERIPH_BR_DATA_SIDE_TIRE_TEMP : 48|8@1+ (1,0) [0|255] "C" Vector__XXX
 
 BO_ 673 TPERIPH_FL_TPDO_TIRETEMP: 8 TPERIPH_FL
-   SG_ TPERIPH_FL_TIRETEMP_1 : 0|8@1+ (1,0) [0|0] "C" Vector__XXX
-   SG_ TPERIPH_FL_TIRETEMP_2 : 8|8@1+ (1,0) [0|0] "C" Vector__XXX
-   SG_ TPERIPH_FL_TIRETEMP_3 : 16|8@1+ (1,0) [0|0] "C" Vector__XXX
-   SG_ TPERIPH_FL_TIRETEMP_4 : 24|8@1+ (1,0) [0|0] "C" Vector__XXX
-   SG_ TPERIPH_FL_TIRETEMP_5 : 32|8@1+ (1,0) [0|0] "C" Vector__XXX
-   SG_ TPERIPH_FL_TIRETEMP_6 : 40|8@1+ (1,0) [0|0] "C" Vector__XXX
-   SG_ TPERIPH_FL_TIRETEMP_7 : 48|8@1+ (1,0) [0|0] "C" Vector__XXX
-   SG_ TPERIPH_FL_TIRETEMP_8 : 56|8@1+ (1,0) [0|0] "C" Vector__XXX
+ SG_ TPERIPH_FL_TIRETEMP_1 : 0|8@1+ (1,0) [0|0] "C" Vector__XXX
+ SG_ TPERIPH_FL_TIRETEMP_2 : 8|8@1+ (1,0) [0|0] "C" Vector__XXX
+ SG_ TPERIPH_FL_TIRETEMP_3 : 16|8@1+ (1,0) [0|0] "C" Vector__XXX
+ SG_ TPERIPH_FL_TIRETEMP_4 : 24|8@1+ (1,0) [0|0] "C" Vector__XXX
+ SG_ TPERIPH_FL_TIRETEMP_5 : 32|8@1+ (1,0) [0|0] "C" Vector__XXX
+ SG_ TPERIPH_FL_TIRETEMP_6 : 40|8@1+ (1,0) [0|0] "C" Vector__XXX
+ SG_ TPERIPH_FL_TIRETEMP_7 : 48|8@1+ (1,0) [0|0] "C" Vector__XXX
+ SG_ TPERIPH_FL_TIRETEMP_8 : 56|8@1+ (1,0) [0|0] "C" Vector__XXX
 
 BO_ 674 TPERIPH_FR_TPDO_TIRETEMP: 8 TPERIPH_FR
-   SG_ TPERIPH_FR_TIRETEMP_1 : 0|8@1+ (1,0) [0|0] "C" Vector__XXX
-   SG_ TPERIPH_FR_TIRETEMP_2 : 8|8@1+ (1,0) [0|0] "C" Vector__XXX
-   SG_ TPERIPH_FR_TIRETEMP_3 : 16|8@1+ (1,0) [0|0] "C" Vector__XXX
-   SG_ TPERIPH_FR_TIRETEMP_4 : 24|8@1+ (1,0) [0|0] "C" Vector__XXX
-   SG_ TPERIPH_FR_TIRETEMP_5 : 32|8@1+ (1,0) [0|0] "C" Vector__XXX
-   SG_ TPERIPH_FR_TIRETEMP_6 : 40|8@1+ (1,0) [0|0] "C" Vector__XXX
-   SG_ TPERIPH_FR_TIRETEMP_7 : 48|8@1+ (1,0) [0|0] "C" Vector__XXX
-   SG_ TPERIPH_FR_TIRETEMP_8 : 56|8@1+ (1,0) [0|0] "C" Vector__XXX
+ SG_ TPERIPH_FR_TIRETEMP_1 : 0|8@1+ (1,0) [0|0] "C" Vector__XXX
+ SG_ TPERIPH_FR_TIRETEMP_2 : 8|8@1+ (1,0) [0|0] "C" Vector__XXX
+ SG_ TPERIPH_FR_TIRETEMP_3 : 16|8@1+ (1,0) [0|0] "C" Vector__XXX
+ SG_ TPERIPH_FR_TIRETEMP_4 : 24|8@1+ (1,0) [0|0] "C" Vector__XXX
+ SG_ TPERIPH_FR_TIRETEMP_5 : 32|8@1+ (1,0) [0|0] "C" Vector__XXX
+ SG_ TPERIPH_FR_TIRETEMP_6 : 40|8@1+ (1,0) [0|0] "C" Vector__XXX
+ SG_ TPERIPH_FR_TIRETEMP_7 : 48|8@1+ (1,0) [0|0] "C" Vector__XXX
+ SG_ TPERIPH_FR_TIRETEMP_8 : 56|8@1+ (1,0) [0|0] "C" Vector__XXX
 
 BO_ 675 TPERIPH_BL_TPDO_TIRETEMP: 8 TPERIPH_BL
-   SG_ TPERIPH_BL_TIRETEMP_1 : 0|8@1+ (1,0) [0|0] "C" Vector__XXX
-   SG_ TPERIPH_BL_TIRETEMP_2 : 8|8@1+ (1,0) [0|0] "C" Vector__XXX
-   SG_ TPERIPH_BL_TIRETEMP_3 : 16|8@1+ (1,0) [0|0] "C" Vector__XXX
-   SG_ TPERIPH_BL_TIRETEMP_4 : 24|8@1+ (1,0) [0|0] "C" Vector__XXX
-   SG_ TPERIPH_BL_TIRETEMP_5 : 32|8@1+ (1,0) [0|0] "C" Vector__XXX
-   SG_ TPERIPH_BL_TIRETEMP_6 : 40|8@1+ (1,0) [0|0] "C" Vector__XXX
-   SG_ TPERIPH_BL_TIRETEMP_7 : 48|8@1+ (1,0) [0|0] "C" Vector__XXX
-   SG_ TPERIPH_BL_TIRETEMP_8 : 56|8@1+ (1,0) [0|0] "C" Vector__XXX
+ SG_ TPERIPH_BL_TIRETEMP_1 : 0|8@1+ (1,0) [0|0] "C" Vector__XXX
+ SG_ TPERIPH_BL_TIRETEMP_2 : 8|8@1+ (1,0) [0|0] "C" Vector__XXX
+ SG_ TPERIPH_BL_TIRETEMP_3 : 16|8@1+ (1,0) [0|0] "C" Vector__XXX
+ SG_ TPERIPH_BL_TIRETEMP_4 : 24|8@1+ (1,0) [0|0] "C" Vector__XXX
+ SG_ TPERIPH_BL_TIRETEMP_5 : 32|8@1+ (1,0) [0|0] "C" Vector__XXX
+ SG_ TPERIPH_BL_TIRETEMP_6 : 40|8@1+ (1,0) [0|0] "C" Vector__XXX
+ SG_ TPERIPH_BL_TIRETEMP_7 : 48|8@1+ (1,0) [0|0] "C" Vector__XXX
+ SG_ TPERIPH_BL_TIRETEMP_8 : 56|8@1+ (1,0) [0|0] "C" Vector__XXX
 
 BO_ 676 TPERIPH_BR_TPDO_TIRETEMP: 8 TPERIPH_BR
-   SG_ TPERIPH_BR_TIRETEMP_1 : 0|8@1+ (1,0) [0|0] "C" Vector__XXX
-   SG_ TPERIPH_BR_TIRETEMP_2 : 8|8@1+ (1,0) [0|0] "C" Vector__XXX
-   SG_ TPERIPH_BR_TIRETEMP_3 : 16|8@1+ (1,0) [0|0] "C" Vector__XXX
-   SG_ TPERIPH_BR_TIRETEMP_4 : 24|8@1+ (1,0) [0|0] "C" Vector__XXX
-   SG_ TPERIPH_BR_TIRETEMP_5 : 32|8@1+ (1,0) [0|0] "C" Vector__XXX
-   SG_ TPERIPH_BR_TIRETEMP_6 : 40|8@1+ (1,0) [0|0] "C" Vector__XXX
-   SG_ TPERIPH_BR_TIRETEMP_7 : 48|8@1+ (1,0) [0|0] "C" Vector__XXX
-   SG_ TPERIPH_BR_TIRETEMP_8 : 56|8@1+ (1,0) [0|0] "C" Vector__XXX
+ SG_ TPERIPH_BR_TIRETEMP_1 : 0|8@1+ (1,0) [0|0] "C" Vector__XXX
+ SG_ TPERIPH_BR_TIRETEMP_2 : 8|8@1+ (1,0) [0|0] "C" Vector__XXX
+ SG_ TPERIPH_BR_TIRETEMP_3 : 16|8@1+ (1,0) [0|0] "C" Vector__XXX
+ SG_ TPERIPH_BR_TIRETEMP_4 : 24|8@1+ (1,0) [0|0] "C" Vector__XXX
+ SG_ TPERIPH_BR_TIRETEMP_5 : 32|8@1+ (1,0) [0|0] "C" Vector__XXX
+ SG_ TPERIPH_BR_TIRETEMP_6 : 40|8@1+ (1,0) [0|0] "C" Vector__XXX
+ SG_ TPERIPH_BR_TIRETEMP_7 : 48|8@1+ (1,0) [0|0] "C" Vector__XXX
+ SG_ TPERIPH_BR_TIRETEMP_8 : 56|8@1+ (1,0) [0|0] "C" Vector__XXX
 
 BO_ 2021 LSS_COMMAND: 8 CHARGER_BOARD
-   SG_ COMMAND_MODE : 8|8@1+ (1,0) [0|0] "" Vector__XXX
-   SG_ COMMAND_COMMAND_SPECIFIER : 0|8@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ COMMAND_MODE : 8|8@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ COMMAND_COMMAND_SPECIFIER : 0|8@1+ (1,0) [0|0] "" Vector__XXX
 
 BO_ 2020 LSS_RESPONSE: 8 SMPC
-   SG_ RESPONSE_COMMAND_SPECIFIER : 0|8@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ RESPONSE_COMMAND_SPECIFIER : 0|8@1+ (1,0) [0|0] "" Vector__XXX
 
 BO_ 518 SMPC_RPDO_CONTROL: 8 CHARGER_BOARD
-   SG_ SMPC_CONTROL_PACK_VOLTAGE : 16|32@1+ (1,0) [0|65535] "mV" Vector__XXX
-   SG_ SMPC_CONTROL_DEST_NODE_ID : 0|8@1+ (1,0) [0|0] "" Vector__XXX
-   SG_ SMPC_CONTROL_ENABLE : 9|1@1+ (1,0) [0|0] "" Vector__XXX
-   SG_ SMPC_CONTROL_CURRENT_10X_MULT : 11|1@1+ (1,0) [0|0] "" Vector__XXX
-   SG_ SMPC_CONTROL_EVSE_OVERRIDE : 13|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ SMPC_CONTROL_PACK_VOLTAGE : 16|32@1+ (1,0) [0|65535] "mV" Vector__XXX
+ SG_ SMPC_CONTROL_DEST_NODE_ID : 0|8@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ SMPC_CONTROL_ENABLE : 9|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ SMPC_CONTROL_CURRENT_10X_MULT : 11|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ SMPC_CONTROL_EVSE_OVERRIDE : 13|1@1+ (1,0) [0|0] "" Vector__XXX
 
 BO_ 774 SMPC_RPDO_MAX_VOLTAGE_CURRENT: 8 CHARGER_BOARD
-   SG_ SMPC_MAX_DEST_NODE_ID : 0|8@1+ (1,0) [0|0] "" Vector__XXX
-   SG_ SMPC_MAX_CHRG_VOLTAGE : 8|32@1+ (1,0) [0|0] "mV" Vector__XXX
-   SG_ SMPC_MAX_CHRG_CURRENT : 40|16@1+ (1,0) [0|0] "mA" Vector__XXX
-   SG_ SMPC_MAX_INPUT_EVSE_OVERRIDE : 56|8@1+ (1,0) [0|255] "A" Vector__XXX
+ SG_ SMPC_MAX_DEST_NODE_ID : 0|8@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ SMPC_MAX_CHRG_VOLTAGE : 8|32@1+ (1,0) [0|0] "mV" Vector__XXX
+ SG_ SMPC_MAX_CHRG_CURRENT : 40|16@1+ (1,0) [0|0] "mA" Vector__XXX
+ SG_ SMPC_MAX_INPUT_EVSE_OVERRIDE : 56|8@1+ (1,0) [0|255] "A" Vector__XXX
 
 BO_ 400 SMPC_TPDO_STATUS: 8 SMPC
-   SG_ SMPC_STATUS_CURRENT_MA : 48|16@1+ (1,0) [0|65535] "mA" Vector__XXX
-   SG_ SMPC_STATUS_VOLTAGE_MV : 16|32@1+ (1,0) [0|2704] "mV" Vector__XXX
-   SG_ SMPC_STATUS_J1772_DISCONN : 13|1@1+ (1,0) [0|1] "" Vector__XXX
-   SG_ SMPC_STATUS_REQUEST_EXCLUSIVE : 12|1@1+ (1,0) [0|1] "" Vector__XXX
-   SG_ SMPC_STATUS_CHARGER_UNPLUGGED : 8|1@1+ (1,0) [0|1] "" Vector__XXX
-   SG_ SMPC_STATUS_CHARGING : 7|1@1+ (1,0) [0|1] "" Vector__XXX
-   SG_ SMPC_STATUS_INTERNAL_FAULT : 6|1@1+ (1,0) [0|1] "" Vector__XXX
-   SG_ SMPC_STATUS_UNDERVOLTAGE_FAULT : 5|1@1+ (1,0) [0|1] "" Vector__XXX
-   SG_ SMPC_STATUS_OVERVOLTAGE_FAULT : 4|1@1+ (1,0) [0|1] "" Vector__XXX
-   SG_ SMPC_STATUS_OVERCURRENT_FAULT : 3|1@1+ (1,0) [0|1] "" Vector__XXX
-   SG_ SMPC_STATUS_OVERTEMP_FAULT : 2|1@1+ (1,0) [0|1] "" Vector__XXX
-   SG_ SMPC_STATUS_CHARGE_COMPLETE : 1|1@1+ (1,0) [0|1] "" Vector__XXX
-   SG_ SMPC_STATUS_READY : 0|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ SMPC_STATUS_CURRENT_MA : 48|16@1+ (1,0) [0|65535] "mA" Vector__XXX
+ SG_ SMPC_STATUS_VOLTAGE_MV : 16|32@1+ (1,0) [0|2704] "mV" Vector__XXX
+ SG_ SMPC_STATUS_J1772_DISCONN : 13|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ SMPC_STATUS_REQUEST_EXCLUSIVE : 12|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ SMPC_STATUS_CHARGER_UNPLUGGED : 8|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ SMPC_STATUS_CHARGING : 7|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ SMPC_STATUS_INTERNAL_FAULT : 6|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ SMPC_STATUS_UNDERVOLTAGE_FAULT : 5|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ SMPC_STATUS_OVERVOLTAGE_FAULT : 4|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ SMPC_STATUS_OVERCURRENT_FAULT : 3|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ SMPC_STATUS_OVERTEMP_FAULT : 2|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ SMPC_STATUS_CHARGE_COMPLETE : 1|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ SMPC_STATUS_READY : 0|1@1+ (1,0) [0|1] "" Vector__XXX
 
 BO_ 656 SMPC_TPDO_MAX_VOLTAGE_CURRENT: 8 SMPC
-   SG_ SMPC_MAX2_INPUT_CURR_LIM : 56|8@1+ (1,0) [0|255] "A" Vector__XXX
-   SG_ SMPC_MAX2_EVSE_CURRENT : 48|8@1+ (1,0) [0|255] "A" Vector__XXX
-   SG_ SMPC_MAX2_MAX_CURRENT_MA : 32|16@1+ (1,0) [0|65535] "mA" Vector__XXX
-   SG_ SMPC_MAX2_MAX_VOLTAGE_MV : 0|32@1+ (1,0) [0|2704] "mV" Vector__XXX
+ SG_ SMPC_MAX2_INPUT_CURR_LIM : 56|8@1+ (1,0) [0|255] "A" Vector__XXX
+ SG_ SMPC_MAX2_EVSE_CURRENT : 48|8@1+ (1,0) [0|255] "A" Vector__XXX
+ SG_ SMPC_MAX2_MAX_CURRENT_MA : 32|16@1+ (1,0) [0|65535] "mA" Vector__XXX
+ SG_ SMPC_MAX2_MAX_VOLTAGE_MV : 0|32@1+ (1,0) [0|2704] "mV" Vector__XXX
 
 BO_ 912 SMPC_TPDO_INPUT_AC: 8 SMPC
-   SG_ SMPC_INPUT_MAX_CHARGER_TEMP_C : 40|8@1+ (1,-50) [-50|205] "C" Vector__XXX
-   SG_ SMPC_INPUT_AC_INPUT_FREQUENCY_HZ : 32|8@1+ (1,0) [0|255] "HZ" Vector__XXX
-   SG_ SMPC_INPUT_AC_INPUT_CURRENT_MA : 16|16@1+ (1,0) [0|65535] "mA" Vector__XXX
-   SG_ SMPC_INPUT_J1772_TRIGGERED : 10|1@1+ (1,0) [0|1] "" Vector__XXX
-   SG_ SMPC_INPUT_J1772_DISCONNECTED : 9|1@1+ (1,0) [0|1] "" Vector__XXX
-   SG_ SMPC_INPUT_J1772_CONNECTED : 8|1@1+ (1,0) [0|1] "" Vector__XXX
-   SG_ SMPC_INPUT_AC_INPUT_VOLTAGE : 0|8@1+ (1,0) [0|255] "Vac" Vector__XXX
+ SG_ SMPC_INPUT_MAX_CHARGER_TEMP_C : 40|8@1+ (1,-50) [-50|205] "C" Vector__XXX
+ SG_ SMPC_INPUT_AC_INPUT_FREQUENCY_HZ : 32|8@1+ (1,0) [0|255] "HZ" Vector__XXX
+ SG_ SMPC_INPUT_AC_INPUT_CURRENT_MA : 16|16@1+ (1,0) [0|65535] "mA" Vector__XXX
+ SG_ SMPC_INPUT_J1772_TRIGGERED : 10|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ SMPC_INPUT_J1772_DISCONNECTED : 9|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ SMPC_INPUT_J1772_CONNECTED : 8|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ SMPC_INPUT_AC_INPUT_VOLTAGE : 0|8@1+ (1,0) [0|255] "Vac" Vector__XXX
 
 BO_ 1168 SMPC_TPDO_SERIAL_PART_NUM: 8 SMPC
-   SG_ SMPC_SER_FIRMWARE_VER : 48|16@1+ (1,0) [0|65535] "" Vector__XXX
-   SG_ SMPC_SER_SERIAL_NUMBER : 16|32@1+ (1,0) [0|2704] "" Vector__XXX
-   SG_ SMPC_SER_PART_NUMBER : 0|16@1+ (1,0) [0|65535] "" Vector__XXX
+ SG_ SMPC_SER_FIRMWARE_VER : 48|16@1+ (1,0) [0|65535] "" Vector__XXX
+ SG_ SMPC_SER_SERIAL_NUMBER : 16|32@1+ (1,0) [0|2704] "" Vector__XXX
+ SG_ SMPC_SER_PART_NUMBER : 0|16@1+ (1,0) [0|65535] "" Vector__XXX
 
 
 
-BA_DEF_ "BusType" STRING ;
-BA_DEF_ BO_ "GenMsgBackgroundColor" STRING ;
-BA_DEF_ BO_ "GenMsgForegroundColor" STRING ;
-BA_DEF_DEF_ "BusType" "CAN";
-BA_DEF_DEF_ "GenMsgBackgroundColor" "#c8c8c8";
-BA_DEF_DEF_ "GenMsgForegroundColor" "#000000";
+CM_ SG_ 2148139008 VDM_GPS_Latitude "north is positive
+south is negative\t
+reference is WGS-84
+";
+CM_ SG_ 2148139008 VDM_GPS_Longitude "east is positive
+west is negative
+reference is WGS-84";
+BA_DEF_  "BusType" STRING ;
+BA_DEF_ BO_  "GenMsgBackgroundColor" STRING ;
+BA_DEF_ BO_  "GenMsgForegroundColor" STRING ;
+BA_DEF_DEF_  "BusType" "CAN";
+BA_DEF_DEF_  "GenMsgBackgroundColor" "#c8c8c8";
+BA_DEF_DEF_  "GenMsgForegroundColor" "#000000";
 

@@ -40,7 +40,12 @@ struct VehicleState {
     float steering_sensor;
     float brake_sensor_f;
     float brake_sensor_r;
-    
+
+    // ---- LAP COUNTING ----
+    float lap_latitude_f;
+    float lap_longitude_f;
+    float lap_heading_f;
+    uint8_t lap_counter;                // MARK: surely we don't do more than 255 laps(?)
 };
 
 class VehicleStateManager {
@@ -55,6 +60,15 @@ public:
     
     VehicleState getState() const;
     void update();
+    /**
+     * Resets all fields relating to lap counting to match current
+     * VehicleState. Assumes VehicleState was recently updated.
+     */
+    void resetLapCounter();
+    /**
+     * Returns true if a lap was detected as completed
+     */
+    bool lapCompleted();
     void startLapTimer();
     const char* getLapTime() const;
 
@@ -68,6 +82,7 @@ private:
 
     char _lapTime[16];
     Timer _lapTimer;
+    //  LowPowerTimer _lapTimer;
 
     void processCANMessage();
     void updateLapTime();

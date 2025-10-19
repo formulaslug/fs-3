@@ -1,5 +1,6 @@
 #include "VehicleStateManager.hpp"
 #include <cstdio>
+#include <cstdlib>
 #include <algorithm>
 #include <chrono>
 #include <cstring>
@@ -7,6 +8,9 @@
 #include "CANInterface.hpp"
 #include "CANProtocol.hpp"
 #include "mbed.h"
+
+#define LAP_COUNT_HEADING_THRESHOLD 10          //  degrees
+#define LAP_COUNT_TIME_THRESHOLD ((int) 30e9)           //  microseconds
 
 VehicleStateManager::VehicleStateManager(
     MbedCAN* mbedCAN,
@@ -196,6 +200,27 @@ void VehicleStateManager::processCANMessage() {
                 break;
         }
     }
+}
+
+void VehicleStateManager::resetLapCounter() {
+    _vehicleState.lap_latitude_f = _vehicleState.vdmGpsLatLong.LATITUDE;
+    _vehicleState.lap_longitude_f = _vehicleState.vdmGpsLatLong.LONGITUDE;
+    _vehicleState.lap_heading_f = (float) (_vehicleState.vdmGpsData.TRUE_COURSE % 36000) * 0.01f; // scale
+                                                                                                     // to
+                                                                                                     // 0-35999
+    _vehicleState.lap_counter = 0;
+
+    _lapTimer.reset();
+    _lapTimer.start();
+}
+
+bool VehicleStateManager::lapCompleted() {
+    std::chrono::microseconds mu_s(LAP_COUNT_TIME_THRESHOLD);
+
+    if (_lapTimer.elapsed_time() < mu_s) return false;
+    if (abs(_vehicleState.vdmGpsData.TRUE_COURSE - _vehicleState.lap_heading_f) > LAP_COUNT_HEADING_THRESHOLD) return false;
+
+    return true;
 }
 
 void VehicleStateManager::updateLapTime() {
