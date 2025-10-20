@@ -54,17 +54,6 @@ public:
     
     VehicleState getState() const;
     void update();
-    /**
-     * Resets all fields relating to lap counting to match current
-     * VehicleState. Assumes VehicleState was recently updated.
-     */
-    void resetLapCounter();
-    /**
-     * Returns true if a lap was detected as completed
-     */
-    bool lapCompleted();
-    void startLapTimer();
-    const char* getLapTime() const;
 
 private:
     MbedCAN* _mbedCAN;
@@ -74,12 +63,7 @@ private:
 
     VehicleState _vehicleState;
 
-    char _lapTime[16];
-    Timer _lapTimer;
-    //  LowPowerTimer _lapTimer;
-
     void processCANMessage();
-    void updateLapTime();
     void readSensorValues();
 };
 
