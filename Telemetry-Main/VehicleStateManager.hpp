@@ -40,12 +40,6 @@ struct VehicleState {
     float steering_sensor;
     float brake_sensor_f;
     float brake_sensor_r;
-
-    // ---- LAP COUNTING ----
-    float lap_latitude_f;
-    float lap_longitude_f;
-    float lap_heading_f;
-    uint8_t lap_counter;                // MARK: surely we don't do more than 255 laps(?)
 };
 
 class VehicleStateManager {
