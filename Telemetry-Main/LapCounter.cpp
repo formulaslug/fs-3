@@ -39,11 +39,11 @@ void LapCounter::resetLapCounter(VehicleState state) {
 
 void LapCounter::updateLapCounter(VehicleState state) {
     //  Weighted avg for prev to average out noise 
-    data.lap_prev_latitude_f = 0.25f * data.lap_prev_latitude_f + 0.75f * data.lap_curr_latitude_f;
-    data.lap_prev_longitude_f = 0.25f * data.lap_prev_longitude_f + 0.75f * data.lap_curr_longitude_f;
-    data.lap_prev_x_f = 0.25f * data.lap_prev_x_f + 0.75f * data.lap_curr_x_f;
-    data.lap_prev_y_f = 0.25f * data.lap_prev_y_f + 0.75f * data.lap_curr_y_f;
-    data.lap_prev_heading_f = 0.25f * data.lap_prev_heading_f + 0.75f * data.lap_curr_heading_f;
+    data.lap_prev_latitude_f = 0.1f * data.lap_prev_latitude_f + 0.9f * data.lap_curr_latitude_f;
+    data.lap_prev_longitude_f = 0.1f * data.lap_prev_longitude_f + 0.9f * data.lap_curr_longitude_f;
+    data.lap_prev_x_f = 0.1f * data.lap_prev_x_f + 0.9f * data.lap_curr_x_f;
+    data.lap_prev_y_f = 0.1f * data.lap_prev_y_f + 0.9f * data.lap_curr_y_f;
+    data.lap_prev_heading_f = 0.1f * data.lap_prev_heading_f + 0.9f * data.lap_curr_heading_f;
 
     //  Get curr data, transform to local coordinate plane
     data.lap_curr_latitude_f = state.vdmGpsLatLong.LATITUDE;
