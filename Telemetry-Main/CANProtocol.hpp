@@ -199,8 +199,8 @@ struct TPERIPH_TIRETEMP_t {
 };
 
 struct VDM_GPS_LAT_LONG_t {
-    int32_t LATITUDE;                  // bits 7-38
-    int32_t LONGITUDE;                 // bits 39-50
+    float LATITUDE;                  // bits 7-38
+    float LONGITUDE;                 // bits 39-50
 };
 
 struct VDM_GPS_DATA_t {
@@ -216,6 +216,7 @@ struct VDM_DATE_TIME_t {
     uint8_t UTC_DATE_YEAR;             // bits 15-22
     uint8_t UTC_DATE_MONTH;            // bits 23-30
     uint8_t UTC_DATE_DAY;              // bits 31-38
+    uint8_t padding;
     uint8_t UTC_TIME_HOURS;            // bits 47-54
     uint8_t UTC_TIME_MINUTES;          // bits 55-62
     uint8_t UTC_TIME_SECONDS;          // bits 63-70
