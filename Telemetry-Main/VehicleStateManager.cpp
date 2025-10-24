@@ -1,5 +1,7 @@
 #include "VehicleStateManager.hpp"
 #include <cstdio>
+#include <cstdlib>
+#include <cmath>
 #include <algorithm>
 #include <chrono>
 #include <cstring>
@@ -16,14 +18,11 @@ VehicleStateManager::VehicleStateManager(
 ) : _mbedCAN(mbedCAN), _steering_sensor(steering_sensor), _brake_sensor_f(brake_sensor_r), _brake_sensor_r(brake_sensor_r)
 {
     _vehicleState = {};
-
-    strcpy(_lapTime, "0:00.000");
 }
 
 void VehicleStateManager::update() {
     // printf("Updating CAN\n");
     processCANMessage();
-    updateLapTime();
     readSensorValues();
 }
 
@@ -196,25 +195,6 @@ void VehicleStateManager::processCANMessage() {
                 break;
         }
     }
-}
-
-void VehicleStateManager::updateLapTime() {
-    uint32_t milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(_lapTimer.elapsed_time()).count();
-    uint32_t minutes = milliseconds / 60000;
-    uint32_t seconds = (milliseconds % 60000) / 1000;
-    uint32_t ms = milliseconds % 1000;
-    
-    snprintf(_lapTime, sizeof(_lapTime), "%lu:%02lu.%03lu", 
-             (unsigned long)minutes, (unsigned long)seconds, (unsigned long)ms);
-}
-
-void VehicleStateManager::startLapTimer() {
-    _lapTimer.reset();
-    _lapTimer.start();
-}
-
-const char* VehicleStateManager::getLapTime() const {
-    return _lapTime;
 }
 
 VehicleState VehicleStateManager::getState() const {
