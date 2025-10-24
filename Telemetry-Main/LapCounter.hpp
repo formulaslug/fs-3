@@ -5,7 +5,7 @@
  * Made to separate lap counting from VSM. Uses VSM GPS and HEADING/TRUE_COURSE
  * data. Make sure to call updateLapCounter a lot.
  *
- * Note: "local coordinate plane" is defined as: nose towards positive x
+ * Note: "local coordinate plane" is defined as: nose towards positive x, positive y is left i think
  */
 
 #ifndef LAP_COUNTER_HPP
@@ -35,7 +35,7 @@ struct LapCounterData {
     float lap_curr_heading_f;
 
     uint8_t lap_counter;                // MARK: surely we don't do more than 255 laps(?)
-    std::chrono::microseconds lap_time;
+    float lap_time;
 };
 
 class LapCounter {
@@ -56,9 +56,9 @@ class LapCounter {
          */
         void updateLapCounter(VehicleState state);
         /**
-         * Gets the lap time in microseconds. 
+         * Gets the lap time in seconds. 
          */
-        std::chrono::microseconds getTime();
+        float getTime();
 };
 
 #endif
