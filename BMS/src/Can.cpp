@@ -142,6 +142,7 @@ CANMessage ACC_TPDO_TRAY_TEMPS(tray_temps_msg* tray_temps_message) {
         tray_temps_message->temp_bolted_connection,
         tray_temps_message->temp_busbar,
         tray_temps_message->temp_pack_fuse,
+        tray_temps_message->temp_cowling,
         0x0
     };
 

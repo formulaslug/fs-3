@@ -86,13 +86,14 @@ OneWire ds18b20_bus{PB_6};
 DS18B20 temp_bolted_connection {ds18b20_bus, 0x860000112ffda728};
 DS18B20 temp_busbar            {ds18b20_bus, 0x520000112fffdd28};
 DS18B20 temp_pack_fuse         {ds18b20_bus, 0x7400001130aabd28};
-DS18B20 ds18b20_sensors[] = { temp_bolted_connection, temp_busbar, temp_pack_fuse };
+DS18B20 temp_cowling           {ds18b20_bus, 0x6500001130050028};
+DS18B20 ds18b20_sensors[] = { temp_bolted_connection, temp_busbar, temp_pack_fuse, temp_cowling };
 bool tray_temp_sensors_ready = true;
 
 int main() {
     printf("main\n");
 
-    // while (true) { ds18b20_debug_search_for_address(); }
+    // while (true) { debug_search_for_ds18b20_address(ds18b20_bus); }
 
     osThreadSetPriority(osThreadGetId(), osPriorityHigh7);
 

@@ -1,10 +1,7 @@
 #include "DS18B20.h"
 #include "mbed.h"
 
-DS18B20::DS18B20(OneWire& onewire_bus, uint64_t device_address)
-    : bus(onewire_bus), address(device_address) {}
-
-void DS18B20::debug_search_for_address() {
+void debug_search_for_ds18b20_address(OneWire& bus) {
     uint8_t addr[8];
 
     if (!bus.search(addr)) {
@@ -40,6 +37,9 @@ void DS18B20::debug_search_for_address() {
         return;
     }
 }
+
+DS18B20::DS18B20(OneWire& onewire_bus, uint64_t device_address)
+    : bus(onewire_bus), address(device_address) {}
 
 void DS18B20::start_conversion(bool parasite_power_mode) {
     bus.reset();
