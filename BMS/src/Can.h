@@ -12,6 +12,7 @@
 // SIDs From Accumulator TODO: DOUBLE CHECK THESE
 constexpr uint32_t kACC_TPDO_STATUS = 0x188;
 constexpr uint32_t kACC_TPDO_POWER = 0x288;
+constexpr uint32_t kACC_TPDO_TRAY_TEMPS = 0x388;
 
 constexpr uint32_t kACC_TPDO_SEG0_TEMPS = 0x291;
 constexpr uint32_t kACC_TPDO_SEG1_TEMPS = 0x292;
@@ -66,8 +67,7 @@ CANMessage ACC_TPDO_SEG4_VOLTS(uint16_t *volts);
 CANMessage ACC_TPDO_POWER(uint16_t packVoltage, uint8_t state_of_charge, uint8_t fan_pwm_duty_cycle, int16_t current);
 
 
-
-void canSend(status_msg *status_message, uint16_t packVolt, uint8_t soc, int16_t curr, uint8_t fan_pwm_duty_cycle, uint16_t* allVoltages,
+void canSend(status_msg *status_message, tray_temps_msg* tray_temps_message, uint16_t packVolt, uint8_t soc, int16_t curr, uint8_t fan_pwm_duty_cycle, uint16_t* allVoltages,
             int8_t* allTemps);
 
 

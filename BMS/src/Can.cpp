@@ -137,9 +137,21 @@ CANMessage ACC_TPDO_POWER(uint16_t packVoltage, uint8_t state_of_charge, int16_t
     return CANMessage{kACC_TPDO_POWER, data};
 }
 
+CANMessage ACC_TPDO_TRAY_TEMPS(tray_temps_msg* tray_temps_message) {
+    uint8_t data[8] = {
+        tray_temps_message->temp_bolted_connection,
+        tray_temps_message->temp_busbar,
+        tray_temps_message->temp_pack_fuse,
+        tray_temps_message->temp_cowling,
+        0x0
+    };
+
+    return CANMessage{kACC_TPDO_TRAY_TEMPS, data};
+}
+
 // FULL CAN send message, sends all the possible can messages for the ACC in one go
 // status is precalled for this to work
-void canSend(status_msg* status_message, uint16_t packVolt, uint8_t soc, int16_t curr, uint8_t fan_pwm_duty_cycle, uint16_t* allVoltages,
+void canSend(status_msg* status_message, tray_temps_msg* tray_temps_message, uint16_t packVolt, uint8_t soc, int16_t curr, uint8_t fan_pwm_duty_cycle, uint16_t* allVoltages,
             int8_t* allTemps) {
 
     // status
@@ -163,6 +175,10 @@ void canSend(status_msg* status_message, uint16_t packVolt, uint8_t soc, int16_t
 
     //power
     canBus->write(ACC_TPDO_POWER(packVolt, soc, curr, fan_pwm_duty_cycle));
+    ThisThread::sleep_for(1ms);
+
+    //tray temps
+    canBus->write(ACC_TPDO_TRAY_TEMPS(tray_temps_message));
     ThisThread::sleep_for(1ms);
 
     // all the segment volts

@@ -2,3 +2,6 @@
 	path = BMS/lib-mbed-ltc681x
 	url = https://github.com/formulaslug/lib-mbed-ltc681x.git
 	shallow = true
+[submodule "BMS/onewire-mbed-os"]
+	path = BMS/onewire-mbed-os
+	url = https://github.com/alwint3r/onewire-mbed-os.git
