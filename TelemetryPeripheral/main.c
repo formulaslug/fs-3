@@ -141,7 +141,7 @@ void mcp2515_fill_txbuf2(uint32_t id, uint8_t data[], uint8_t dlc) {
 
 int main() {
     SYSTEM_Initialize();
-    DELAY_milliseconds(100);
+    DELAY_milliseconds(10);
 
     // Setup will block if sensor is not connected!!!
     if (HAS_TIRETEMP_1x8) d6t_8lh_setup();
