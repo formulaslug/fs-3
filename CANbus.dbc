@@ -392,6 +392,8 @@ BO_ 1224 IZZE_BRAKETEMP_S1M5: 8 IZZE1
 
 
 
+CM_ SG_ 2148139008 VDM_GPS_Latitude "Float32";
+CM_ SG_ 2148139008 VDM_GPS_Longitude "Float32";
 BA_DEF_  "BusType" STRING ;
 BA_DEF_ BO_  "GenMsgBackgroundColor" STRING ;
 BA_DEF_ BO_  "GenMsgForegroundColor" STRING ;
