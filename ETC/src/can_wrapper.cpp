@@ -108,8 +108,8 @@ void CANWrapper::sendCurrentLimits() {
     currentMessage.data[1] = 0x00;
 
     // Constant discharge current = 400A (split into little endian order)
-    currentMessage.data[2] = static_cast<uint8_t>(400);
-    currentMessage.data[3] = static_cast<uint8_t>(400 >> 8);
+    currentMessage.data[2] = static_cast<uint8_t>(600);
+    currentMessage.data[3] = static_cast<uint8_t>(600 >> 8);
 
     currentMessage.data[4] = 0x00;
     currentMessage.data[5] = 0x00;
@@ -125,16 +125,32 @@ void CANWrapper::processCANRx() {
     // printf("rxerr: %d\n", this->bus->rderror());
     // printf("txerr: %d\n", this->bus->tderror());
     // printf("rx\n");
+    ETCState state = this->etc.getState();
     CANMessage rx;
     while (this->bus->read(rx)) {
         switch (rx.id) {
             case 0x188: // ACC_TPDO_STATUS
-                ETCState state = this->etc.getState();
                 state.ts_ready = rx.data[0] & 0b00001000;
                 this->etc.updateStateFromCAN(state);
                 if (!this->etc.getState().ts_ready) {
                     this->etc.turnOffMotor();
                 }
+                break;
+            case 0x1A2:
+                state.fl_he = rx.data[0] + rx.data[1] << 8;
+                this->etc.updateStateFromCAN(state);
+                break;
+            case 0x1A3:
+                state.fr_he = rx.data[0] + rx.data[1] << 8;
+                this->etc.updateStateFromCAN(state);
+                break;
+            case 0x1A4:
+                state.bl_he = rx.data[0] + rx.data[1] << 8;
+                this->etc.updateStateFromCAN(state);
+                break;
+            case 0x1A5:
+                state.br_he = rx.data[0] + rx.data[1] << 8;
+                this->etc.updateStateFromCAN(state);
                 break;
         }
     }
