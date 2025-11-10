@@ -43,6 +43,10 @@ struct ETCState {
     bool cockpit;
     int16_t torque_demand;
     bool brakes_implausibility;
+    uint16_t fr_he;
+    uint16_t fl_he;
+    uint16_t br_he;
+    uint16_t bl_he;
 };
 
 

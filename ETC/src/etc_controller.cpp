@@ -104,9 +104,22 @@ void ETCController::updateState() {
     this->state.he2_read = this->he2Input.read() * ETCController::MAX_VOLTAGE;
     this->state.he1_travel = he1Travel;
     this->state.he2_travel = he2Travel;
+
+    const double heF = (static_cast<float>(this->state.fl_he) + static_cast<float>(this->state.fr_he))/2.0;
+    const double heB = (static_cast<float>(this->state.bl_he) + static_cast<float>(this->state.br_he))/2.0;
+    const double heRatio = heB/heF;
+    double heFactor;
+
+    if (heRatio > 1.0) {
+        heFactor = 1.0 / heRatio;
+    }
+    else {
+        heFactor = 1.0;
+    }
+
     this->state.torque_demand =
         (this->state.motor_enabled && (!this->state.brakes_implausibility && !this->hasImplausibility())) ?
-        static_cast<int16_t>(pedalTravel * ETCController::MAX_TORQUE) :
+        static_cast<int16_t>(pedalTravel * ETCController::MAX_TORQUE * heFactor) :
         0;
 
 
@@ -168,6 +181,10 @@ void ETCController::resetState() {
     this->state.cockpit = false;
     this->state.torque_demand = 0;
     this->state.brakes_implausibility = false;
+    this->state.fl_he = 0;
+    this->state.fr_he = 0;
+    this->state.bl_he = 0;
+    this->state.br_he = 0;
 }
 
 void ETCController::set_brake_implausibility() {
