@@ -46,3 +46,4 @@ mbed-os-build/
 
 # The above gitignores cannot apply within ./mbed-os. This MUST be last
 !mbed-os/**
+busmasterConfigNathaniel.cfx
