@@ -216,7 +216,7 @@ struct VDM_DATE_TIME_t {
     uint8_t UTC_DATE_YEAR;             // bits 15-22
     uint8_t UTC_DATE_MONTH;            // bits 23-30
     uint8_t UTC_DATE_DAY;              // bits 31-38
-    uint8_t padding;
+    uint8_t padding;                   // bits 39-46
     uint8_t UTC_TIME_HOURS;            // bits 47-54
     uint8_t UTC_TIME_MINUTES;          // bits 55-62
     uint8_t UTC_TIME_SECONDS;          // bits 63-70
