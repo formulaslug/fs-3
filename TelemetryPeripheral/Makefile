@@ -41,7 +41,8 @@ build:
 
 # /dev/ttyACM0 /dev/ttyUSB0
 upload:
-	avrdude -c serialupdi -p attiny1616 -P ch9102 -e -U flash:w:out/TelemetryPeripheral/default.elf
+	avrdude -c serialupdi -p attiny1616 -P ch9102 -e -U flash:w:out/TelemetryPeripheral/default.elf # adafruit UPDI friend programmer
+	# avrdude -c serialupdi -p attiny1616 -P pl2303 -e -U flash:w:out/TelemetryPeripheral/default.elf # adafruit USB -TTL serial adapter
 
 link_compile_commands:
 	ln -s $(BUILD_DIRECTORY)/compile_commands.json .

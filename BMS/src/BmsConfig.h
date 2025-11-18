@@ -382,3 +382,11 @@ struct status_msg {
   uint16_t glv_voltage;
   uint32_t cell_fault_index;
 };
+
+struct tray_temps_msg {
+    uint8_t temp_busbar;
+    uint8_t temp_pack_fuse;
+    uint8_t temp_bolted_connection;
+    uint8_t temp_cowling;
+};
+

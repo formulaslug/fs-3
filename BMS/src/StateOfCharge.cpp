@@ -37,14 +37,14 @@ uint16_t convertLowVoltage(uint32_t voltage) {
             {
                 return CELL_CAPACITY_RATED;
             }
-            return linearInterpolateAh(volt_cap_soc_lookup_table[i-1], volt_cap_soc_lookup_table[i-1], cell_voltage);
+            return linearInterpolateAh(volt_cap_soc_lookup_table[i-1], volt_cap_soc_lookup_table[i], cell_voltage);
         }
     }
     // Fallback Value
     return 0;
 }
 
-static uint16_t linearInterpolateAh(SOCConversion low, SOCConversion high, uint32_t voltage) {
+uint16_t linearInterpolateAh(SOCConversion low, SOCConversion high, uint32_t voltage) {
 
     // If something went wrong with convertLowVoltage
     // if(voltage < low.capacity || voltage > high.capacity) return 100;
@@ -53,7 +53,7 @@ static uint16_t linearInterpolateAh(SOCConversion low, SOCConversion high, uint3
 }
 
 // calculating the riemann sum of the voltage/cap curve (from measured val to known value for full discharge)
-static uint16_t soc_energy(uint16_t voltage, int32_t capacity) {
+uint16_t soc_energy(uint16_t voltage, int32_t capacity) {
 
     // calculating riemann sum for measured val and next lowest capacity?
     uint16_t sum = 50000;
