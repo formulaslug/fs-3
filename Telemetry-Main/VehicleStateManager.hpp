@@ -40,7 +40,6 @@ struct VehicleState {
     float steering_sensor;
     float brake_sensor_f;
     float brake_sensor_r;
-    
 };
 
 class VehicleStateManager {
@@ -55,8 +54,6 @@ public:
     
     VehicleState getState() const;
     void update();
-    void startLapTimer();
-    const char* getLapTime() const;
 
 private:
     MbedCAN* _mbedCAN;
@@ -66,11 +63,7 @@ private:
 
     VehicleState _vehicleState;
 
-    char _lapTime[16];
-    Timer _lapTimer;
-
     void processCANMessage();
-    void updateLapTime();
     void readSensorValues();
 };
 
