@@ -137,19 +137,23 @@ void CANWrapper::processCANRx() {
                 }
                 break;
             case 0x1A2:
-                state.fl_he = rx.data[0] + rx.data[1] << 8;
+                state.fl_he = rx.data[0] + (rx.data[1] << 8);
                 this->etc.updateStateFromCAN(state);
                 break;
             case 0x1A3:
-                state.fr_he = rx.data[0] + rx.data[1] << 8;
+                state.fr_he = rx.data[0] + (rx.data[1] << 8);
                 this->etc.updateStateFromCAN(state);
                 break;
             case 0x1A4:
-                state.bl_he = rx.data[0] + rx.data[1] << 8;
+                state.bl_he = rx.data[0] + (rx.data[1] << 8);
                 this->etc.updateStateFromCAN(state);
                 break;
             case 0x1A5:
-                state.br_he = rx.data[0] + rx.data[1] << 8;
+                state.br_he = rx.data[0] + (rx.data[1] << 8);
+                this->etc.updateStateFromCAN(state);
+                break;
+            case 0x482:
+                state.sme_trqspd_speed = static_cast<int16_t>(rx.data[0] | (rx.data[1] << 8));
                 this->etc.updateStateFromCAN(state);
                 break;
         }

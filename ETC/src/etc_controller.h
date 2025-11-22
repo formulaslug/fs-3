@@ -47,6 +47,7 @@ struct ETCState {
     uint16_t fl_he;
     uint16_t br_he;
     uint16_t bl_he;
+    int16_t sme_trqspd_speed;
 };
 
 

@@ -107,16 +107,17 @@ void ETCController::updateState() {
 
     const double heF = (static_cast<float>(this->state.fl_he) + static_cast<float>(this->state.fr_he))/2.0;
     const double heB = (static_cast<float>(this->state.bl_he) + static_cast<float>(this->state.br_he))/2.0;
-    const double heRatio = heB/heF;
+    const double tractionControlPower = 4.0;
+    const double heRatio = (((heB/heF) - 1.0)*tractionControlPower)+1.0;
     double heFactor;
 
-    if (heRatio > 1.0) {
+    if (heRatio > 1.0 && this->state.sme_trqspd_speed > 1200) {
         heFactor = 1.0 / heRatio;
     }
     else {
         heFactor = 1.0;
     }
-
+    
     this->state.torque_demand =
         (this->state.motor_enabled && (!this->state.brakes_implausibility && !this->hasImplausibility())) ?
         static_cast<int16_t>(pedalTravel * ETCController::MAX_TORQUE * heFactor) :
