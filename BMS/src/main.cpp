@@ -86,8 +86,8 @@ OneWire ds18b20_bus{PB_6};
 DS18B20 temp_bolted_connection {ds18b20_bus, 0x860000112ffda728}; //5
 DS18B20 temp_busbar            {ds18b20_bus, 0x520000112fffdd28}; //3
 DS18B20 temp_pack_fuse         {ds18b20_bus, 0x7400001130aabd28}; //4  28 bd aa 30 11 0 0 74
-DS18B20 temp_intake           {ds18b20_bus, 0x0e0000111131fc28}; //1  28 fc 31 11 11 0 0 e
-DS18B20 temp_cowling            {ds18b20_bus, 0x3e00001111126d28}; // 2  28 6d 12 11 11 0 0 3e
+DS18B20 temp_cowling           {ds18b20_bus, 0x3e00001111126d28}; //2  28 6d 12 11 11 0 0 3e
+DS18B20 temp_intake            {ds18b20_bus, 0x0e0000111131fc28}; //1  28 fc 31 11 11 0 0 e
 DS18B20 ds18b20_sensors[] = { temp_bolted_connection, temp_busbar, temp_pack_fuse, temp_cowling, temp_intake};
 bool tray_temp_sensors_ready = true;
 
@@ -129,7 +129,8 @@ int main() {
     while (true) {
         //debug_search_for_ds18b20_address(ds18b20_bus);
         // infinite loop
-        glvVoltage = (uint16_t)(glv_voltage_pin * 185.3); // Read voltage from glv_voltage_pin and convert it to mV
+        // glvVoltage = (uint16_t)(glv_voltage_pin * 185.3); // Read voltage from glv_voltage_pin and convert it to mV
+        glvVoltage = (uint16_t)(glv_voltage_pin * 3.3 * 21.9/3.9 * 1000); // Read voltage from glv_voltage_pin and convert it to mV
         status_message.glv_voltage = glvVoltage;
         // printf("GLV voltage: %d mV\n", glvVoltage * 100);
         //  capacity initialization using the voltage lookup table
