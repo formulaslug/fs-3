@@ -169,11 +169,11 @@ int main() {
 }
 
 uint8_t process_current(std::vector<uint8_t> &vec) {
-    vec.push_back(read_current());
     if (vec.size() > 5)
     {
         vec.erase(vec.begin());
     }
+    vec.push_back(read_current());
     return std::accumulate(vec.begin(), vec.end(), 0) / vec.size();
 }
 
