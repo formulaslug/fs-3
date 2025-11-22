@@ -27,6 +27,8 @@ void VehicleStateManager::update() {
 }
 
 void VehicleStateManager::readSensorValues() {
+    // TODO: scale these to correct ranges
+
     _vehicleState.steering_sensor =  _steering_sensor.read() * 3.3f;
 
     _vehicleState.brake_sensor_f =_brake_sensor_f.read() * 3.3f;

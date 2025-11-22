@@ -177,6 +177,7 @@ struct SME_MAX_CURRENTS_t {
 struct TMAIN_DATA_t {
     uint16_t BRAKES_F;                 // bits 0-15
     uint16_t BRAKES_R;                 // bits 16-31
+    uint16_t STEER;                    // bits 32-48
 };
 
 struct TPERIPH_DATA_t {
