@@ -291,7 +291,7 @@ int main() {
                 tray_temps_message.temp_busbar = temp_busbar.retrieve_conversion();
                 tray_temps_message.temp_pack_fuse = temp_pack_fuse.retrieve_conversion();
                 tray_temps_message.temp_cowling = temp_cowling.retrieve_conversion();
-                tray_temps_nmessage.temp_intake = temp_intake.retrieve_conversion();
+                tray_temps_message.temp_intake = temp_intake.retrieve_conversion();
 
                 
                 tray_temp_sensors_ready = true;
