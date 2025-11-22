@@ -1,4 +1,0 @@
-{
-   "cmake.buildDirectory": "${workspaceFolder}/build/${variant:board}-${variant:buildType}",
-   "cmake.generator": "Ninja"
-}
