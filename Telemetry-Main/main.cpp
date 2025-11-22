@@ -25,8 +25,8 @@ XBeeRadio radio{xbee_spi, xbee_spi_cs, xbee_spi_attn};
 
 auto mbed_can = CAN(PB_8, PB_9, 500000);
 auto can = MbedCAN(mbed_can);
-// auto vsm = VehicleStateManager(&can, PC_5, PC_1, PC_0);
-auto vsm = VehicleStateManager(&can, PC_5, PA_0, PA_1);
+auto vsm = VehicleStateManager(&can, PC_5, PC_1, PC_0);
+// auto vsm = VehicleStateManager(&can, PC_5, PA_0, PA_1);
 
 // This still causes static initialization order fiasco, since DataLogger
 // has a non-trivial constructor (which is called before main())!!!
@@ -113,7 +113,7 @@ void update_dash() {
         vsm_state.smeTemp.DC_BUS_V/10,
         vsm_state.smeTemp.MOTOR_TEMP,
         vsm_state.accPower.SOC,
-        vsm_state.accStatus.GLV_VOLTAGE/10,
+        vsm_state.accStatus.GLV_VOLTAGE/1000,
         static_cast<bool>(vsm_state.etcStatus.RTD),
         n,
         vsm_state.brake_sensor_r,
@@ -152,11 +152,28 @@ int main() {
     if (ENABLE_DASH) {
         queue.call_every(DASH_UPDATE_HZ, &update_dash);
     }
-    Timer t;
-    t.start();
-    queue.call_every(1ms, [&t]() {
+
+
+    if (true){
+        queue.call_every(100ms, []() {
+            const VehicleState state = vsm.getState();
+            const uint8_t tmain_data[] = {
+                static_cast<uint8_t>(state.brake_sensor_f),
+                static_cast<uint8_t>((state.brake_sensor_f & 0xFF00) >> 8),
+                static_cast<uint8_t>(state.brake_sensor_r),
+                static_cast<uint8_t>((state.brake_sensor_r & 0xFF00) >> 8),
+                static_cast<uint8_t>(state.steering_sensor),
+                static_cast<uint8_t>((state.steering_sensor & 0xFF00) >> 8),
+            };
+            can.write(CANMessage{0x1A0, tmain_data, 6});
+        });
+    }
+
+    // Timer t;
+    // t.start();
+    queue.call_every(1ms, [/*&t*/]() {
         // printf("%fms\n", t.elapsed_time().count() / 1000.0f);
-        t.reset();
+        // t.reset();
         vsm.update();
         const VehicleState state = vsm.getState();
 
