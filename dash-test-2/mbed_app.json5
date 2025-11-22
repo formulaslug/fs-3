@@ -10,8 +10,6 @@
 
       // Enable the SD card library component (creates the mbed-storage-* cmake
       // libraries for us to link against)
-      "target.features_add": ["STORAGE"],
-      "target.components_add": ["SD"],
 
       // SPI frequencies
       "sd.INIT_FREQUENCY": 160000, //should be 100khz - 400khz
