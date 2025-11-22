@@ -18,7 +18,7 @@ EventQueue queue(32 * EVENTS_EVENT_SIZE);
 
 uint16_t glv;
 float lv_sense_val;
-float lv_sense_factor = 5.0f;
+float LV_SENSE_FACTOR = 5.0f;
 const float GLV_THRESHOLD = 10.8f;
 
 vector<uint8_t> rtm_curr_vec;
@@ -109,7 +109,7 @@ int main() {
     queue.call_every(200ms, send_PDB_TPDO_POWER_B);
 
     while (true) {
-        lv_sense_val = lv_sense.read() * 3.3f * lv_sense_factor;   // 5.0f depends on voltage divider
+        lv_sense_val = lv_sense.read() * 3.3f * LV_SENSE_FACTOR;   // 5.0f depends on voltage divider
         if (lv_sense_val < GLV_THRESHOLD) {
             reset_ctrl.write(0);    // Disconnect from ground, open circuit
         }
