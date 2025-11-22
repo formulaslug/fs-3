@@ -111,7 +111,7 @@ int main() {
     while (true) {
         lv_sense_val = lv_sense.read() * 3.3f * LV_SENSE_FACTOR;
         if (lv_sense_val < GLV_THRESHOLD) {
-            reset_ctrl.write(1);    // Disconnect from ground, open circuit
+            reset_ctrl.write(1);
         }
 
         CANMessage msg;
