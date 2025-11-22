@@ -1,0 +1,65 @@
+#pragma once
+
+#include "mbed.h"
+
+namespace fsdaq {
+
+
+static const int COLS = @COLS@;
+static const int ROWS_PER_BATCH = @ROWS_PER_BATCH@;
+
+static const char *col_names[] = { "Time_ms", @COL_NAMES@ };
+static const uint8_t col_name_sizes[] = { 7, @COL_NAME_SIZES@ };
+static const char *col_name_types[] = { "u5", @COL_NAME_TYPES@ };
+
+struct DataRow {
+    uint32_t Time_ms;
+
+@DATA_ROW_STRUCT_FIELDS@
+};
+
+#pragma pack(1)
+class DataBatch {
+    uint32_t Time_ms[ROWS_PER_BATCH];
+
+@DATA_BATCH_STRUCT_FIELDS@
+
+public:
+    void set_row(DataRow row, int idx, uint32_t current_time_ms) {
+        this->Time_ms[idx] = current_time_ms;
+
+@UPDATE_FIELDS_FROM_ROW@
+    }
+};
+#pragma pack()
+
+inline void write_fsdaq_schema(FILE *file) {
+    uint32_t m = COLS;
+    uint32_t n = ROWS_PER_BATCH;
+    fwrite(&m, sizeof(m), 1, file);
+    fwrite(&n, sizeof(n), 1, file);
+
+    for (int i=0; i<COLS; i++) {
+        const uint8_t col_len = col_name_sizes[i];
+        const char *col = col_names[i];
+
+        fwrite(&col_len, sizeof(col_len), 1, file);
+        fwrite(col, col_len, 1, file);
+    }
+
+    for (int i=0; i<COLS; i++) {
+        const char *col_type = col_name_types[i];
+        fwrite(col_type, 2, 1, file);
+    }
+}
+
+inline void write_fsdaq_batch(DataBatch *batch, FILE *file) {
+    fwrite(batch, sizeof(*batch), 1, file);
+}
+
+inline void write_fsdaq_header(FILE *file) {
+    fwrite("FSDAQ001", 8, 1, file);
+}
+
+    
+} // namespace fsdaq

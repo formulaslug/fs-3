@@ -1,0 +1,18 @@
+#include "can_processor_generated.hpp"
+#include "encoder_generated.hpp"
+#include "mbed.h"
+
+namespace fsdaq {
+
+CANProcessor::CANProcessor(CAN &can)
+    : current_row(std::make_unique<DataRow>()), can(can) {}
+
+void CANProcessor::process_message() {
+    CANMessage msg;
+    if (!can.read(msg)) return;
+    switch (static_cast<fsdaq::MessageID>(msg.id)) {
+@CAN_MESSAGE_PROCESSING@
+    };
+}
+
+} // namespace fsdaq
