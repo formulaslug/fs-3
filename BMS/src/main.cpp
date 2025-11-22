@@ -83,17 +83,24 @@ status_msg status_message;
 tray_temps_msg tray_temps_message;
 
 OneWire ds18b20_bus{PB_6};
-DS18B20 temp_bolted_connection {ds18b20_bus, 0x860000112ffda728};
-DS18B20 temp_busbar            {ds18b20_bus, 0x520000112fffdd28};
-DS18B20 temp_pack_fuse         {ds18b20_bus, 0x7400001130aabd28};
-DS18B20 temp_cowling           {ds18b20_bus, 0x6500001130050028};
-DS18B20 ds18b20_sensors[] = { temp_bolted_connection, temp_busbar, temp_pack_fuse, temp_cowling };
+DS18B20 temp_bolted_connection {ds18b20_bus, 0x860000112ffda728}; //5
+DS18B20 temp_busbar            {ds18b20_bus, 0x520000112fffdd28}; //3
+DS18B20 temp_pack_fuse         {ds18b20_bus, 0x7400001130aabd28}; //4  28 bd aa 30 11 0 0 74
+DS18B20 temp_intake           {ds18b20_bus, 0x0e0000111131fc28}; //1  28 fc 31 11 11 0 0 e
+DS18B20 temp_cowling            {ds18b20_bus, 0x3e00001111126d28}; // 2  28 6d 12 11 11 0 0 3e
+DS18B20 ds18b20_sensors[] = { temp_bolted_connection, temp_busbar, temp_pack_fuse, temp_cowling, temp_intake};
 bool tray_temp_sensors_ready = true;
 
 int main() {
     printf("main\n");
 
-    // while (true) { debug_search_for_ds18b20_address(ds18b20_bus); }
+    // while (true) {
+    //     printf("start -----------------\n");
+    //     for (DS18B20 ds : ds18b20_sensors) {
+    //                 ds.start_conversion();
+    //                 printf("temp sensor n is: %f c \n", (float) ds.retrieve_conversion()/2);
+    //             }
+    // }
 
     osThreadSetPriority(osThreadGetId(), osPriorityHigh7);
 
@@ -120,6 +127,7 @@ int main() {
     soc_timer.start();
     int32_t capacityDischarged = -1;
     while (true) {
+        debug_search_for_ds18b20_address(ds18b20_bus);
         // infinite loop
         glvVoltage = (uint16_t)(glv_voltage_pin * 185.3); // Read voltage from glv_voltage_pin and convert it to mV
         status_message.glv_voltage = glvVoltage;
@@ -283,7 +291,9 @@ int main() {
                 tray_temps_message.temp_busbar = temp_busbar.retrieve_conversion();
                 tray_temps_message.temp_pack_fuse = temp_pack_fuse.retrieve_conversion();
                 tray_temps_message.temp_cowling = temp_cowling.retrieve_conversion();
+                tray_temps_nmessage.temp_intake = temp_intake.retrieve_conversion();
 
+                
                 tray_temp_sensors_ready = true;
 
                 // printf("%d %d %d", tray_temps_message.temp_bolted_connection, tray_temps_message.temp_busbar, tray_temps_message.temp_pack_fuse);
