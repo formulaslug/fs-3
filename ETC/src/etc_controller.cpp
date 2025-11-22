@@ -106,8 +106,11 @@ void ETCController::updateState() {
     this->state.he2_travel = he2Travel;
     this->state.torque_demand =
         (this->state.motor_enabled && (!this->state.brakes_implausibility && !this->hasImplausibility())) ?
-        static_cast<int16_t>(pedalTravel * ETCController::MAX_TORQUE) :
+        static_cast<int16_t>((pedalTravel - ETCController::PRECENT_REGEN) * ETCController::MAX_TORQUE_DEMAND / (1 - ETCController::PRECENT_REGEN)) :
         0;
+    if (!this->can_regen && this->state.torque_demand < 0) {
+        this->state.torque_demand = 0;
+    }
 
 
     if (this->state.brakes_read >= ETCController::BRAKE_TOLERANCE_HIGH) {
