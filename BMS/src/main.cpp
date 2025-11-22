@@ -127,7 +127,7 @@ int main() {
     soc_timer.start();
     int32_t capacityDischarged = -1;
     while (true) {
-        debug_search_for_ds18b20_address(ds18b20_bus);
+        //debug_search_for_ds18b20_address(ds18b20_bus);
         // infinite loop
         glvVoltage = (uint16_t)(glv_voltage_pin * 185.3); // Read voltage from glv_voltage_pin and convert it to mV
         status_message.glv_voltage = glvVoltage;
