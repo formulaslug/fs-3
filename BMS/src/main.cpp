@@ -118,6 +118,9 @@ int main() {
     Timer soc_timer;
     t.start(); // start timer
     soc_timer.start();
+
+    uint32_t last_i2c_temp_read = 0;
+
     int32_t capacityDischarged = -1;
     while (true) {
         // infinite loop
@@ -125,6 +128,20 @@ int main() {
         status_message.glv_voltage = glvVoltage;
         // printf("GLV voltage: %d mV\n", glvVoltage * 100);
         //  capacity initialization using the voltage lookup table
+
+        uint32_t current_time = t.read_ms();
+        // read I2C temperature
+        if (current_time - last_i2c_temp_read >= 1000) {  // Every 1 second
+            if (!mainToBMSMailbox->full()) {
+                MainToBMSEvent* tempEvent = new MainToBMSEvent();
+                tempEvent->balanceAllowed = shutdown_measure_pin;
+                tempEvent->charging = isCharging;
+                tempEvent->readI2CTemp = true;  // Request temperature reading
+                mainToBMSMailbox->put(tempEvent);
+            }
+            last_i2c_temp_read = current_time;
+        }
+
         while (!bmsMailbox->empty()) {
             // while the bmsMailbox is not empty
             BmsEvent* bmsEvent; // create bms event pointer
