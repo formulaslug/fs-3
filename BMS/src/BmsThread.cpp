@@ -9,6 +9,8 @@
 
 #include "EnergusTempSensor.h"
 
+#include "LTC6811.h"
+
 BMSThread::BMSThread(LTC681xBus &bus, unsigned int frequency, BmsEventMailbox* bmsEventMailbox, MainToBMSMailbox* mainToBMSMailbox)
     : m_bus(bus), bmsEventMailbox(bmsEventMailbox), mainToBMSMailbox(mainToBMSMailbox) {
   for (int i = 0; i < BMS_BANK_COUNT; i++) {
@@ -119,6 +121,13 @@ void BMSThread::threadWorker() {
         charging = mainToBMSEvent->charging;// assign charging to mainToBMSEvent
                                             // that is assigned the value held by charging
         // printf("Balance Allowed: %x\nCharging: %x\n", balanceAllowed, charging);
+        if (mainToBMSEvent->readI2CTemp) {
+        // Read temperature from I2C sensor on each bank
+          for (int i = 0; i < BMS_BANK_COUNT; i++) {
+            float temp = m_chips[i].readTemperatureTMP1075();
+            printf("Bank %d I2C Temperature: %.2f°C\n", i, temp);
+          }
+        }
         delete mainToBMSEvent; // deallocate memory that was previously allocated dynamically to mainToBMSEvent
     }
 

@@ -2,7 +2,7 @@
 
 #include <LTC681xParallelBus.h>
 
-class LTC6811 {
+class LTC6810 {
 public:
     enum class GPIOOutputState : uint8_t {
         // States with pull up resistor
@@ -20,8 +20,7 @@ public:
     enum class AdcModeOption : uint8_t { kDefault = 0, kLowSpeed = 1 };
     union DischargeState {
         struct {
-            uint8_t cell12 : 1, cell11 : 1, cell10 : 1, cell9 : 1, cell8 : 1,
-                cell7 : 1, cell6 : 1, cell5 : 1, cell4 : 1, cell3 : 1, cell2 : 1,
+            uint8_t cell6 : 1, cell5 : 1, cell4 : 1, cell3 : 1, cell2 : 1,
                 cell1 : 1;
         };
         uint16_t value;
