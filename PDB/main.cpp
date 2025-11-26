@@ -19,7 +19,7 @@ EventQueue queue(32 * EVENTS_EVENT_SIZE);
 uint16_t glv;
 float lv_sense_val;
 const float LV_SENSE_FACTOR = 5.0f;   // depends on voltage divider
-const float GLV_THRESHOLD = 10.8f;
+const float GLV_THRESHOLD = 11.0f;
 
 vector<uint8_t> rtm_curr_vec;
 vector<uint8_t> bps_curr_vec;
