@@ -1,4 +1,4 @@
-#include "LTC6811.h"
+#include "LTC6810.h"
 
 #include "mbed.h"
 #include "rtos.h"
@@ -50,7 +50,7 @@ void LTC6810::updateConfig() {
 
 LTC6810::Configuration &LTC6810::getConfig() { return m_config; }
 
-uint16_t *LTC6811::getVoltages() {
+uint16_t *LTC6810::getVoltages() {
   auto cmd = StartCellVoltageADC(AdcMode::k7k, false, CellSelection::kAll);
   m_bus.SendCommand(LTC681xBus::BuildAddressedBusCommand(cmd, m_id));
 
@@ -62,8 +62,7 @@ uint16_t *LTC6811::getVoltages() {
 
   m_bus.SendReadCommand(LTC681xBus::BuildAddressedBusCommand(ReadCellVoltageGroupA(), m_id), rxbuf);
   m_bus.SendReadCommand(LTC681xBus::BuildAddressedBusCommand(ReadCellVoltageGroupB(), m_id), rxbuf + 8);
-  m_bus.SendReadCommand(LTC681xBus::BuildAddressedBusCommand(ReadCellVoltageGroupC(), m_id), rxbuf + 16);
-  m_bus.SendReadCommand(LTC681xBus::BuildAddressedBusCommand(ReadCellVoltageGroupD(), m_id), rxbuf + 24);
+ 
 
   // Voltage = val • 100μV
   uint16_t *voltages = new uint16_t[6];
@@ -146,7 +145,7 @@ void LTC6810::buildCOMMBytes(uint8_t icom, uint8_t fcom, uint8_t data, uint8_t *
 }
 
 float LTC6810::readTemperatureTMP1075() {
-  uint8_t commData[6]
+  uint8_t commData[6];
   uint8_t rxData[8]; 
   uint8_t tempBytes[2];
 

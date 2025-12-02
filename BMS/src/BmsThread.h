@@ -15,7 +15,7 @@
 //#include "Can.h"
 
 #include "EnergusTempSensor.h"
-#include "LTC6811.h"
+#include "LTC6810.h"
 #include "LTC681xBus.h"
 #include "Event.h"
 
@@ -34,7 +34,7 @@ private:
     bool charging = false;
     bool readI2CTemp;
     LTC681xBus& m_bus;
-    std::vector<LTC6811> m_chips;
+    std::vector<LTC6810> m_chips;
     BmsEventMailbox* bmsEventMailbox;
     MainToBMSMailbox* mainToBMSMailbox;
 

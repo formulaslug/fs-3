@@ -62,13 +62,16 @@ public:
         DischargeTimeoutValue dischargeTimeout;
     };
 
-    LTC6811(LTC681xBus &bus, uint8_t id);
+    LTC6810(LTC681xBus &bus, uint8_t id);
     Configuration &getConfig();
     void updateConfig();
 
     uint16_t *getVoltages();
     uint16_t *getGpio();
     uint16_t *getGpioPin(GpioSelection pin);
+    void buildCOMMBytes(uint8_t icom, uint8_t fcom, uint8_t data, uint8_t *commBytes);
+    float readTemperatureTMP1075();
+    bool verifyI2CStatus(uint8_t *rxData);
 
 private:
     LTC681xBus &m_bus;
