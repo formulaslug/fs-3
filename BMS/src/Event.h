@@ -34,6 +34,7 @@ class MainToBMSEvent {
 public:
     bool balanceAllowed = false;
     bool charging = false;
+    bool readI2CTemp;
 };
 
 static constexpr auto mailboxSize = 4;
