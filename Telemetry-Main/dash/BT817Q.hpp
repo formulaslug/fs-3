@@ -301,6 +301,7 @@ public:
   void setBacklight(bool on);
 
   void loadFonts();
+  void cmd(uint32_t word);
 
 private:
   // Low‑level internal helpers
@@ -313,7 +314,6 @@ private:
   uint8_t read8(uint32_t addr);
   uint16_t read16(uint32_t addr);
   uint32_t read32(uint32_t addr);
-  void cmd(uint32_t word);
   void cmdString(const char *s);
   Result cmdWait(); // success = true
   void cmdLoadRomFonts(uint8_t handle, uint8_t font);
