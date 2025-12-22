@@ -17,8 +17,12 @@ BMSThread::BMSThread(LTC681xBus &bus, unsigned int frequency, BmsEventMailbox* b
     m_chips.push_back(LTC6810(bus, i));
   }
   for (int i = 0; i < BMS_BANK_COUNT; i++) {
-    // m_chips[i].getConfig().gpio5 = LTC6811::GPIOOutputState::kLow;
-    // m_chips[i].getConfig().gpio4 = LTC6811::GPIOOutputState::kPassive;
+    m_chips[i].getConfig().gpio4 = LTC6810::GPIOOutputState::kHigh;
+    m_chips[i].getConfig().gpio3 = LTC6810::GPIOOutputState::kHigh;
+
+    // for LTC6811
+    // m_chips[i].getConfig().gpio5 = LTC6811::GPIOOutputState::kHigh;
+    // m_chips[i].getConfig().gpio4 = LTC6811::GPIOOutputState::kHigh;
 
     m_chips[i].updateConfig();
   }

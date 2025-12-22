@@ -24,6 +24,7 @@ public:
                 cell1 : 1;
         };
         uint16_t value;
+        // have 12 cells for LTC6811
     };
     // Discharge Timeout in minutes
     enum class DischargeTimeoutValue : uint8_t {
@@ -69,9 +70,9 @@ public:
     uint16_t *getVoltages();
     uint16_t *getGpio();
     uint16_t *getGpioPin(GpioSelection pin);
-    void buildCOMMBytes(uint8_t icom, uint8_t fcom, uint8_t data, uint8_t *commBytes);
-    float readTemperatureTMP1075();
-    bool verifyI2CStatus(uint8_t *rxData);
+    static void buildCOMMBytes(uint8_t icom, uint8_t fcom, uint8_t data, uint8_t *commBytes);
+    static float readTemperatureTMP1075(TMP1075_Handle_t *sensor);
+    static bool verifyI2CStatus(uint8_t *rxData);
 
 private:
     LTC681xBus &m_bus;

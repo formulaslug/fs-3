@@ -5,15 +5,13 @@
 
 #include "LTC681xParallelBus.h"
 
-#define TMP1075_I2C_ADDR 0x48
-#define TMP1075_TEMP_REG 0x00
 
 LTC6810::LTC6810(LTC681xBus &bus, uint8_t id) : m_bus(bus), m_id(id) {
   m_config =
     Configuration{.gpio5 = GPIOOutputState::kPassive,
-                  .gpio4 = GPIOOutputState::kHigh,
-                  .gpio3 = GPIOOutputState::kHigh,
-                  .gpio2 = GPIOOutputState::kHigh,
+                  .gpio4 = GPIOOutputState::kPassive,
+                  .gpio3 = GPIOOutputState::kPassive,
+                  .gpio2 = GPIOOutputState::kPassive,
                   .gpio1 = GPIOOutputState::kPassive,
                   .referencePowerOff = ReferencePowerOff::kAfterConversions,
                   .dischargeTimerEnabled = DischargeTimerEnable::kDisabled,
@@ -88,11 +86,13 @@ uint16_t *LTC6810::getGpio() {
   ThisThread::sleep_for(5ms); // TODO: This could be done differently
 
   uint8_t rxbuf[8 * 2];
+  //uint8_t rxbuf[8 * 4]; for LTC6811
 
   m_bus.SendReadCommand(LTC681xBus::BuildAddressedBusCommand(ReadAuxiliaryGroupA(), m_id), rxbuf);
   m_bus.SendReadCommand(LTC681xBus::BuildAddressedBusCommand(ReadAuxiliaryGroupB(), m_id), rxbuf + 8);
 
-  uint16_t *voltages = new uint16_t[5];
+  //uint16_t *voltages = new uint16_t[12]; for LTC6811
+  uint16_t *voltages = new uint16_t[6];
 
   for (unsigned int i = 0; i < sizeof(rxbuf); i++) {
     // Skip over PEC
@@ -143,17 +143,21 @@ void LTC6810::buildCOMMBytes(uint8_t icom, uint8_t fcom, uint8_t data, uint8_t *
   // COMMn+1 (odd byte): Upper 4 bits = lower half of data, Lower 4 bits = FCOM
   commBytes[1] = ((data & 0x0F) << 4) | fcom;
 }
+typedef struct {
+  uint8_t i2c_address;
+  uint8_t temp_reg;
+} TMP1075_Handle_t;
 
-float LTC6810::readTemperatureTMP1075() {
+float LTC6810::readTemperatureTMP1075(TMP1075_Handle_t *sensor) {
   uint8_t commData[6];
   uint8_t rxData[8]; 
   uint8_t tempBytes[2];
 
-  buildCOMMBytes(0x6, 0x0, (TMP1075_I2C_ADDR << 1) | 0x00, tempBytes);
+  buildCOMMBytes(0x6, 0x0, (sensor->i2c_address << 1) | 0x00, tempBytes);
   commData[0] = tempBytes[0];  // COMM0
   commData[1] = tempBytes[1];  // COMM1
 
-  buildCOMMBytes(0x0, 0x0, TMP1075_TEMP_REG, tempBytes);
+  buildCOMMBytes(0x0, 0x0, sensor->temp_reg, tempBytes);
   commData[2] = tempBytes[0];  // COMM2
   commData[3] = tempBytes[1];  // COMM3
 
@@ -169,7 +173,7 @@ float LTC6810::readTemperatureTMP1075() {
 
   ThisThread::sleep_for(3ms);
 
-  buildCOMMBytes(0x6, 0x0, (TMP1075_I2C_ADDR << 1) | 0x01, tempBytes);
+  buildCOMMBytes(0x6, 0x0, (sensor->i2c_address << 1) | 0x01, tempBytes);
   commData[0] = tempBytes[0];  // COMM0
   commData[1] = tempBytes[1];  // COMM1
 
