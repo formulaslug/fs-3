@@ -9,14 +9,20 @@
 
 #include "EnergusTempSensor.h"
 
+#include "LTC6810.h"
+
 BMSThread::BMSThread(LTC681xBus &bus, unsigned int frequency, BmsEventMailbox* bmsEventMailbox, MainToBMSMailbox* mainToBMSMailbox)
     : m_bus(bus), bmsEventMailbox(bmsEventMailbox), mainToBMSMailbox(mainToBMSMailbox) {
   for (int i = 0; i < BMS_BANK_COUNT; i++) {
-    m_chips.push_back(LTC6811(bus, i));
+    m_chips.push_back(LTC6810(bus, i));
   }
   for (int i = 0; i < BMS_BANK_COUNT; i++) {
-    // m_chips[i].getConfig().gpio5 = LTC6811::GPIOOutputState::kLow;
-    // m_chips[i].getConfig().gpio4 = LTC6811::GPIOOutputState::kPassive;
+    m_chips[i].getConfig().gpio4 = LTC6810::GPIOOutputState::kHigh;
+    m_chips[i].getConfig().gpio3 = LTC6810::GPIOOutputState::kHigh;
+
+    // for LTC6811
+    // m_chips[i].getConfig().gpio5 = LTC6811::GPIOOutputState::kHigh;
+    // m_chips[i].getConfig().gpio4 = LTC6811::GPIOOutputState::kHigh;
 
     m_chips[i].updateConfig();
   }
@@ -119,6 +125,13 @@ void BMSThread::threadWorker() {
         charging = mainToBMSEvent->charging;// assign charging to mainToBMSEvent
                                             // that is assigned the value held by charging
         // printf("Balance Allowed: %x\nCharging: %x\n", balanceAllowed, charging);
+        if (mainToBMSEvent->readI2CTemp) {
+        // Read temperature from I2C sensor on each bank
+          for (int i = 0; i < BMS_BANK_COUNT; i++) {
+            float temp = m_chips[i].readTemperatureTMP1075();
+            printf("Bank %d I2C Temperature: %.2f°C\n", i, temp);
+          }
+        }
         delete mainToBMSEvent; // deallocate memory that was previously allocated dynamically to mainToBMSEvent
     }
 
@@ -130,14 +143,14 @@ void BMSThread::threadWorker() {
     // TODO: This should be in some sort of config class
 
     for (int i = 0; i < BMS_BANK_COUNT; i++) {
-      LTC6811::Configuration &config = m_chips[i].getConfig();
-      config.gpio5 = LTC6811::GPIOOutputState::kLow;
+      LTC6810::Configuration &config = m_chips[i].getConfig();
+      config.gpio5 = LTC6810::GPIOOutputState::kLow;
       m_chips[i].updateConfig();
     }
 
     // turn off cell balancing for voltage reading
     for (int i = 0; i < BMS_BANK_COUNT; i++) {
-        LTC6811::Configuration &config = m_chips[i].getConfig();
+        LTC6810::Configuration &config = m_chips[i].getConfig();
         
         config.dischargeState.value = 0x0000;
 
@@ -207,14 +220,14 @@ void BMSThread::threadWorker() {
       for (uint8_t j = 0; j < BMS_BANK_CELL_COUNT; j++) {
           for (int i = 0; i < BMS_BANK_COUNT; i++) {
               // set the GPIOs for the segment we are looking at to the cell # we are getting temperature for
-              LTC6811::Configuration &config = m_chips[i].getConfig();
-              config.gpio1 = (j & 0b001) ? LTC6811::GPIOOutputState::kHigh
-                                         : LTC6811::GPIOOutputState::kLow;
-              config.gpio2 = ((j & 0b010) >> 1) ? LTC6811::GPIOOutputState::kHigh
-                                                : LTC6811::GPIOOutputState::kLow;
-              config.gpio3 = ((j & 0b100) >> 2) ? LTC6811::GPIOOutputState::kHigh
-                                                : LTC6811::GPIOOutputState::kLow;
-              config.gpio4 = LTC6811::GPIOOutputState::kPassive;
+              LTC6810::Configuration &config = m_chips[i].getConfig();
+              config.gpio1 = (j & 0b001) ? LTC6810::GPIOOutputState::kHigh
+                                         : LTC6810::GPIOOutputState::kLow;
+              config.gpio2 = ((j & 0b010) >> 1) ? LTC6810::GPIOOutputState::kHigh
+                                                : LTC6810::GPIOOutputState::kLow;
+              config.gpio3 = ((j & 0b100) >> 2) ? LTC6810::GPIOOutputState::kHigh
+                                                : LTC6810::GPIOOutputState::kLow;
+              config.gpio4 = LTC6810::GPIOOutputState::kPassive;
 
               m_chips[i].updateConfig();
 
@@ -337,7 +350,7 @@ void BMSThread::threadWorker() {
     if (bmsState == BMSThreadState::BMSIdle && balanceAllowed) {
       for (int i = 0; i < BMS_BANK_COUNT; i++) {
 
-        LTC6811::Configuration &config = m_chips[i].getConfig();
+        LTC6810::Configuration &config = m_chips[i].getConfig();
 
         uint16_t dischargeValue = 0x0000;
 
@@ -364,15 +377,15 @@ void BMSThread::threadWorker() {
     } else {
       for (int i = 0; i < BMS_BANK_COUNT; i++) {
 
-        LTC6811::Configuration &config = m_chips[i].getConfig();
+        LTC6810::Configuration &config = m_chips[i].getConfig();
         config.dischargeState.value = 0x0000;
         m_chips[i].updateConfig();
       }
     }
 
     for (int i = 0; i < BMS_BANK_COUNT; i++) {
-      LTC6811::Configuration &config = m_chips[i].getConfig();
-      config.gpio5 = LTC6811::GPIOOutputState::kLow;
+      LTC6810::Configuration &config = m_chips[i].getConfig();
+      config.gpio5 = LTC6810::GPIOOutputState::kLow;
       m_chips[i].updateConfig();
     }
 
