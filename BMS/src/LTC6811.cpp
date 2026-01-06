@@ -1,4 +1,4 @@
-#include "LTC6810.h"
+#include "LTC6811.h"
 
 #include "mbed.h"
 #include "rtos.h"
@@ -6,7 +6,7 @@
 #include "LTC681xParallelBus.h"
 
 
-LTC6810::LTC6810(LTC681xBus &bus, uint8_t id) : m_bus(bus), m_id(id) {
+LTC6811::LTC6811(LTC681xBus &bus, uint8_t id) : m_bus(bus), m_id(id) {
   m_config =
     Configuration{.gpio5 = GPIOOutputState::kPassive,
                   .gpio4 = GPIOOutputState::kPassive,
@@ -22,7 +22,7 @@ LTC6810::LTC6810(LTC681xBus &bus, uint8_t id) : m_bus(bus), m_id(id) {
                   .dischargeTimeout = DischargeTimeoutValue::kDisabled};
 }
 
-void LTC6810::updateConfig() {
+void LTC6811::updateConfig() {
   // Create configuration data to write
   uint8_t config[6];
   config[0] = (uint8_t) m_config.gpio5 << 7
@@ -46,9 +46,9 @@ void LTC6810::updateConfig() {
   m_bus.SendDataCommand(cmd, config);
 }
 
-LTC6810::Configuration &LTC6810::getConfig() { return m_config; }
+LTC6811::Configuration &LTC6811::getConfig() { return m_config; }
 
-uint16_t *LTC6810::getVoltages() {
+uint16_t *LTC6811::getVoltages() {
   auto cmd = StartCellVoltageADC(AdcMode::k7k, false, CellSelection::kAll);
   m_bus.SendCommand(LTC681xBus::BuildAddressedBusCommand(cmd, m_id));
 
@@ -78,15 +78,14 @@ uint16_t *LTC6810::getVoltages() {
   return voltages;
 }
 
-uint16_t *LTC6810::getGpio() {
+uint16_t *LTC6811::getGpio() {
   auto cmd = StartGpioADC(AdcMode::k7k, GpioSelection::kAll);
   m_bus.SendCommand(LTC681xBus::BuildAddressedBusCommand(cmd, m_id));
 
   // Wait 15 ms for ADC to finish
   ThisThread::sleep_for(5ms); // TODO: This could be done differently
 
-  uint8_t rxbuf[8 * 2];
-  //uint8_t rxbuf[8 * 4]; for LTC6811
+  uint8_t rxbuf[8 * 4]; for LTC6811
 
   m_bus.SendReadCommand(LTC681xBus::BuildAddressedBusCommand(ReadAuxiliaryGroupA(), m_id), rxbuf);
   m_bus.SendReadCommand(LTC681xBus::BuildAddressedBusCommand(ReadAuxiliaryGroupB(), m_id), rxbuf + 8);
@@ -108,7 +107,7 @@ uint16_t *LTC6810::getGpio() {
   return voltages;
 }
 
-uint16_t *LTC6810::getGpioPin(GpioSelection pin) {
+uint16_t *LTC6811::getGpioPin(GpioSelection pin) {
   auto cmd = StartGpioADC(AdcMode::k7k, pin);
   m_bus.SendCommand(LTC681xBus::BuildAddressedBusCommand(cmd, m_id));
 
@@ -136,7 +135,7 @@ uint16_t *LTC6810::getGpioPin(GpioSelection pin) {
   return voltages;
 }
 
-static void LTC6810::buildCOMMBytes(uint8_t icom, uint8_t fcom, uint8_t data, uint8_t *commBytes) {
+static void LTC6811::buildCOMMBytes(uint8_t icom, uint8_t fcom, uint8_t data, uint8_t *commBytes) {
   // COMMn (even byte): Upper 4 bits = ICOM, Lower 4 bits = upper half of data
   commBytes[0] = (icom << 4) | ((data >> 4) & 0x0F);
   
@@ -216,7 +215,7 @@ static float LTC6811::readTemperatureTMP1075(TMP1075_Handle_t *sensor) {
   return (rawTemp >> 4) * 0.0625f;
 }
 
-static bool LTC6810::verifyI2CStatus(uint8_t *rxData) {
+static bool LTC6811::verifyI2CStatus(uint8_t *rxData) {
   uint8_t data1 = ((rxData[2] & 0x0F) << 4) | ((rxData[3] >> 4) & 0x0F);
   uint8_t data2 = ((rxData[4] & 0x0F) << 4) | ((rxData[5] >> 4) & 0x0F);
   
