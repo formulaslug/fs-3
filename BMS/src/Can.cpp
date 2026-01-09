@@ -155,7 +155,7 @@ void canSend(status_msg* status_message, tray_temps_msg* tray_temps_message, uin
             int8_t* allTemps) {
 
     // status
-    canBus->write(ACC_TPDO_STATUS(
+   /* canBus->write(ACC_TPDO_STATUS(
         status_message->bmsFault,
         status_message->imdFault,
         status_message->shutdownState,
@@ -204,4 +204,5 @@ void canSend(status_msg* status_message, tray_temps_msg* tray_temps_message, uin
     ThisThread::sleep_for(1ms);
     canBus->write(ACC_TPDO_SEG4_TEMPS(allTemps));
     ThisThread::sleep_for(1ms);
+    */
 }

@@ -136,19 +136,16 @@ uint16_t *LTC6810::getGpioPin(GpioSelection pin) {
   return voltages;
 }
 
-static void LTC6810::buildCOMMBytes(uint8_t icom, uint8_t fcom, uint8_t data, uint8_t *commBytes) {
+void LTC6810::buildCOMMBytes(uint8_t icom, uint8_t fcom, uint8_t data, uint8_t *commBytes) {
   // COMMn (even byte): Upper 4 bits = ICOM, Lower 4 bits = upper half of data
   commBytes[0] = (icom << 4) | ((data >> 4) & 0x0F);
   
   // COMMn+1 (odd byte): Upper 4 bits = lower half of data, Lower 4 bits = FCOM
   commBytes[1] = ((data & 0x0F) << 4) | fcom;
 }
-typedef struct {
-  uint8_t i2c_address;
-  uint8_t temp_reg;
-} TMP1075_Handle_t;
 
-static float LTC6811::readTemperatureTMP1075(TMP1075_Handle_t *sensor) {
+
+float LTC6810::readTemperatureTMP1075(TMP1075_Handle_t *sensor) {
   uint8_t commData[6];
   uint8_t rxData[8]; 
   uint8_t tempBytes[2];
@@ -216,7 +213,7 @@ static float LTC6811::readTemperatureTMP1075(TMP1075_Handle_t *sensor) {
   return (rawTemp >> 4) * 0.0625f;
 }
 
-static bool LTC6810::verifyI2CStatus(uint8_t *rxData) {
+bool LTC6810::verifyI2CStatus(uint8_t *rxData) {
   uint8_t data1 = ((rxData[2] & 0x0F) << 4) | ((rxData[3] >> 4) & 0x0F);
   uint8_t data2 = ((rxData[4] & 0x0F) << 4) | ((rxData[5] >> 4) & 0x0F);
   

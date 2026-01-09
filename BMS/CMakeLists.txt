@@ -41,6 +41,8 @@ add_executable(BMS src/main.cpp
         src/Event.h
         src/LTC6810.h
         src/LTC6810.cpp
+        src/LTC6811.h
+        src/LTC6811.cpp
         src/StateOfCharge.cpp
         src/DS18B20.cpp
 )

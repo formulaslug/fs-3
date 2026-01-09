@@ -85,13 +85,13 @@ uint16_t *LTC6811::getGpio() {
   // Wait 15 ms for ADC to finish
   ThisThread::sleep_for(5ms); // TODO: This could be done differently
 
-  uint8_t rxbuf[8 * 4]; for LTC6811
+  uint8_t rxbuf[8 * 2]; 
 
   m_bus.SendReadCommand(LTC681xBus::BuildAddressedBusCommand(ReadAuxiliaryGroupA(), m_id), rxbuf);
   m_bus.SendReadCommand(LTC681xBus::BuildAddressedBusCommand(ReadAuxiliaryGroupB(), m_id), rxbuf + 8);
 
-  //uint16_t *voltages = new uint16_t[12]; for LTC6811
-  uint16_t *voltages = new uint16_t[6];
+  uint16_t *voltages = new uint16_t[12]; //for LTC6811
+  //uint16_t *voltages = new uint16_t[6];
 
   for (unsigned int i = 0; i < sizeof(rxbuf); i++) {
     // Skip over PEC
@@ -135,34 +135,35 @@ uint16_t *LTC6811::getGpioPin(GpioSelection pin) {
   return voltages;
 }
 
-static void LTC6811::buildCOMMBytes(uint8_t icom, uint8_t fcom, uint8_t data, uint8_t *commBytes) {
+void LTC6811::buildCOMMBytes(uint8_t icom, uint8_t fcom, uint8_t data, uint8_t *commBytes) {
   // COMMn (even byte): Upper 4 bits = ICOM, Lower 4 bits = upper half of data
   commBytes[0] = (icom << 4) | ((data >> 4) & 0x0F);
   
   // COMMn+1 (odd byte): Upper 4 bits = lower half of data, Lower 4 bits = FCOM
   commBytes[1] = ((data & 0x0F) << 4) | fcom;
 }
-typedef struct {
-  uint8_t i2c_address;
-  uint8_t temp_reg;
-} TMP1075_Handle_t;
 
-static float LTC6811::readTemperatureTMP1075(TMP1075_Handle_t *sensor) {
-  uint8_t commData[6];
-  uint8_t rxData[8]; 
-  uint8_t tempBytes[2];
+
+float LTC6811::readTemperatureTMP1075(TMP1075_Handle_t *sensor) {
+  uint8_t commData[6] = {0};
+  uint8_t rxData[8] = {0}; 
+  uint8_t tempBytes[2] = {0};
 
   // STEP 1: Write register pointer (tell sensor which register to read)
   // I2C Sequence: START -> [ADDR+W] -> ACK -> [REG] -> STOP
+  // BYTE 0: Address with Write bit (ADDR << 1|0)
   buildCOMMBytes(0x6, 0x0, (sensor->i2c_address << 1) | 0x00, tempBytes);
   commData[0] = tempBytes[0];  // COMM0
   commData[1] = tempBytes[1];  // COMM1
 
-  buildCOMMBytes(0x0, 0x0, sensor->temp_reg, tempBytes);
+  //BYTE 1: Register address (0x00 for temperature register)
+  //FCOM 0X9 (Master NACK + STOP)
+  buildCOMMBytes(0x0, 0x9, sensor->temp_reg, tempBytes);
   commData[2] = tempBytes[0];  // COMM2
   commData[3] = tempBytes[1];  // COMM3
 
-  buildCOMMBytes(0x1, 0x0, 0x00, tempBytes);
+  // BYTE 2: Dummy (not used)
+  buildCOMMBytes(0x0, 0x0, 0x00, tempBytes);
   commData[4] = tempBytes[0];  // COMM4
   commData[5] = tempBytes[1];  // COMM5
 
@@ -176,14 +177,17 @@ static float LTC6811::readTemperatureTMP1075(TMP1075_Handle_t *sensor) {
 
   // STEP 2: Read 2 bytes from temperature register
   // I2C Sequence: START -> [ADDR+R] -> ACK -> [READ MSB] -> ACK -> [READ LSB] -> NACK+STOP
+  //BYTE 0: Address with Read bit (ADDR << 1 |1)
   buildCOMMBytes(0x6, 0x0, (sensor->i2c_address << 1) | 0x01, tempBytes);
   commData[0] = tempBytes[0];  // COMM0
   commData[1] = tempBytes[1];  // COMM1
 
+  //BYTE 1: Read MSB (master sends 0xFF as dummy, master ACKs)
   buildCOMMBytes(0x0, 0x0, 0xFF, tempBytes);
   commData[2] = tempBytes[0];  // COMM2
   commData[3] = tempBytes[1];  // COMM3
 
+  // BYTE 2: Read LSB (master sends 0xFF as dummy, master NACKs and STOP)
   buildCOMMBytes(0x0, 0x9, 0xFF, tempBytes);
   commData[4] = tempBytes[0];  // COMM4
   commData[5] = tempBytes[1];  // COMM5
@@ -215,7 +219,7 @@ static float LTC6811::readTemperatureTMP1075(TMP1075_Handle_t *sensor) {
   return (rawTemp >> 4) * 0.0625f;
 }
 
-static bool LTC6811::verifyI2CStatus(uint8_t *rxData) {
+bool LTC6811::verifyI2CStatus(uint8_t *rxData) {
   uint8_t data1 = ((rxData[2] & 0x0F) << 4) | ((rxData[3] >> 4) & 0x0F);
   uint8_t data2 = ((rxData[4] & 0x0F) << 4) | ((rxData[5] >> 4) & 0x0F);
   

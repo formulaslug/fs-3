@@ -28,6 +28,8 @@ public:
     bool cell_temp_high;
     bool cell_temp_low;
     bool cell_temp_high_charging;
+
+    
 };
 
 class MainToBMSEvent {

@@ -2,6 +2,10 @@
 
 #include <LTC681xParallelBus.h>
 
+typedef struct {
+    uint8_t i2c_address;
+    uint8_t temp_reg;
+} TMP1075_Handle_t;
 class LTC6811 {
 public:
     enum class GPIOOutputState : uint8_t {
@@ -69,9 +73,9 @@ public:
     uint16_t *getVoltages();
     uint16_t *getGpio();
     uint16_t *getGpioPin(GpioSelection pin);
-    static void buildCOMMBytes(uint8_t icom, uint8_t fcom, uint8_t data, uint8_t *commBytes);
-    static float readTemperatureTMP1075(TMP1075_Handle_t *sensor);
-    static bool verifyI2CStatus(uint8_t *rxData);
+    void buildCOMMBytes(uint8_t icom, uint8_t fcom, uint8_t data, uint8_t *commBytes);
+    float readTemperatureTMP1075(TMP1075_Handle_t *sensor);
+    bool verifyI2CStatus(uint8_t *rxData);
 
 private:
     LTC681xBus &m_bus;
