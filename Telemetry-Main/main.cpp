@@ -9,6 +9,7 @@
 #include "radio.hpp"
 #include <stdbool.h>
 #include <string>
+DigitalIn lap_button{PA_0};
 
 constexpr bool ENABLE_RADIO = false;
 constexpr bool ENABLE_SD = false;
@@ -156,12 +157,13 @@ int main() {
     }
 
     // When the LAP button is pressed, set start position for lap timing
-    // {
-    //   TODO: logic to check LAP button
-    //   LapCounter lap_counter(vsm.getState());
-    // }
-    LapCounter lap_counter(vsm.getState());
-    lap_counter.resetLapCounter(vsm.getState());
+    if(lap_button.read())
+    {
+      LapCounter lap_counter(vsm.getState());
+      lap_counter.resetLapCounter(vsm.getState());
+    }
+    // LapCounter lap_counter(vsm.getState());
+    // lap_counter.resetLapCounter(vsm.getState());
 
     if (true){
         queue.call_every(100ms, []() {
