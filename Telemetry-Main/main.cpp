@@ -9,11 +9,12 @@
 #include "radio.hpp"
 #include <stdbool.h>
 #include <string>
-DigitalIn lap_button{PA_0};
 
 constexpr bool ENABLE_RADIO = false;
 constexpr bool ENABLE_SD = false;
 constexpr bool ENABLE_DASH = true;
+constexpr bool LAP_SET = false;
+
 
 constexpr chrono::duration SD_UPDATE_HZ = 10ms;
 constexpr chrono::duration DASH_UPDATE_HZ = 100ms;
@@ -157,11 +158,18 @@ int main() {
     }
 
     // When the LAP button is pressed, set start position for lap timing
-    if(lap_button.read())
-    {
-      LapCounter lap_counter(vsm.getState());
-      lap_counter.resetLapCounter(vsm.getState());
-    }
+    queue.call_every(500ms, []() {
+        if (LAP_SET) {
+            return;
+        }
+        const VehicleState vsm_state = vsm.getState();
+        if(static_cast<bool>(vsm_state.etcStatus.RTD)) { //assuming this bit will be 1 if RTD
+            LapCounter lap_counter(vsm.getState());
+            lap_counter.resetLapCounter(vsm.getState());
+            LAP_SET = true;
+        }
+    });
+    
     // LapCounter lap_counter(vsm.getState());
     // lap_counter.resetLapCounter(vsm.getState());
 
