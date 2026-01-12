@@ -104,6 +104,13 @@ void ETCController::updateState() {
     this->state.he2_read = this->he2Input.read() * ETCController::MAX_VOLTAGE;
     this->state.he1_travel = he1Travel;
     this->state.he2_travel = he2Travel;
+    /** 
+     * REGEN: 
+     * find true torque demand (negative if regen braking)
+     *      also should ensure the battery temp is low enough to accomodate regen braking
+     *      should also consider when both brakes and throttle are depressed
+     *  should call various profiles
+     */
     this->state.torque_demand =
         (this->state.motor_enabled && (!this->state.brakes_implausibility && !this->hasImplausibility())) ?
         static_cast<int16_t>(pedalTravel * ETCController::MAX_TORQUE) :
