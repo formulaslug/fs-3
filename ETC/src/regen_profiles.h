@@ -1,5 +1,7 @@
-#ifndef REGEN_PROFILES_HPP_
-#define REGEN_PROFILES_HPP_
+#ifndef REGEN_PROFILES_H_
+#define REGEN_PROFILES_H_
+
+#include <cstdint>
 
 /**
  * Template profile
@@ -9,6 +11,6 @@
  *
  * @return something like the strength of regen braking
  */
-float template_profile(float driver_input);
+int16_t template_profile(int16_t driver_input);
 
-#endif //   REGEN_PROFILES_HPP_
+#endif //   REGEN_PROFILES_H_
