@@ -151,6 +151,31 @@ public:
                     );
 
   void drawTestLayout(int var);
+
+  void drawDebugFaultLayout(
+                    uint8_t bms,
+                    uint8_t imd,
+                    uint8_t sdwn,
+                    uint8_t pchgd,
+                    uint8_t pchgi,
+                    uint8_t chging,
+                    uint16_t packv,
+                    uint16_t glv,
+                    uint32_t cellfault,
+                    uint8_t rtd,
+                    uint8_t implausibility,
+                    uint8_t tsactive,
+                    uint8_t pedaltravel,
+                    uint8_t brakesensev,
+                    uint8_t ctrlovertemp,
+                    uint8_t running,
+                    uint8_t poweron,
+                    uint8_t powerrdy,
+                    uint8_t motortemp,
+                    uint8_t faultcode,
+                    uint8_t faultlevel,
+                    int tick
+                    );
 };
 
 #endif // LAYOUTS_H

@@ -429,3 +429,208 @@ void Layouts::drawLayout4(Faults faults, float acc_volt, uint8_t acc_temp,
 
   endFrame();
 }
+
+void Layouts::drawDebugFaultLayout(                    
+                    uint8_t bms, //BMS_FAULT
+                    uint8_t imd, //IMD_FAULT
+                    uint8_t sdwn, //SHUTDOWN
+                    uint8_t pchgd, //PRECHARGED
+                    uint8_t pchgi, //PRECHARGING
+                    uint8_t chging, //CHARGING
+                    uint16_t packv, //PACK_VOLTAGE
+                    uint16_t glv, //GROUNDED LOW VOLTAGE
+                    uint32_t cellfault, //CELL FAULT INDEX
+                    uint8_t rtd, //READY TO DRIVE
+                    uint8_t implausiblity, //BRAKE PEDAL SYSTEM IMPLAUSIBILITY
+                    uint8_t tsactive, //TRACTICE SYSTEM ACTIVE
+                    uint8_t pedaltravel, //PEDAL TRAVEL PERCENT
+                    uint8_t brakesensev, //BRAKE SENSOR VOLTAGE
+                    uint8_t ctrlovertemp, //CONTROLLER OVERTEMP
+                    uint8_t running, //RUNNING
+                    uint8_t poweron, //POWER ON
+                    uint8_t powerrdy, //POWER READY
+                    uint8_t motortemp, //MOTOR TEMP
+                    uint8_t faultcode, //FAULT CODE
+                    uint8_t faultlevel, //FAULT LEVEL
+                    int tick
+                  ){
+        
+  if (failure == startFrame()) {
+    printf("This failed");
+    return;
+  }
+  //-----------\init-------------
+  Color yellow = Color {255, 255, 0};
+  Color orange = Color {200, 89, 41};
+  clear(255, 255, 255); // white background for frame why doesnt clear take a color I don't know
+  loadFonts();          //Not sure what possible fonts there are to use, above around 17?
+
+  // --- Column layout ---
+  const uint16_t col1_x = 50;
+  const uint16_t col2_x = 310;
+  const uint16_t col3_x = 575;
+  const uint16_t row_start = 80;
+  const uint16_t row_step = 40;
+  const uint16_t text_offset = 130;          
+  const uint16_t status_box_size = 16;
+  const uint16_t status_box_offset = 190;   
+  const uint16_t font_height_adjustment = 5;
+
+  // --- Section titles ---
+  setMainColor(black);
+  drawText(col1_x, 40, "BAT", 24); //Battery
+  drawText(col2_x, 40, "ETC", 24); //Eletronic throttle control
+  drawText(col3_x, 40, "SME", 24); //The SME motor controller
+  //Seperating lines between columns
+  drawLine(Point{col1_x + status_box_offset + 24, 0}, Point{col1_x + status_box_offset + 24, 480}, 10);
+  drawLine(Point{col2_x + status_box_offset + 24, 0}, Point{col2_x + status_box_offset + 24, 480}, 10);
+
+  // --- Battery / Accumulator Column ---
+  const char* batt_labels[] = {
+      "BMS FLT", "IMD FLT", "SHTD", "PCHGD",
+      "PCHGING", "CHGING", "PACK V", "GLV", "CELL FLT"
+  };
+  #define GLV_LOW 10800
+  #define GLV_HIGH 13500
+  #define MTR_TEMP_HIGH 80
+  char batt_values[9][16];
+  strcpy(batt_values[0], bms ? "[FAULT]" : "[OK]");
+  strcpy(batt_values[1], imd ? "[FAULT]" : "[OK]");
+  strcpy(batt_values[2], sdwn ? "[TRUE]" : "[FALSE]");
+  strcpy(batt_values[3], pchgd ? "[TRUE]" : "[FALSE]");
+  strcpy(batt_values[4], pchgi ? "[TRUE]" : "[FALSE]");
+  strcpy(batt_values[5], chging ? "[TRUE]" : "[FALSE]");
+  snprintf(batt_values[6], sizeof(batt_values[6]),"%u.%02u V", packv / 100, packv % 100);
+  snprintf(batt_values[7], sizeof(batt_values[7]),"%u mV", glv);
+  snprintf(batt_values[8], sizeof(batt_values[8]),"%lu", (unsigned long)cellfault);
+  for (uint16_t i = 0; i < 9; ++i) {
+      uint16_t y = row_start + i * row_step;
+      Color boxColor = green; //default color to green
+      if(i == 6)
+      {
+        //Flash the box to alarm driver if MC volts below warning point
+        if (packv / 100 < ACC_WARNING_VOLT) { 
+          if (tick % 2 == 0) boxColor = red;
+          else boxColor = yellow;
+        }
+        else if (packv / 100 < ACC_WARNING2)boxColor = red;
+        else if (packv / 100 < ACC_WARNING3)boxColor = orange;
+      }
+      else if(i==7)
+      {
+        //GLV range checking
+        if(glv > GLV_LOW && glv < GLV_HIGH) boxColor = green;
+        else boxColor = red;
+      }
+      else if(i==8)
+      {
+        //CELL FLT 
+        if(cellfault != 0) boxColor = red;
+        else boxColor = green;
+      }
+      else if (strstr(batt_values[i], "FAULT")) boxColor = red; 
+      else if (strstr(batt_values[i], "FALSE")) boxColor = mid_gray;
+      setMainColor(boxColor);
+      drawText(col1_x-30, y, batt_labels[i], 23, OPT_CENTERY);
+      drawText(col1_x + text_offset, y, batt_values[i], 23);
+      drawRect(Point{col1_x + status_box_offset, static_cast<unsigned short>(y - font_height_adjustment)},
+                Point{col1_x + status_box_offset + status_box_size, static_cast<unsigned short>(y + status_box_size - font_height_adjustment)},
+                boxColor);
+       setMainColor(mid_gray);
+  }
+
+  // --- ETC Column ---
+  const char* etc_labels[] = {
+      "RTD", "IMPL", "TS ACTIVE", "PED TRV", "BRK V"
+  };
+  char etc_values[5][16];
+  strcpy(etc_values[0], rtd ? "[TRUE]" : "[FALSE]");
+  strcpy(etc_values[1], implausiblity ? "[FAULT]" : "[OK]");
+  strcpy(etc_values[2], tsactive ? "[TRUE]" : "[FALSE]");
+  snprintf(etc_values[3], sizeof(etc_values[3]),"%u%%", pedaltravel);
+  snprintf(etc_values[4], sizeof(etc_values[4]),"%u.%01u V", brakesensev / 10, brakesensev % 10);
+  for (uint16_t i = 0; i < 5; ++i) {
+      uint16_t y = row_start + i * row_step;
+      Color boxColor = green;
+      if(i==3)
+      {
+        //Not sure about ranges for pedal travel
+        boxColor = mid_gray;
+      }
+      else if(i==4)
+      {
+        //Not sure about ranges for brake sensor voltage
+        boxColor = mid_gray;
+      }
+      else if (strstr(etc_values[i], "FAULT")) boxColor = red;
+      else if (strstr(etc_values[i], "FALSE")) boxColor = mid_gray;
+      setMainColor(boxColor);
+      drawText(col2_x-30, y, etc_labels[i], 23, OPT_CENTERY);
+      drawText(col2_x + text_offset, y, etc_values[i], 23);
+      drawRect(Point{col2_x + status_box_offset, static_cast<unsigned short>(y - font_height_adjustment)},
+                Point{col2_x + status_box_offset + status_box_size, static_cast<unsigned short>(y + status_box_size - font_height_adjustment)},
+                boxColor);
+      setMainColor(mid_gray);
+  }
+
+  // --- SME Column ---
+  const char* sme_labels[] = {
+      "TMP OVR", "RUNNING", "PWR ON", "PWR RDY",
+      "MTR TMP", "FLT CODE", "FLT LEVEL"
+  };
+  char sme_values[7][16];
+  strcpy(sme_values[0], ctrlovertemp ? "[TRUE]" : "[FALSE]");
+  strcpy(sme_values[1], running ? "[TRUE]" : "[FALSE]");
+  strcpy(sme_values[2], poweron ? "[TRUE]" : "[FALSE]");
+  strcpy(sme_values[3], powerrdy ? "[TRUE]" : "[FALSE]");
+  snprintf(sme_values[4], sizeof(sme_values[4]),
+            "%u.%01u 'C", motortemp / 10, motortemp % 10);
+  snprintf(sme_values[5], sizeof(sme_values[5]), "%u", faultcode);
+  snprintf(sme_values[6], sizeof(sme_values[6]), "%u", faultlevel);
+  for (uint16_t i = 0; i < 7; ++i) {
+      uint16_t y = row_start + i * row_step;
+      Color boxColor = green;
+      if(i==4)
+      {
+        //motor temp
+        if(motortemp < MTR_TEMP_HIGH) boxColor = green;
+        else boxColor = red;
+      }
+      else if(i==5)
+      {
+        //fault code
+        if(faultcode <= 0) boxColor = green;
+        else boxColor = red;
+      }
+      else if (i==6)
+      {
+        //fault level
+        if(faultlevel != 0) boxColor = red;
+        else boxColor = green;
+      }
+      else if (strstr(sme_values[i], "FAULT")) boxColor = red;
+      else if (strstr(sme_values[i], "FALSE")) boxColor = mid_gray;
+      setMainColor(boxColor);
+      drawText(col3_x-30, y, sme_labels[i], 23, OPT_CENTERY);
+      drawText(col3_x + text_offset, y, sme_values[i], 23);
+      drawRect(Point{col3_x + status_box_offset, static_cast<unsigned short>(y - font_height_adjustment)},
+                Point{col3_x + status_box_offset + status_box_size, static_cast<unsigned short>(y + status_box_size - font_height_adjustment)},
+                boxColor);
+       setMainColor(mid_gray);
+      }
+    
+  // String interpretations of common fault codes
+  const uint16_t xPos = 530;
+  const uint16_t yPos = 430;
+  drawText(xPos,400, "MTR CTL: ",23, OPT_CENTERY);
+  if(faultcode <= 0) drawText(xPos,yPos, "No faults",23, OPT_CENTERY);
+  else if(faultcode == 1) drawText(xPos,yPos, "Over Voltage", 23, OPT_CENTERY);
+  else if(faultcode == 2) drawText(xPos,yPos, "Under Voltage", 23, OPT_CENTERY);
+  else if(faultcode == 3) drawText(xPos,yPos, "User Over Voltage", 23, OPT_CENTERY);
+  else if(faultcode == 26) drawText(xPos,yPos, "High Voltage",23, OPT_CENTERY);
+  else if(faultcode == 25) drawText(xPos,yPos, "Low Voltage",23, OPT_CENTERY);
+  else if(faultcode == 62) drawText(xPos,yPos, "Heartbeat Timeout",23, OPT_CENTERY);
+  else if(faultcode == 63) drawText(xPos,yPos, "RPDO Timeout",23, OPT_CENTERY);
+  else drawText(530,470, "String interpretation not added",23, OPT_CENTERY);
+  endFrame();
+}
