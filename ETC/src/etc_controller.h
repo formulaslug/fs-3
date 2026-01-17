@@ -96,7 +96,7 @@ public:
     static constexpr float BRAKE_TOLERANCE_LOW = 0.36f;
 
     /** The voltage divider slope for the hall-effect 1 sensor. */
-    static constexpr float HE1_SCALE = (330.0f / 480.0f);
+    // static constexpr float HE1_SCALE = (330.0f / 480.0f);
     /** The voltage for HE1 corresponding to 0% pedal travel. */
     static constexpr float HE1_LOW_VOLTAGE = 0.585f; // 0.425f
     /** The voltage for HE1 corresponding to 100% pedal travel. */
@@ -105,11 +105,11 @@ public:
     static constexpr float HE1_RANGE =
         ETCController::HE1_HIGH_VOLTAGE - ETCController::HE1_LOW_VOLTAGE;
     /** The voltage divider slope for the hall-effect 2 sensor. */
-    static constexpr float HE2_SCALE = (1.0f / 2.0f);
+    // static constexpr float HE2_SCALE = (1.0f / 2.0f);
     /** The voltage for HE2 corresponding to 0% pedal travel. */
-    static constexpr float HE2_LOW_VOLTAGE = 0.505f; // 0.417f
+    static constexpr float HE2_LOW_VOLTAGE = 0.425; // 0.505f; // 0.417f
     /** The voltage for HE2 corresponding to 100% pedal travel. */
-    static constexpr float HE2_HIGH_VOLTAGE = 2.130f; // 1.830f
+    static constexpr float HE2_HIGH_VOLTAGE = 2.015; // 2.130f; // 1.830f
     /** The difference between the maximum and minimum voltages (100% and 0% travel) for HE2. */
     static constexpr float HE2_RANGE =
         ETCController::HE2_HIGH_VOLTAGE - ETCController::HE2_LOW_VOLTAGE;
