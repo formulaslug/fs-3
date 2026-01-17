@@ -128,14 +128,14 @@ struct PDB_POWER_B_t {
 };
 
 struct SME_THROTTLE_DEMAND_t {
-    uint16_t TORQUE_DEMAND;             // bits 0-15
-    uint16_t MAX_SPEED;                 // bits 16-31
-    uint8_t FORWARD : 1;                // bit 32
-    uint8_t REVERSE : 1;                // bit 33
-    uint8_t padding_34 : 1;             // bit 34 (used for alignment)
-    uint8_t POWER_READY : 1;            // bit 35
-    uint8_t padding2 : 4;               // bits 36-39
-    uint8_t MBB_ALIVE: 4;               // bits 40-43
+    uint16_t TORQUE_DEMAND;            // bits 0-15
+    uint16_t MAX_SPEED;                // bits 16-31
+    uint8_t FORWARD : 1;               // bit 32
+    uint8_t REVERSE : 1;               // bit 33
+    uint8_t padding_34 : 1;            // bit 34 (used for alignment)
+    uint8_t POWER_READY : 1;           // bit 35
+    uint8_t padding2 : 4;              // bits 36-39
+    uint8_t MBB_ALIVE: 4;              // bits 40-43
 };
 
 struct SME_TRQSPD_t {
@@ -177,6 +177,7 @@ struct SME_MAX_CURRENTS_t {
 struct TMAIN_DATA_t {
     uint16_t BRAKES_F;                 // bits 0-15
     uint16_t BRAKES_R;                 // bits 16-31
+    uint16_t STEER;                    // bits 32-48
 };
 
 struct TPERIPH_DATA_t {
@@ -199,13 +200,13 @@ struct TPERIPH_TIRETEMP_t {
 };
 
 struct VDM_GPS_LAT_LONG_t {
-    int32_t LATITUDE;                 // bits 7-38
-    int32_t LONGITUDE;                // bits 39-50
+    float LATITUDE;                  // bits 7-38
+    float LONGITUDE;                 // bits 39-50
 };
 
 struct VDM_GPS_DATA_t {
     uint16_t SPEED;                    // bits 7-22
-    int16_t ALTITUDE;                 // bits 23-38
+    int16_t ALTITUDE;                  // bits 23-38
     uint16_t TRUE_COURSE;              // bits 39-54
     uint8_t  SATELLITES_IN_USE;        // bits 55-62
     uint8_t  VALID1;                   // bits 63-70
@@ -216,21 +217,22 @@ struct VDM_DATE_TIME_t {
     uint8_t UTC_DATE_YEAR;             // bits 15-22
     uint8_t UTC_DATE_MONTH;            // bits 23-30
     uint8_t UTC_DATE_DAY;              // bits 31-38
+    uint8_t padding;                   // bits 39-46
     uint8_t UTC_TIME_HOURS;            // bits 47-54
     uint8_t UTC_TIME_MINUTES;          // bits 55-62
     uint8_t UTC_TIME_SECONDS;          // bits 63-70
 };
 
 struct VDM_ACCELERATION_t {
-    int16_t X;                        // bits 7-22
-    int16_t Y;                        // bits 23-38
-    int16_t Z;                        // bits 39-54
+    int16_t X;                         // bits 7-22
+    int16_t Y;                         // bits 23-38
+    int16_t Z;                         // bits 39-54
 };
 
 struct VDM_YAW_RATE_t {
-    int16_t X;                        // bits 7-22
-    int16_t Y;                        // bits 23-38
-    int16_t Z;                        // bits 39-54
+    int16_t X;                         // bits 7-22
+    int16_t Y;                         // bits 23-38
+    int16_t Z;                         // bits 39-54
 };
 
 #endif // CANPROTOCOL_HPP

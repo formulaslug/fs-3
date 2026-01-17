@@ -91,7 +91,7 @@ BO_ 392 ACC_TPDO_STATUS: 8 ACC
  SG_ ACC_STATUS_TEMP_TOO_HIGH : 11|1@1+ (1,0) [0|0] "" Vector__XXX
  SG_ ACC_STATUS_TEMP_TOO_HIGH_CRG : 12|1@1+ (1,0) [0|0] "" Vector__XXX
  SG_ ACC_STATUS_CHARGING : 5|1@1+ (1,0) [0|0] "" Vector__XXX
- SG_ ACC_STATUS_GLV_VOLTAGE : 16|16@1+ (1,0) [0|65.635] "mV" Vector__XXX
+ SG_ ACC_STATUS_GLV_VOLTAGE : 16|16@1+ (1,0) [0|65635] "mV" Vector__XXX
  SG_ ACC_STATUS_CELL_FAULT_INDEX : 32|32@1+ (1,0) [0|0] "" Vector__XXX
  SG_ ACC_STATUS_BALANCING : 13|1@1+ (1,0) [0|0] "" Vector__XXX
 
@@ -222,6 +222,7 @@ BO_ 393 ETC_TPDO_STATUS: 8 ETC
  SG_ ETC_STATUS_RTD : 60|1@1+ (1,0) [0|0] "" Vector__XXX
  SG_ ETC_STATUS_IMPLAUSIBILITY : 61|1@1+ (1,0) [0|0] "" Vector__XXX
  SG_ ETC_STATUS_TS_ACTIVE : 62|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ ETC_STATUS_CAN_REGEN : 63|1@1+ (1,0) [0|1] "" Vector__XXX
 
 BO_ 410 PDB_TPDO_POWER_A: 8 PDB
  SG_ PDB_POWER_A_GLV_VOLTAGE : 0|16@1+ (1,0) [0|65535] "mV" Vector__XXX
@@ -243,6 +244,7 @@ BO_ 666 PDB_TPDO_POWER_B: 8 PDB
 BO_ 416 TMAIN_TPDO_DATA: 8 TMAIN
  SG_ TMAIN_DATA_BRAKES_F : 0|16@1+ (0.1,0) [0|0] "psi" Vector__XXX
  SG_ TMAIN_DATA_BRAKES_R : 16|16@1+ (0.1,0) [0|0] "psi" Vector__XXX
+ SG_ TMAIN_DATA_STEER : 32|16@1- (0.1,0) [0|1] "degrees" Vector__XXX
 
 BO_ 418 TPERIPH_FL_TPDO_DATA: 7 TPERIPH_FL
  SG_ TPERIPH_FL_DATA_WHEELSPEED : 0|16@1- (0.1,0) [0|0] "rpm" Vector__XXX
@@ -390,6 +392,13 @@ BO_ 1223 IZZE_BRAKETEMP_S1M4: 8 IZZE1
 BO_ 1224 IZZE_BRAKETEMP_S1M5: 8 IZZE1
  SG_ IZZE_BRAKETEMP_S1_STEMP : 55|16@0+ (0.1,-100) [-100|6453] "C" Vector__XXX
 
+BO_ 2147484552 ACC_TPDO_TRAY_TEMPS: 5 ACC
+ SG_ ACC_TRAY_TEMPS_BOLTED_CONNECTION : 0|8@1+ (0.5,0) [0|127.5] "" Vector__XXX
+ SG_ ACC_TRAY_TEMPS_BUSBAR : 8|8@1+ (0.5,0) [0|127.5] "" Vector__XXX
+ SG_ ACC_TRAY_TEMPS_PACK_FUSE : 16|8@1+ (0.5,0) [0|127.5] "" Vector__XXX
+ SG_ ACC_TRAY_TEMPS_COWLING : 24|8@1+ (0.5,0) [0|127.5] "" Vector__XXX
+ SG_ ACC_TRAY_TEMPS_INTAKE : 32|8@1+ (0.5,0) [0|127.5] "" Vector__XXX
+
 
 
 CM_ SG_ 2148139008 VDM_GPS_Latitude "Float32";
@@ -397,7 +406,15 @@ CM_ SG_ 2148139008 VDM_GPS_Longitude "Float32";
 BA_DEF_  "BusType" STRING ;
 BA_DEF_ BO_  "GenMsgBackgroundColor" STRING ;
 BA_DEF_ BO_  "GenMsgForegroundColor" STRING ;
+BA_DEF_ BO_  "matchingcriteria" INT 0 0;
+BA_DEF_ BO_  "filterlabeling" INT 0 0;
+BA_DEF_ BO_  "matchingcriteria" INT 0 0;
+BA_DEF_ BO_  "filterlabeling" INT 0 0;
 BA_DEF_DEF_  "BusType" "CAN";
 BA_DEF_DEF_  "GenMsgBackgroundColor" "#c8c8c8";
 BA_DEF_DEF_  "GenMsgForegroundColor" "#000000";
+BA_DEF_DEF_  "matchingcriteria" 0;
+BA_DEF_DEF_  "filterlabeling" 0;
+BA_DEF_DEF_  "matchingcriteria" 0;
+BA_DEF_DEF_  "filterlabeling" 0;
 

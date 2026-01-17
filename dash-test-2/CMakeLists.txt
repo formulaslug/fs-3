@@ -19,10 +19,7 @@ add_library(dash STATIC ./dash/BT817Q.cpp ./dash/layouts.cpp)
 target_include_directories(dash PUBLIC ./dash)
 target_link_libraries(dash mbed-core-flags)
 
-add_library(fsdaq STATIC ./fsdaq/data_logger.cpp) # ./fsdaq/can_processor_generated.cpp
-target_include_directories(fsdaq PUBLIC ./fsdaq)
-target_link_libraries(fsdaq mbed-core-flags mbed-storage-sd mbed-storage-fat libradio)
 
-add_executable(${PROJECT_NAME} main.cpp VehicleStateManager.cpp LapCounter.cpp)
-target_link_libraries(${PROJECT_NAME} mbed-os dash fsdaq libradio mbed-storage-sd mbed-storage-fat)
+add_executable(${PROJECT_NAME} main.cpp)
+target_link_libraries(${PROJECT_NAME} mbed-os dash)
 mbed_set_post_build(${PROJECT_NAME})

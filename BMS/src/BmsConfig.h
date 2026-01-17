@@ -388,5 +388,6 @@ struct tray_temps_msg {
     uint8_t temp_pack_fuse;
     uint8_t temp_bolted_connection;
     uint8_t temp_cowling;
+    uint8_t temp_intake;
 };
 
