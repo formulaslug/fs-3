@@ -14,7 +14,7 @@ constexpr bool ENABLE_SD = false;
 constexpr bool ENABLE_DASH = true;
 
 constexpr chrono::duration SD_UPDATE_HZ = 10ms;
-constexpr chrono::duration DASH_UPDATE_HZ = 100ms;
+constexpr chrono::duration DASH_UPDATE_HZ = 20ms;
 constexpr chrono::duration RADIO_UPDATE_HZ = 100ms;
 
 // Everything pertaining to XBee radio (TODO: clean)
