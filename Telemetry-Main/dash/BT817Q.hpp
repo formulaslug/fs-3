@@ -299,12 +299,11 @@ public:
 
   void endFrame(); // DISPLAY + CMD_SWAP
   void setBacklight(bool on);
-
   void loadFonts();
-  void cmd(uint32_t word);
 
 private:
   // Low‑level internal helpers
+  void cmd(uint32_t word);
   void hostCmd(uint8_t cmd, uint8_t param);
   void selectWriteAddress(uint32_t addr);
   void selectReadAddress(uint32_t addr);

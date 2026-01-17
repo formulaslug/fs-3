@@ -175,15 +175,15 @@ public:
   void drawMainDisplay(bool shtd, bool mtr_ctrl, bool rtd, bool pchg, bool fans, 
 	uint16_t acc_volt, uint8_t acc_temp, uint8_t soc, int tick, uint16_t speed, 
 	const char* lap_time, uint16_t glv, uint8_t mtr_temp, uint8_t ctrl_temp, 
-	uint16_t ctrl_volt);
+	uint16_t dc_bus);
 
   void debugCellTemps(const ACC_SEG_TEMPS_t seg_temps[5]);
 
   void debugCellVolts(const ACC_SEG_VOLTS_t seg_volts[5]);
 
-  void drawTempCell(int16_t x, int16_t y, uint8_t temp);
+  void drawTempCell(uint16_t x, uint16_t y, uint8_t temp);
 
-  void drawVoltCell(int16_t x, int16_t y, uint16_t volts);
+  void drawVoltCell(uint16_t x, uint16_t y, uint16_t volts);
 
   Color cellTempToColor(uint8_t temp);
 

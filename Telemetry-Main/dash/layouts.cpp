@@ -432,16 +432,15 @@ void Layouts::drawLayout4(Faults faults, float acc_volt, uint8_t acc_temp,
 
 void Layouts::drawMainDisplay(bool shtd, bool mtr_ctrl, bool rtd, bool pchg, bool fans, 
 	uint16_t acc_volt, uint8_t acc_temp, uint8_t soc, int tick, uint16_t speed, 
-	const char* lap_time, uint16_t glv, uint8_t mtr_temp, uint8_t ctrl_temp, uint16_t ctrl_volt)
+	const char* lap_time, uint16_t glv, uint8_t mtr_temp, uint8_t ctrl_temp, uint16_t dc_bus)
 {
 	// init
 	if (!startFrame()) return;
 	clear(white.red, white.green, white.blue);
-	cmd(LINE_WIDTH(32));
 	loadFonts();
 	
 	// soc
-	if (soc > 100) soc = 100; // clamp to stay in bounds of progress bar
+	if (soc > 100) soc = 100;
 	drawProgressBar(Point{100, 25}, 600, 20, soc, 100, Color{50,50,50}, socToColor(soc), true);
 
 	// acc temp box
@@ -497,11 +496,21 @@ void Layouts::drawMainDisplay(bool shtd, bool mtr_ctrl, bool rtd, bool pchg, boo
 
 	// data
 	setMainColor(black);
-	drawFormattedText(500, 250, "LAP  %s", 31, OPT_CENTERY, lap_time);
-	drawFormattedText(500, 300, "GLV  %d.%dV", 31, OPT_CENTERY, glv / 1000, glv % 1000);
-	drawFormattedText(500, 350, "MTR  %d'C", 31, OPT_CENTERY, mtr_temp);
-	drawFormattedText(500, 400, "CTRLV %d.%dV", 31, OPT_CENTERY, ctrl_volt / 10, ctrl_volt % 10);
-	drawFormattedText(500, 450, "CTRLT %d'C", 31, OPT_CENTERY, ctrl_temp);
+	// LAP
+	drawText(500, 225, "LAP", 31, OPT_CENTERY);
+	drawText(600, 225, lap_time, 31, OPT_CENTERY);
+	// GLV
+	drawText(500, 275, "GLV", 31, OPT_CENTERY);
+	drawFormattedText(600, 275, "%d.%dV", 31, OPT_CENTERY, glv / 1000, glv % 1000);
+	// DC BUS
+	drawText(500, 325, "DC BUS", 31, OPT_CENTERY);
+	drawFormattedText(675, 325, "%d.%dV", 31, OPT_CENTERY, dc_bus / 10, dc_bus % 10);
+	// MTR
+	drawText(500, 375, "MTR", 31, OPT_CENTERY);
+	drawFormattedText(650, 375, "%d'C", 31, OPT_CENTERY, mtr_temp);
+	// CTRL
+	drawText(500, 425, "CTRL", 31, OPT_CENTERY);
+	drawFormattedText(650, 425, "%d'C", 31, OPT_CENTERY, ctrl_temp);
 
 	endFrame();
 }
@@ -511,11 +520,10 @@ void Layouts::debugCellTemps(const ACC_SEG_TEMPS_t seg_temps[5])
   // initialize frame
   if (!startFrame()) return;
   clear(white.red, white.green, white.blue);
-  cmd(LINE_WIDTH(32));
 
   // screen label
   setMainColor(black);
-  drawFormattedText(400, 34, "ACCUMULATOR CELL TEMPERATURES", 25, OPT_CENTER);
+  drawFormattedText(400, 34, "BATTERY CELL TEMPERATURES", 25, OPT_CENTER);
 
   // cell labels
   setMainColor(black);
@@ -550,11 +558,10 @@ void Layouts::debugCellVolts(const ACC_SEG_VOLTS_t seg_volts[5])
   // initialize frame
   if (!startFrame()) return;
   clear(white.red, white.green, white.blue);
-  cmd(LINE_WIDTH(32));
 
   // screen label
   setMainColor(black);
-  drawFormattedText(400, 34, "ACCUMULATOR CELL VOLTAGES", 25, OPT_CENTER);
+  drawFormattedText(400, 34, "BATTERY CELL VOLTAGES", 25, OPT_CENTER);
 
   // cell labels
   setMainColor(black);
@@ -584,29 +591,23 @@ void Layouts::debugCellVolts(const ACC_SEG_VOLTS_t seg_volts[5])
   endFrame();
 }
 
-void Layouts::drawTempCell(int16_t x, int16_t y, uint8_t temp)
+void Layouts::drawTempCell(uint16_t x, uint16_t y, uint8_t temp)
 {
+  uint16_t br_x = x + CELL_WIDTH, br_y = y + CELL_HEIGHT;
   // draw cell
-  setMainColor(cellTempToColor(temp));
-  cmd(BEGIN(RECTS));
-  cmd(VERTEX2F(x * 16, y * 16));
-  cmd(VERTEX2F((x + CELL_WIDTH) * 16, (y + CELL_HEIGHT) * 16));
-  setMainColor(black);
-  cmd(END());
+  drawRect(Point{x, y}, Point{br_x, br_y}, cellTempToColor(temp), 32);
   // draw cell text
+  setMainColor(black);
   drawFormattedText(x + (CELL_WIDTH / 2), y + (CELL_HEIGHT / 2), "%u", CELL_FONT, OPT_CENTER, temp);
 }
 
-void Layouts::drawVoltCell(int16_t x, int16_t y, uint16_t volt)
+void Layouts::drawVoltCell(uint16_t x, uint16_t y, uint16_t volt)
 {
+  uint16_t br_x = x + CELL_WIDTH, br_y = y + CELL_HEIGHT;
   // draw cell
-  setMainColor(cellVoltToColor(volt));
-  cmd(BEGIN(RECTS));
-  cmd(VERTEX2F(x * 16, y * 16));
-  cmd(VERTEX2F((x + CELL_WIDTH) * 16, (y + CELL_HEIGHT) * 16));
-  setMainColor(black);
-  cmd(END());
+  drawRect(Point{x, y}, Point{br_x, br_y}, cellVoltToColor(volt), 32);
   // draw cell text
+  setMainColor(black);
   drawFormattedText(x + (CELL_WIDTH / 2), y + (CELL_HEIGHT / 2), "%u.%uV", CELL_FONT, OPT_CENTER, volt / 1000, volt % 1000);
 }
 

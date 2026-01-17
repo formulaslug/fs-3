@@ -71,8 +71,8 @@ void update_dash() {
 	vsm_state.accStatus.GLV_VOLTAGE, 
 	vsm_state.smeTemp.MOTOR_TEMP, 
 	vsm_state.smeTemp.CONTROLLER_TEMP,
-	vsm_state.smeTemp.DC_BUS_V);
-    //eve.debugCellVolts(vsm_state.accSegVolts);
+	vsm_state.smeTemp.DC_BUS_V); 
+	//eve.debugCellVolts(vsm_state.accSegVolts);
     //eve.debugCellTemps(vsm_state.accSegTemps);
 }
 
