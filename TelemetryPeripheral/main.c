@@ -123,7 +123,7 @@ void mcp2515_fill_txbuf2(uint32_t id, uint8_t data[], uint8_t dlc) {
 #elif WHEEL_POSITION == FL
     #define TPERIPH_TPDO_DATA_ID 0x1A2
     #define TPERIPH_TPDO_TIRETEMP_ID 0x2A1
-    #define HAS_TIRETEMP_1x8 true
+    #define HAS_TIRETEMP_1x8 false
     #define HAS_TIRETEMP_1x1 false
 #elif WHEEL_POSITION == BR
     #define TPERIPH_TPDO_DATA_ID 0x1A5
@@ -133,7 +133,7 @@ void mcp2515_fill_txbuf2(uint32_t id, uint8_t data[], uint8_t dlc) {
 #elif WHEEL_POSITION == BL
     #define TPERIPH_TPDO_DATA_ID 0x1A4
     #define TPERIPH_TPDO_TIRETEMP_ID 0x2A3
-    #define HAS_TIRETEMP_1x8 true
+    #define HAS_TIRETEMP_1x8 false
     #define HAS_TIRETEMP_1x1 false
 #else
     #error "WHEEL_POSITION must be one of BR/BL/FR/FL!"
@@ -141,7 +141,7 @@ void mcp2515_fill_txbuf2(uint32_t id, uint8_t data[], uint8_t dlc) {
 
 int main() {
     SYSTEM_Initialize();
-    DELAY_milliseconds(10);
+    DELAY_milliseconds(100);
 
     // Setup will block if sensor is not connected!!!
     if (HAS_TIRETEMP_1x8) d6t_8lh_setup();
@@ -201,7 +201,7 @@ int main() {
 
         mcp2515_request_to_send(HAS_TIRETEMP_1x8, true, false);
 
-        DELAY_milliseconds(100);
+        DELAY_milliseconds(8); // So that its closer to actually 100hz
     }
 
     SPI0_Close();
