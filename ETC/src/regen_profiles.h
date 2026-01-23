@@ -1,16 +1,28 @@
+/**
+ * NOTE: All profiles should only accept inputs in range [0.0, 1.0] and return
+ *       outputs from [-1.0, 1.0]
+ */
+
 #ifndef REGEN_PROFILES_H_
 #define REGEN_PROFILES_H_
 
-#include <cstdint>
+/**
+ * Quartic profile
+ *
+ * @param driver_input      normalized throttle travel
+ * @param speed             car speed in kph
+ */
+float quartic_profile(float driver_input, float speed);
 
 /**
  * Template profile
  * Takes in the driver input and aligns it to a curve 
  * 
  * @param driver_input      considers both braking and throttle inputs
+ * @param speed             car speed in kph
  *
  * @return something like the strength of regen braking
  */
-int16_t template_profile(int16_t driver_input);
+float template_profile(float driver_input, float speed);
 
 #endif //   REGEN_PROFILES_H_

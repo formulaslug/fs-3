@@ -1,4 +1,6 @@
 #include "etc_controller.h"
+#include "regen_profiles.h"
+
 #include <cmath>
 #include <cstdint>
 
@@ -105,16 +107,16 @@ void ETCController::updateState() {
     this->state.he1_travel = he1Travel;
     this->state.he2_travel = he2Travel;
     /** 
+     * NOTE: REGEN BRAKING ONLY WHEN SPEED < 5.0 KPH
      * REGEN: 
      * find true torque demand (negative if regen braking)
      *      also should ensure the battery temp is low enough to accomodate regen braking
      *      should also consider when both brakes and throttle are depressed
      *  should call various profiles
      */
-    this->state.torque_demand =
-        (this->state.motor_enabled && (!this->state.brakes_implausibility && !this->hasImplausibility())) ?
-        static_cast<int16_t>((pedalTravel - ETCController::PRECENT_REGEN) * ETCController::MAX_TORQUE_DEMAND / (1 - ETCController::PRECENT_REGEN)) :
-        0;
+    this->state.torque_demand = (this->state.motor_enabled &&
+            (!this->state.brakes_implausibility && !this->hasImplausibility()))
+        ? static_cast<int16_t>(quartic_profile(pedalTravel, this->state.speed)) : 0;
     if (!this->can_regen && this->state.torque_demand < 0) {
         this->state.torque_demand = 0;
     }

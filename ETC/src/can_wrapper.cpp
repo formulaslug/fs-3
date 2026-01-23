@@ -3,6 +3,7 @@
 #include "mbed.h"
 #include <cstdint>
 
+const float WHEEL_RADIUS = 0.30f;       // radius from center to tire edge in meters
 
 CANWrapper::CANWrapper(ETCController& etcController, EventFlags& events)
     : globalEvents(events),
@@ -136,6 +137,18 @@ void CANWrapper::processCANRx() {
                 if (!this->etc.getState().ts_ready) {
                     this->etc.turnOffMotor();
                 }
+                break;
+            }
+            case 0x482: { // SME_TRQSPD_Speed
+                int16_t rpm = (rx.data[0] << 8) + rx.data[1];
+                float speed = (float) rpm * 2 * M_PI;       // rad / min
+                speed *= 60.0f;                             // rad / hr
+                speed *= WHEEL_RADIUS * 1000.0f;            // km  / hr
+
+                ETCState state = this->etc.getState();
+                state.speed = speed;
+                this->etc.updateStateFromCAN(state);
+
                 break;
             }
             case 0x291:

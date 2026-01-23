@@ -28,6 +28,8 @@
  * @field motor_forward  Whether the motor is in forward drive mode (as opposed to reverse).
  * @field cockpit        Whether the cockpit switch is in the ON position.
  * @field torque_demand  The current torque demand in RPM.
+ * @field brakes_implausibility 
+ * @field speed          The speed of the car in KPH
  */
 struct ETCState {
     uint8_t mbb_alive;
@@ -43,6 +45,7 @@ struct ETCState {
     bool cockpit;
     int16_t torque_demand;
     bool brakes_implausibility;
+    float speed;
 };
 
 
