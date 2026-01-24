@@ -7,12 +7,13 @@
 #define REGEN_PROFILES_H_
 
 /**
- * Quartic profile
+ * Generic profile
  *
  * @param driver_input      normalized throttle travel
+ * @param linearity         lower val -> less linear (in range [0.0, 1.0])
  * @param speed             car speed in kph
  */
-float quartic_profile(float driver_input, float speed);
+float generic_profile(float driver_input, float linearity, float speed);
 
 /**
  * Template profile

@@ -116,7 +116,7 @@ void ETCController::updateState() {
      */
     this->state.torque_demand = (this->state.motor_enabled &&
             (!this->state.brakes_implausibility && !this->hasImplausibility()))
-        ? static_cast<int16_t>(quartic_profile(pedalTravel, this->state.speed)) : 0;
+        ? static_cast<int16_t>(generic_profile(pedalTravel, 0.5, this->state.speed)) : 0;
     if (!this->can_regen && this->state.torque_demand < 0) {
         this->state.torque_demand = 0;
     }
