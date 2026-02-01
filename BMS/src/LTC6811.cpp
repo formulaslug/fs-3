@@ -8,8 +8,8 @@
 
 LTC6811::LTC6811(LTC681xBus &bus, uint8_t id) : m_bus(bus), m_id(id) {
   m_config =
-    Configuration{.gpio5 = GPIOOutputState::kPassive,
-                  .gpio4 = GPIOOutputState::kPassive,
+    Configuration{.gpio5 = GPIOOutputState::kHigh,
+                  .gpio4 = GPIOOutputState::kHigh,
                   .gpio3 = GPIOOutputState::kPassive,
                   .gpio2 = GPIOOutputState::kPassive,
                   .gpio1 = GPIOOutputState::kPassive,
@@ -158,65 +158,76 @@ float LTC6811::readTemperatureTMP1075(TMP1075_Handle_t *sensor) {
 
   //BYTE 1: Register address (0x00 for temperature register)
   //FCOM 0X9 (Master NACK + STOP)
-  buildCOMMBytes(0x0, 0x9, sensor->temp_reg, tempBytes);
+  buildCOMMBytes(0x1, 0x9, sensor->temp_reg, tempBytes);
   commData[2] = tempBytes[0];  // COMM2
   commData[3] = tempBytes[1];  // COMM3
 
   // BYTE 2: Dummy (not used)
-  buildCOMMBytes(0x0, 0x0, 0x00, tempBytes);
+  buildCOMMBytes(0x07, 0x0, 0x00, tempBytes);
   commData[4] = tempBytes[0];  // COMM4
   commData[5] = tempBytes[1];  // COMM5
 
+  m_bus.WakeupBus();
   auto wrCmd = LTC681xBus::BuildAddressedBusCommand(WriteCommGroup(), m_id);
   m_bus.SendDataCommand(wrCmd, commData);
+
+  ThisThread::sleep_for(10ms);
   
+  m_bus.WakeupBus();
   auto stCmd = LTC681xBus::BuildAddressedBusCommand(StartComm(), m_id);
-  m_bus.SendCommand(stCmd);
 
-  ThisThread::sleep_for(3ms);
+  static constexpr int num_bytes = 24/8*3;
+  static uint8_t buf[6] = {0};
 
-  // STEP 2: Read 2 bytes from temperature register
-  // I2C Sequence: START -> [ADDR+R] -> ACK -> [READ MSB] -> ACK -> [READ LSB] -> NACK+STOP
-  //BYTE 0: Address with Read bit (ADDR << 1 |1)
-  buildCOMMBytes(0x6, 0x0, (sensor->i2c_address << 1) | 0x01, tempBytes);
-  commData[0] = tempBytes[0];  // COMM0
-  commData[1] = tempBytes[1];  // COMM1
+  m_bus.SendDataCommand(stCmd, buf);
 
-  //BYTE 1: Read MSB (master sends 0xFF as dummy, master ACKs)
-  buildCOMMBytes(0x0, 0x0, 0xFF, tempBytes);
-  commData[2] = tempBytes[0];  // COMM2
-  commData[3] = tempBytes[1];  // COMM3
-
-  // BYTE 2: Read LSB (master sends 0xFF as dummy, master NACKs and STOP)
-  buildCOMMBytes(0x0, 0x9, 0xFF, tempBytes);
-  commData[4] = tempBytes[0];  // COMM4
-  commData[5] = tempBytes[1];  // COMM5
-
-  m_bus.SendDataCommand(wrCmd, commData);
-  m_bus.SendCommand(stCmd);
-
-  ThisThread::sleep_for(3ms);
-
-  auto rdCmd = LTC681xBus::BuildAddressedBusCommand(ReadCommGroup(), m_id);
-  m_bus.SendReadCommand(rdCmd, rxData);
-
-  // STEP 3: Extract Temperature Data from COMM register
-  // MSB is in D1 (rxData[2] upper nibble, rxData[3] lower nibble)
-  uint8_t tempMSB = ((rxData[2] & 0x0F) << 4) | ((rxData[3] >> 4) & 0x0F);
-  
-  // LSB is in D2 (rxData[4] upper nibble, rxData[5] lower nibble)
-  uint8_t tempLSB = ((rxData[4] & 0x0F) << 4) | ((rxData[5] >> 4) & 0x0F);
-  
-  // Combine MSB and LSB into 16-bit value
-  int16_t rawTemp = (tempMSB << 8) | tempLSB;
-
-  // STEP 4: Convert to Celsius
-  // TMP1075-specific conversion:
-  // 12-bit temperature value stored in bits 15-4
-  // Each LSB = 0.0625°C
-  // float temperature = (rawTemp >> 4) * 0.0625f;
-  
-  return (rawTemp >> 4) * 0.0625f;
+  // ThisThread::sleep_for(3ms);
+  //
+  // // STEP 2: Read 2 bytes from temperature register
+  // // I2C Sequence: START -> [ADDR+R] -> ACK -> [READ MSB] -> ACK -> [READ LSB] -> NACK+STOP
+  // //BYTE 0: Address with Read bit (ADDR << 1 |1)
+  // buildCOMMBytes(0x6, 0x0, (sensor->i2c_address << 1) | 0x01, tempBytes);
+  // commData[0] = tempBytes[0];  // COMM0
+  // commData[1] = tempBytes[1];  // COMM1
+  //
+  // //BYTE 1: Read MSB (master sends 0xFF as dummy, master ACKs)
+  // buildCOMMBytes(0x0, 0x0, 0xFF, tempBytes);
+  // commData[2] = tempBytes[0];  // COMM2
+  // commData[3] = tempBytes[1];  // COMM3
+  //
+  // // BYTE 2: Read LSB (master sends 0xFF as dummy, master NACKs and STOP)
+  // buildCOMMBytes(0x0, 0x9, 0xFF, tempBytes);
+  // commData[4] = tempBytes[0];  // COMM4
+  // commData[5] = tempBytes[1];  // COMM5
+  //
+  // m_bus.WakeupBus();
+  // m_bus.SendDataCommand(wrCmd, commData);
+  // m_bus.SendCommand(stCmd);
+  //
+  // ThisThread::sleep_for(3ms);
+  //
+  // auto rdCmd = LTC681xBus::BuildAddressedBusCommand(ReadCommGroup(), m_id);
+  // m_bus.WakeupBus();
+  // m_bus.SendReadCommand(rdCmd, rxData);
+  //
+  // // STEP 3: Extract Temperature Data from COMM register
+  // // MSB is in D1 (rxData[2] upper nibble, rxData[3] lower nibble)
+  // uint8_t tempMSB = ((rxData[2] & 0x0F) << 4) | ((rxData[3] >> 4) & 0x0F);
+  //
+  // // LSB is in D2 (rxData[4] upper nibble, rxData[5] lower nibble)
+  // uint8_t tempLSB = ((rxData[4] & 0x0F) << 4) | ((rxData[5] >> 4) & 0x0F);
+  //
+  // // Combine MSB and LSB into 16-bit value
+  // int16_t rawTemp = (tempMSB << 8) | tempLSB;
+  //
+  // // STEP 4: Convert to Celsius
+  // // TMP1075-specific conversion:
+  // // 12-bit temperature value stored in bits 15-4
+  // // Each LSB = 0.0625°C
+  // // float temperature = (rawTemp >> 4) * 0.0625f;
+  //
+  // return (rawTemp >> 4) * 0.0625f;
+  return 0;
 }
 
 bool LTC6811::verifyI2CStatus(uint8_t *rxData) {

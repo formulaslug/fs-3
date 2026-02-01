@@ -12,8 +12,8 @@
 #include "LTC6811.h"
 
 TMP1075_Handle_t tempSensor = {
-    .i2c_address = 0x48,  // Verify actual I2C address
-    .temp_reg = 0x00      // Temperature register address
+    .i2c_address = 0x53,  // Verify actual I2C address
+    .temp_reg = 0xAA      // Temperature register address
 };
 
 BMSThread::BMSThread(LTC681xBus &bus, unsigned int frequency, BmsEventMailbox* bmsEventMailbox, MainToBMSMailbox* mainToBMSMailbox)
@@ -238,7 +238,7 @@ void BMSThread::threadWorker() {
                                                 : LTC6811::GPIOOutputState::kLow;
               config.gpio3 = ((j & 0b100) >> 2) ? LTC6811::GPIOOutputState::kHigh
                                                 : LTC6811::GPIOOutputState::kLow;
-              config.gpio4 = LTC6811::GPIOOutputState::kPassive;
+              // config.gpio4 = LTC6811::GPIOOutputState::kPassive;
 
               m_chips[i].updateConfig();
 
@@ -389,6 +389,8 @@ void BMSThread::threadWorker() {
       for (int i = 0; i < BMS_BANK_COUNT; i++) {
 
         LTC6811::Configuration &config = m_chips[i].getConfig();
+        config.gpio4 = LTC6811::GPIOOutputState::kHigh;
+        config.gpio5 = LTC6811::GPIOOutputState::kHigh;
         config.dischargeState.value = 0x0000;
         m_chips[i].updateConfig();
       }
