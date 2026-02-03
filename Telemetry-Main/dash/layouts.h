@@ -6,6 +6,7 @@
 #define LAYOUTS_H
 
 #include "BT817Q.hpp"
+#include "CANProtocol.hpp"
 
 struct Faults {
   bool fans : 1;
@@ -14,6 +15,25 @@ struct Faults {
 };
 
 class Layouts : public BT817Q {
+private:
+  // color intervals
+  static const uint8_t CELL_WARNING_TEMP = 50;
+  static const uint8_t CELL_NORMAL_TEMP = 45; 
+  static const uint8_t CELL_LOW_TEMP = 15; 
+  
+  static const uint16_t CELL_HIGH_VOLT = 4000;
+  static const uint16_t CELL_STD_VOLT = 3400; 
+  static const uint16_t CELL_LOW_VOLT = 2800; 
+
+  static const uint16_t PACK_STD_VOLT = 10300;  
+  static const uint16_t PACK_WARNING_VOLT = 10000; 
+  static const uint16_t PACK_FLASH_VOLT = 9400; 
+
+  // debug grid cell dimensions
+  static const uint16_t CELL_WIDTH = 100;
+  static const uint16_t CELL_HEIGHT = 68;
+  static const uint16_t CELL_FONT = 24;
+
 public:
   Layouts(PinName mosi,
           PinName miso,
@@ -151,6 +171,26 @@ public:
                     );
 
   void drawTestLayout(int var);
+
+  void drawMainDisplay(bool shtd, bool mtr_ctrl, bool rtd, bool pchg, bool fans, 
+	uint16_t acc_volt, uint8_t acc_temp, uint8_t soc, int tick, uint16_t speed, 
+	const char* lap_time, uint16_t glv, uint8_t mtr_temp, uint8_t ctrl_temp, 
+	uint16_t dc_bus);
+
+  void debugCellTemps(const ACC_SEG_TEMPS_t seg_temps[5]);
+
+  void debugCellVolts(const ACC_SEG_VOLTS_t seg_volts[5]);
+
+  void drawTempCell(uint16_t x, uint16_t y, uint8_t temp);
+
+  void drawVoltCell(uint16_t x, uint16_t y, uint16_t volts);
+
+  Color cellTempToColor(uint8_t temp);
+
+  Color cellVoltToColor(uint16_t volt);
+
+  Color socToColor(uint8_t soc);
+
 };
 
 #endif // LAYOUTS_H

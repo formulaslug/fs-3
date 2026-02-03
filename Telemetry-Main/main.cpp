@@ -17,7 +17,7 @@ constexpr bool LAP_SET = false;
 
 
 constexpr chrono::duration SD_UPDATE_HZ = 10ms;
-constexpr chrono::duration DASH_UPDATE_HZ = 100ms;
+constexpr chrono::duration DASH_UPDATE_HZ = 20ms;
 constexpr chrono::duration RADIO_UPDATE_HZ = 100ms;
 
 // Everything pertaining to XBee radio (TODO: clean)
@@ -52,77 +52,33 @@ void error_quit(std::string msg) {
 int n = 0;
 void update_dash() {
     const VehicleState vsm_state = vsm.getState();
+
+    // find max cell temp
     uint8_t max_temp = 0;
-
-    for (auto [TEMPS_CELL0, TEMPS_CELL1, TEMPS_CELL2, TEMPS_CELL3, TEMPS_CELL4, TEMPS_CELL5] : vsm_state.accSegTemps) {
-        max_temp =
-            max(TEMPS_CELL0,
-                max(TEMPS_CELL1,
-                    max(TEMPS_CELL2,
-                        max(TEMPS_CELL3, max(TEMPS_CELL4, TEMPS_CELL5)))));
+    for (auto [TEMPS_CELL0, TEMPS_CELL1, TEMPS_CELL2, TEMPS_CELL3, TEMPS_CELL4, TEMPS_CELL5] : vsm_state.accSegTemps) 
+    {
+       max_temp = max(TEMPS_CELL0, max(TEMPS_CELL1, max(TEMPS_CELL2, max(TEMPS_CELL3, max(TEMPS_CELL4, TEMPS_CELL5)))));
     }
-    // params = {
-    //     .faults =
-    //         Faults{false,
-    //                static_cast<bool>(!vsm_state.accStatus.PRECHARGE_DONE),
-    //                static_cast<bool>(!vsm_state.accStatus.SHUTDOWN_STATE)},
-    //     .speed = static_cast<uint8_t>(vsm_state.smeTrqSpd.SPEED * 112 /
-    //     7500), .soc = vsm_state.accPower.SOC, .acc_temp = max_temp, .ctrl_tmp
-    //     = vsm_state.smeTemp.CONTROLLER_TEMP, .mtr_tmp =
-    //     vsm_state.smeTemp.MOTOR_TEMP, .mtr_volt =
-    //     static_cast<float>(vsm_state.accPower.PACK_VOLTAGE / 100.0), .glv =
-    //     static_cast<float>(vsm_state.pdbPowerA.GLV_VOLTAGE), .steering_angle
-    //     = vsm_state.steering_sensor, .brake_balance =
-    //     vsm_state.brake_sensor_f /
-    //                      (vsm_state.brake_sensor_f +
-    //                      vsm_state.brake_sensor_r),
-    //     .brake_f = vsm_state.brake_sensor_f,
-    //     .brake_r = vsm_state.brake_sensor_r,
-    //     .throttle_demand =
-    //         vsm_state.smeThrottleDemand.TORQUE_DEMAND / 32768.0f, // 0-1
-    //     // 0 - 1
-    //     .brake_val = static_cast<float>(
-    //         ((vsm_state.etcStatus.BRAKE_SENSE_VOLTAGE / 32768.0) * 3.3 -
-    //         0.33) / (1.65 - 0.33)),
-    //     // psi
-    //     .brake_psi =
-    //         static_cast<float>(
-    //             (vsm_state.etcStatus.BRAKE_SENSE_VOLTAGE / 32768.0) - 0.1) *
-    //         2500,
-    //     .time = chrono::milliseconds(0),
-    //     .delta_time_seconds = 0.01,
-    //     .rtds = static_cast<bool>(vsm_state.etcStatus.RTD),
-    //     .rpm = vsm_state.smeTrqSpd.SPEED,
-    // };
-    // printf("%f %f\n", params.brake_f, params.brake_r);
-    // // params.speed++;
-    // eve.drawStandardLayout2(params);
-
-    // eve.drawLayout3(
-    //     Faults{false, static_cast<bool>(!vsm_state.accStatus.PRECHARGE_DONE), static_cast<bool>(!vsm_state.accStatus.SHUTDOWN_STATE)},
-    //     static_cast<float>(vsm_state.accPower.PACK_VOLTAGE / 100.0),
-    //     max_temp,
-    //     vsm_state.smeTemp.CONTROLLER_TEMP,
-    //     vsm_state.smeTemp.MOTOR_TEMP,
-    //     vsm_state.accPower.SOC,
-    //     static_cast<float>(vsm_state.pdbPowerA.GLV_VOLTAGE),
-    //     static_cast<bool>(vsm_state.etcStatus.RTD),
-    //     n
-    // );
-    eve.drawLayout4(
-        // TODO: add lap data
-        Faults{false, static_cast<bool>(!vsm_state.accStatus.PRECHARGE_DONE), static_cast<bool>(!vsm_state.accStatus.SHUTDOWN_STATE)},
-        static_cast<float>(vsm_state.accPower.PACK_VOLTAGE / 100.0),
-        max_temp,
-        vsm_state.smeTemp.DC_BUS_V/10,
-        vsm_state.smeTemp.MOTOR_TEMP,
-        vsm_state.accPower.SOC,
-        vsm_state.accStatus.GLV_VOLTAGE/1000.0,
-        static_cast<bool>(vsm_state.etcStatus.RTD),
-        n,
-        vsm_state.brake_sensor_r,
-        vsm_state.brake_sensor_f
+    
+    eve.drawMainDisplay(
+      vsm_state.accStatus.SHUTDOWN_STATE, 
+      vsm_state.smeTemp.FAULT_LEVEL, 
+      vsm_state.etcStatus.RTD, 
+      vsm_state.accStatus.PRECHARGE_DONE, 
+      true /*fans*/, 
+      vsm_state.accPower.PACK_VOLTAGE, 
+      max_temp, 
+      vsm_state.accPower.SOC, 
+      n,
+      vsm_state.vdmGpsData.SPEED, 
+      vsm.getLapTime(), 
+      vsm_state.accStatus.GLV_VOLTAGE, 
+      vsm_state.smeTemp.MOTOR_TEMP, 
+      vsm_state.smeTemp.CONTROLLER_TEMP,
+      vsm_state.smeTemp.DC_BUS_V
     );
+    //eve.debugCellVolts(vsm_state.accSegVolts);
+    //eve.debugCellTemps(vsm_state.accSegTemps);
 }
 
 int main() {
