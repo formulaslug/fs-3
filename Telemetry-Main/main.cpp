@@ -3,6 +3,7 @@
 #include "Ticker.h"
 #include "VehicleStateManager.hpp"
 #include "dash/layouts.h"
+#include "LapCounter.hpp"
 #include "data_logger.hpp"
 #include "fsdaq/encoder_generated.hpp"
 #include "radio.hpp"
@@ -12,6 +13,8 @@
 constexpr bool ENABLE_RADIO = false;
 constexpr bool ENABLE_SD = false;
 constexpr bool ENABLE_DASH = true;
+constexpr bool LAP_SET = false;
+
 
 constexpr chrono::duration SD_UPDATE_HZ = 10ms;
 constexpr chrono::duration DASH_UPDATE_HZ = 100ms;
@@ -107,6 +110,7 @@ void update_dash() {
     //     n
     // );
     eve.drawLayout4(
+        // TODO: add lap data
         Faults{false, static_cast<bool>(!vsm_state.accStatus.PRECHARGE_DONE), static_cast<bool>(!vsm_state.accStatus.SHUTDOWN_STATE)},
         static_cast<float>(vsm_state.accPower.PACK_VOLTAGE / 100.0),
         max_temp,
@@ -153,6 +157,21 @@ int main() {
         queue.call_every(DASH_UPDATE_HZ, &update_dash);
     }
 
+    // When the LAP button is pressed, set start position for lap timing
+    queue.call_every(500ms, []() {
+        if (LAP_SET) {
+            return;
+        }
+        const VehicleState vsm_state = vsm.getState();
+        if(static_cast<bool>(vsm_state.etcStatus.RTD)) { //assuming this bit will be 1 if RTD
+            LapCounter lap_counter(vsm.getState());
+            lap_counter.resetLapCounter(vsm.getState());
+            LAP_SET = true;
+        }
+    });
+    
+    // LapCounter lap_counter(vsm.getState());
+    // lap_counter.resetLapCounter(vsm.getState());
 
     if (true){
         queue.call_every(100ms, []() {
@@ -176,6 +195,7 @@ int main() {
         // t.reset();
         vsm.update();
         const VehicleState state = vsm.getState();
+        lap_counter.updateLapCounter(state);
 
         // SME
         current_row.SME_THROTL_TorqueDemand = state.smeThrottleDemand.TORQUE_DEMAND;
