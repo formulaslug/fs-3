@@ -456,7 +456,6 @@ void Layouts::drawDebugFaultLayout(
                   ){
         
   if (failure == startFrame()) {
-    printf("This failed");
     return;
   }
   //-----------\init-------------
@@ -506,8 +505,7 @@ void Layouts::drawDebugFaultLayout(
   for (uint16_t i = 0; i < 8; ++i) {
       uint16_t y = row_start + i * row_step;
       Color boxColor = green; //default color to green
-      if(i == 5)
-      {
+      if(i == 5){
         //Flash the box to alarm driver if MC volts below warning point
         if (packv / 100 < ACC_WARNING_VOLT) { 
           if (tick % 2 == 0) boxColor = red;
@@ -516,14 +514,12 @@ void Layouts::drawDebugFaultLayout(
         else if (packv / 100 < ACC_WARNING2)boxColor = red;
         else if (packv / 100 < ACC_WARNING3)boxColor = orange;
       }
-      else if(i==6)
-      {
+      else if(i==6){
         //GLV range checking
         if(glv > GLV_LOW && glv < GLV_HIGH) boxColor = green;
         else boxColor = red;
       }
-      else if(i==7)
-      {
+      else if(i==7){
         //CELL FLT 
         if(cellfault != 0) boxColor = red;
         else boxColor = green;
@@ -552,13 +548,11 @@ void Layouts::drawDebugFaultLayout(
   for (uint16_t i = 0; i < 5; ++i) {
       uint16_t y = row_start + i * row_step;
       Color boxColor = green;
-      if(i==3)
-      {
+      if(i==3){
         //Not sure about ranges for pedal travel
         boxColor = mid_gray;
       }
-      else if(i==4)
-      {
+      else if(i==4){
         //Not sure about ranges for brake sensor voltage
         boxColor = mid_gray;
       }
@@ -590,20 +584,17 @@ void Layouts::drawDebugFaultLayout(
   for (uint16_t i = 0; i < 7; ++i) {
       uint16_t y = row_start + i * row_step;
       Color boxColor = green;
-      if(i==4)
-      {
+      if(i==4){
         //motor temp
         if(motortemp < MTR_TEMP_HIGH) boxColor = green;
         else boxColor = red;
       }
-      else if(i==5)
-      {
+      else if(i==5){
         //fault code
         if(faultcode <= 0) boxColor = green;
         else boxColor = red;
       }
-      else if (i==6)
-      {
+      else if (i==6){
         //fault level
         if(faultlevel != 0) boxColor = red;
         else boxColor = green;
@@ -617,8 +608,8 @@ void Layouts::drawDebugFaultLayout(
                 Point{col3_x + status_box_offset + status_box_size, static_cast<unsigned short>(y + status_box_size - font_height_adjustment)},
                 boxColor);
        setMainColor(mid_gray);
-      }
-    
+  }
+                
   // String interpretations of common fault codes
   const uint16_t xPos = 530;
   const uint16_t yPos = 430;
@@ -633,4 +624,208 @@ void Layouts::drawDebugFaultLayout(
   else if(faultcode == 63) drawText(xPos,yPos, "RPDO Timeout",23, OPT_CENTERY);
   else drawText(530,470, "String interpretation not added",23, OPT_CENTERY);
   endFrame();
+}
+
+void Layouts::drawMainDisplay(bool shtd, bool mtr_ctrl, bool rtd, bool pchg, bool fans, 
+	uint16_t acc_volt, uint8_t acc_temp, uint8_t soc, int tick, uint16_t speed, 
+	const char* lap_time, uint16_t glv, uint8_t mtr_temp, uint8_t ctrl_temp, uint16_t dc_bus)
+{
+	// init
+	if (!startFrame()) return;
+	clear(white.red, white.green, white.blue);
+	loadFonts();
+	
+	// soc
+	if (soc > 100) soc = 100;
+	drawProgressBar(Point{100, 25}, 600, 20, soc, 100, Color{50,50,50}, socToColor(soc), true);
+
+	// acc temp box
+	drawRect(Point{100, 70}, Point{400, 170}, cellTempToColor(acc_temp), 32);
+	setMainColor(black);
+	drawFormattedText(250, 120, "%d'C", 31, OPT_CENTER, acc_temp);
+
+	// acc pack volt box
+	// 	choose color
+	Color volt_box_color = blue;
+	if (acc_volt < PACK_FLASH_VOLT)
+	{
+		if (tick % 2 == 0) volt_box_color = red;
+		else volt_box_color = yellow;
+	}
+	else if (acc_volt < PACK_WARNING_VOLT) volt_box_color = red;
+	else if (acc_volt < PACK_STD_VOLT) volt_box_color = yellow;
+	//	draw box
+	drawRect(Point{400, 70}, Point{700, 170}, volt_box_color, 32);
+	drawFormattedText(550, 120, "%d.%dV", 31, OPT_CENTER, acc_volt / 100, acc_volt % 100);
+
+	// speedometer
+	drawFormattedText(400, 315, "%u", 1, OPT_CENTER, speed);
+
+	// Non-fault bools
+	// 	RTD
+	if (rtd) drawRect(Point{100, 200}, Point{300, 250}, green, 32);
+	drawText(200, 225, "RTD", 31, OPT_CENTER);
+	// 	fans
+	if (fans) drawRect(Point{100, 250}, Point{300, 300}, green, 32);
+	drawText(200, 275, "FANS", 31, OPT_CENTER);
+	// 	precharge
+	if (pchg) drawRect(Point{100, 300}, Point{300, 350}, green, 32);
+	drawText(200, 325, "PCHG", 31, OPT_CENTER);
+	
+	// Faults
+	// 	shutdown circuit
+	if (shtd)
+	{
+		Color shtd_c = yellow;
+		if (tick % 2 == 0) shtd_c = red;
+		drawRect(Point{100, 350}, Point{300, 400}, shtd_c, 32);
+	}
+	drawText(200, 375, "SHTD", 31, OPT_CENTER);
+	// 	motor controller
+	if (mtr_ctrl)
+	{
+		Color mctrl_c = yellow;
+		if (tick % 2 == 0) mctrl_c = red;
+		drawRect(Point{100, 400}, Point{300, 450}, mctrl_c, 32);
+	}
+	drawText(200, 425, "MCTRL", 31, OPT_CENTER);
+
+	// data
+	setMainColor(black);
+	// LAP
+	drawText(500, 225, "LAP", 31, OPT_CENTERY);
+	drawText(600, 225, lap_time, 31, OPT_CENTERY);
+	// GLV
+	drawText(500, 275, "GLV", 31, OPT_CENTERY);
+	drawFormattedText(600, 275, "%d.%dV", 31, OPT_CENTERY, glv / 1000, glv % 1000);
+	// DC BUS
+	drawText(500, 325, "DC BUS", 31, OPT_CENTERY);
+	drawFormattedText(675, 325, "%d.%dV", 31, OPT_CENTERY, dc_bus / 10, dc_bus % 10);
+	// MTR
+	drawText(500, 375, "MTR", 31, OPT_CENTERY);
+	drawFormattedText(650, 375, "%d'C", 31, OPT_CENTERY, mtr_temp);
+	// CTRL
+	drawText(500, 425, "CTRL", 31, OPT_CENTERY);
+	drawFormattedText(650, 425, "%d'C", 31, OPT_CENTERY, ctrl_temp);
+
+	endFrame();
+}
+
+void Layouts::debugCellTemps(const ACC_SEG_TEMPS_t seg_temps[5])
+{
+  // initialize frame
+  if (!startFrame()) return;
+  clear(white.red, white.green, white.blue);
+
+  // screen label
+  setMainColor(black);
+  drawFormattedText(400, 34, "BATTERY CELL TEMPERATURES", 25, OPT_CENTER);
+
+  // cell labels
+  setMainColor(black);
+  int16_t x = 150;
+  for (uint8_t cell = 0; cell < 6; cell++)
+  {
+    drawFormattedText(x, 84, "CELL%u", CELL_FONT, OPT_CENTER, cell);
+    x += CELL_WIDTH;
+  }
+
+  // draw grid
+  uint16_t y = 118;
+  for (uint8_t seg = 0; seg < 5; seg++)
+  {
+    // segment label
+    drawFormattedText(50, y + (CELL_HEIGHT / 2), "SEG%u", CELL_FONT, OPT_CENTER, seg);
+    // cells
+    drawTempCell(100, y, seg_temps[seg].TEMPS_CELL0);
+    drawTempCell(200, y, seg_temps[seg].TEMPS_CELL1);
+    drawTempCell(300, y, seg_temps[seg].TEMPS_CELL2);
+    drawTempCell(400, y, seg_temps[seg].TEMPS_CELL3);
+    drawTempCell(500, y, seg_temps[seg].TEMPS_CELL4);
+    drawTempCell(600, y, seg_temps[seg].TEMPS_CELL5);
+    y += CELL_HEIGHT;
+  }
+
+  endFrame();
+}
+
+void Layouts::debugCellVolts(const ACC_SEG_VOLTS_t seg_volts[5])
+{
+  // initialize frame
+  if (!startFrame()) return;
+  clear(white.red, white.green, white.blue);
+
+  // screen label
+  setMainColor(black);
+  drawFormattedText(400, 34, "BATTERY CELL VOLTAGES", 25, OPT_CENTER);
+
+  // cell labels
+  setMainColor(black);
+  int16_t x = 150;
+  for (uint8_t cell = 0; cell < 6; cell++)
+  {
+    drawFormattedText(x, 84, "CELL%u", CELL_FONT, OPT_CENTER, cell);
+    x += CELL_WIDTH;
+  }
+
+  // draw grid
+  uint16_t y = 118;
+  for (uint8_t seg = 0; seg < 5; seg++)
+  {
+    // segment label
+    drawFormattedText(50, y + (CELL_HEIGHT / 2), "SEG%u", CELL_FONT, OPT_CENTER, seg);
+    // cells
+    drawVoltCell(100, y, (seg_volts[seg].VOLTS_CELL0 * 2550 / 255) + 2000);
+    drawVoltCell(200, y, (seg_volts[seg].VOLTS_CELL1 * 2550 / 255) + 2000);
+    drawVoltCell(300, y, (seg_volts[seg].VOLTS_CELL2 * 2550 / 255) + 2000);
+    drawVoltCell(400, y, (seg_volts[seg].VOLTS_CELL3 * 2550 / 255) + 2000);
+    drawVoltCell(500, y, (seg_volts[seg].VOLTS_CELL4 * 2550 / 255) + 2000);
+    drawVoltCell(600, y, (seg_volts[seg].VOLTS_CELL5 * 2550 / 255) + 2000);
+    y += CELL_HEIGHT;
+  }
+
+  endFrame();
+}
+
+void Layouts::drawTempCell(uint16_t x, uint16_t y, uint8_t temp)
+{
+  uint16_t br_x = x + CELL_WIDTH, br_y = y + CELL_HEIGHT;
+  // draw cell
+  drawRect(Point{x, y}, Point{br_x, br_y}, cellTempToColor(temp), 32);
+  // draw cell text
+  setMainColor(black);
+  drawFormattedText(x + (CELL_WIDTH / 2), y + (CELL_HEIGHT / 2), "%u", CELL_FONT, OPT_CENTER, temp);
+}
+
+void Layouts::drawVoltCell(uint16_t x, uint16_t y, uint16_t volt)
+{
+  uint16_t br_x = x + CELL_WIDTH, br_y = y + CELL_HEIGHT;
+  // draw cell
+  drawRect(Point{x, y}, Point{br_x, br_y}, cellVoltToColor(volt), 32);
+  // draw cell text
+  setMainColor(black);
+  drawFormattedText(x + (CELL_WIDTH / 2), y + (CELL_HEIGHT / 2), "%u.%uV", CELL_FONT, OPT_CENTER, volt / 1000, volt % 1000);
+}
+
+Color Layouts::cellTempToColor(uint8_t temp)
+{
+  if (temp > CELL_WARNING_TEMP) return red;
+  else if (temp > CELL_NORMAL_TEMP) return yellow;
+  else if (temp > CELL_LOW_TEMP) return green;
+  else return blue;
+}
+
+Color Layouts::cellVoltToColor(uint16_t volt)
+{
+  if (volt > CELL_HIGH_VOLT) return blue;
+  else if (volt > CELL_STD_VOLT) return green;
+  else if (volt > CELL_LOW_VOLT) return yellow;
+  else return red;
+}
+
+Color Layouts::socToColor(uint8_t soc)
+{
+  if (soc > 25) return green;
+  else if (soc > 10) return yellow;
+  else return red;
 }
