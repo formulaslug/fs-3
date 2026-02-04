@@ -79,6 +79,30 @@ void update_dash() {
     );
     //eve.debugCellVolts(vsm_state.accSegVolts);
     //eve.debugCellTemps(vsm_state.accSegTemps);
+    // eve.drawDebugFaultLayout(
+    //     vsm_state.accStatus.BMS_FAULT,
+    //     vsm_state.accStatus.IMD_FAULT, 
+    //     vsm_state.accStatus.SHUTDOWN_STATE,
+    //     vsm_state.accStatus.PRECHARGE_DONE,
+    //     vsm_state.accStatus.PRECHARGING, 
+    //     vsm_state.accStatus.CHARGING,
+    //     vsm_state.accPower.PACK_VOLTAGE,
+    //     vsm_state.accStatus.GLV_VOLTAGE,
+    //     vsm_state.accStatus.CELL_FAULT_INDEX,
+    //     vsm_state.etcStatus.RTD,
+    //     vsm_state.etcStatus.IMPLAUSIBILITY,
+    //     vsm_state.etcStatus.TS_ACTIVE,
+    //     vsm_state.etcStatus.PEDAL_TRAVEL,
+    //     vsm_state.etcStatus.BRAKE_SENSE_VOLTAGE,
+    //     vsm_state.smeTrqSpd.CONTROLLER_OVERTEMP,
+    //     vsm_state.smeTrqSpd.RUNNING,
+    //     vsm_state.smeTrqSpd.POWERING_ENABLED,
+    //     vsm_state.smeTrqSpd.POWERING_READY,
+    //     vsm_state.smeTemp.MOTOR_TEMP,
+    //     vsm_state.smeTemp.FAULT_CODE,
+    //     vsm_state.smeTemp.FAULT_LEVEL,
+    //     n
+    // );
 }
 
 int main() {
