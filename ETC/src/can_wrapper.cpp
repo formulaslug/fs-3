@@ -98,6 +98,16 @@ void CANWrapper::sendState() {
     ThisThread::sleep_for(1ms);
 }
 
+void CANWrapper::sendState2(){
+    ETCState state = this->etc.getState();
+    CANMessage stateMessage2;
+    stateMessage2.id = 0x18A;
+    stateMessage2.data[0] = static_cast<uint8_t>(static_cast<int16_t>(state.brake_pedal_travel) & 0xFF);
+    stateMessage2.data[1] = static_cast<uint8_t>(static_cast<int16_t>(state.brake_pedal_travel) >> 8);
+    this->bus->write(stateMessage2);
+    ThisThread::sleep_for(1ms);
+}
+
 
 void CANWrapper::sendCurrentLimits() {
     CANMessage currentMessage;

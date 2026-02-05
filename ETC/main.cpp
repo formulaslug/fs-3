@@ -46,6 +46,7 @@ void do_can_processing() {
         if (triggered_flags & can_handle->STATE_FLAG) {
             //            DPRINT("Flag Trigger: State\n");
             can_handle->sendState();
+            can_handle->sendState2();
             global_events.clear(can_handle->STATE_FLAG);
         }
         if (triggered_flags & can_handle->SYNC_FLAG) {
