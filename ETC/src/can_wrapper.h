@@ -88,6 +88,8 @@ public:
      */
     void sendState();
 
+    void sendState2();
+
 
     void sendCurrentLimits();
 

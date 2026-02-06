@@ -1,4 +1,5 @@
 #include "etc_controller.h"
+#include <algorithm>
 #include <cmath>
 #include <cstdint>
 
@@ -10,7 +11,8 @@ ETCController::ETCController()
       cockpitSwitchInterrupt(PB_0),
       reverseSwitchInterrupt(PB_1),
       rtdsOutput(PB_5),
-      brakeLightOutput(PB_4)
+      brakeLightOutput(PB_4),
+      brakePedalTravel(PA_4)
 {
     // Initialize state variables to their default conditions
     this->resetState();
@@ -115,6 +117,8 @@ void ETCController::updateState() {
     } else if (this->state.brakes_read <= ETCController::BRAKE_TOLERANCE_LOW) {
         this->brakeLightOutput.write(0);
     }
+
+    this->state.brake_pedal_travel = brakePedalTravel.read()*100.0; // Ranges 0-100
 }
 
 
@@ -168,6 +172,7 @@ void ETCController::resetState() {
     this->state.cockpit = false;
     this->state.torque_demand = 0;
     this->state.brakes_implausibility = false;
+    this->state.brake_pedal_travel = 0.0;
 }
 
 void ETCController::set_brake_implausibility() {
