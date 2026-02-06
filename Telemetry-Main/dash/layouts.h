@@ -12,6 +12,8 @@ struct Faults {
   bool fans : 1;
   bool precharge : 1;
   bool shutdown : 1;
+  int mcFaultLevel = 0;
+  int mcFaultCode = 0;
 };
 
 class Layouts : public BT817Q {
@@ -170,7 +172,14 @@ public:
                     float brake_f
                     );
 
-  void drawTestLayout(int var);
+  void drawThermalScreen(
+    uint8_t acc_temp, uint8_t mtr_temp, uint8_t ctrl_temp,
+    float fl_surface, float fl_side, 
+    float fr_surface, float fr_side, 
+    float rl_surface, float rl_side, 
+    float rr_surface, float rr_side,
+    float brake_fl, float brake_fr, float brake_rl, float brake_rr,
+    float brake_f, float brake_r);
 
   void drawDebugFaultLayout(
                     uint8_t bms,

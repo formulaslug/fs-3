@@ -1,41 +1,38 @@
 //
 // Created by Nova Mondal on 5/12/25.
 //
-
+#include "mbed.h"
 #include "layouts.h"
 
 Layouts::Layouts(PinName mosi, PinName miso, PinName sck, PinName cs,
                  PinName pdn, PinName irq, EvePanel panel)
     : BT817Q(mosi, miso, sck, cs, pdn, irq, panel) {}
 
-void Layouts::drawTestLayout(int var) {
-  uint8_t alpha = std::floor(double(var) / 800.0 * 255);
+// void Layouts::drawTestLayout(int var) {
+//     uint8_t alpha = std::floor(double(var) / 800.0 * 255);
 
-  if (failure == startFrame()) {
-    return;
-  }
-  clear(255, 255, 255);
-  uint8_t alpha2 = 255 - alpha;
-  drawRect(Point{400, 200}, Point{600, 350}, Color{0, 255, 255, alpha2}, 64);
-  setMainColor(Color{0, 0, 255});
-  drawPoint(64 * 16, 200, 100);
-  drawPoint(32 * 16, 500, 200, Color{0, 0, 255, alpha});
-  setMainColor(Color{255, 0, 0});
-  drawFormattedText(600, 300, "current value: %d", 30, BT817Q::OPT_CENTER, var);
-  uint8_t tall = 195 + alpha;
-  drawLine(Point{300, 0}, Point{300, tall}, Color{255, 0, 128}, 32);
-  drawNumber(150, 200, (var - 250), 31, 9,
-             BT817Q::OPT_CENTER | BT817Q::OPT_SIGNED);
+//     if (failure == startFrame()) {
+//         return;
+//     }
+//     clear(255, 255, 255);
+//     uint8_t alpha2 = 255 - alpha;
+//     drawRect(Point{400, 200}, Point{600, 350}, Color{0, 255, 255, alpha2}, 64);
+//     setMainColor(Color{0, 0, 255});
+//     drawPoint(64 * 16, 200, 100);
+//     drawPoint(32 * 16, 500, 200, Color{0, 0, 255, alpha});
+//     setMainColor(Color{255, 0, 0});
+//     drawFormattedText(600, 300, "current value: %d", 30, BT817Q::OPT_CENTER, var);
+//     uint8_t tall = 195 + alpha;
+//     drawLine(Point{300, 0}, Point{300, tall}, Color{255, 0, 128}, 32);
+//     drawNumber(150, 200, (var - 250), 31, 9, BT817Q::OPT_CENTER | BT817Q::OPT_SIGNED);
 
-  // eve.drawGauge(Point{650, 100}, 100, transform, 800);
+//     // eve.drawGauge(Point{650, 100}, 100, transform, 800);
 
-  drawGauge(Point{650, 100}, 100, var, 800, Color{64, 64, 90}, Color{0, 255, 0},
-            Color{255, 0, 0}, Color{0, 0, 255});
-  drawProgressBar(Point{50, 380}, 100, 10, var, 800, Color{128, 0, 0},
-                  Color{0, 0, 0});
+//     drawGauge(Point{650, 100}, 100, var, 800, Color{64, 64, 90}, Color{0, 255, 0}, Color{255, 0, 0}, Color{0, 0, 255});
+//     drawProgressBar(Point{50, 380}, 100, 10, var, 800, Color{128, 0, 0}, Color{0, 0, 0});
 
-  endFrame(); // automatically waits for cmd queue to clear out
-}
+//     endFrame(); // automatically waits for cmd queue to clear out
+// }
 
 void Layouts::drawStandardLayout(
     Faults faults, const uint8_t speed, const uint8_t soc, uint8_t acc_temp,
@@ -324,7 +321,6 @@ void Layouts::drawLayout3(Faults faults, float acc_volt, uint8_t acc_temp,
   endFrame();
 }
 
-
 void Layouts::drawLayout4(Faults faults, float acc_volt, uint8_t acc_temp,
                           float ctrl_v, uint8_t mtr_temp, uint8_t soc,
                           float glv, bool rtds, int tick, float brake_r, float brake_f) {
@@ -332,7 +328,7 @@ void Layouts::drawLayout4(Faults faults, float acc_volt, uint8_t acc_temp,
   if (failure == startFrame()) {
     return;
   }
-  clear(255, 255, 255); // white background for frame
+  clear(255, 255, 255); 
   loadFonts();
   //-----------\init-------------
 
@@ -426,10 +422,130 @@ void Layouts::drawLayout4(Faults faults, float acc_volt, uint8_t acc_temp,
   drawText(525,300, "SOC", 31);
   drawFormattedText(550, 250, "%03d    ", 2, OPT_CENTER, soc);
 
-
   endFrame();
 }
 
+#define ACC_WARNING_TEMP   54
+static const Color yellow = Color{255, 200, 0};
+static const Color orange = Color{255, 140, 0};
+
+void Layouts::drawThermalScreen(
+    uint8_t acc_temp, uint8_t mtr_temp, uint8_t ctrl_temp,
+    float fl_surface, float fl_side,
+    float fr_surface, float fr_side,
+    float rl_surface, float rl_side,
+    float rr_surface, float rr_side,
+    float brake_fl, float brake_fr, float brake_rl, float brake_rr,
+    float brake_f, float brake_r)
+{
+    if (failure == startFrame()) return;
+
+    clear(255, 255, 255);
+    loadFonts();
+
+    auto setTempColor = [&](int temp, int warnTemp, int redTemp) {
+        if (temp >= redTemp) setMainColor(red);
+        else if (temp >= warnTemp) setMainColor(yellow);
+        else setMainColor(green);
+    };
+
+    // top row
+    const int topY = 15;
+    const int topH = 70;
+    const int topW = 230;
+    const int topSpacing = 20;
+    int currX = 35;
+
+    auto drawTopBox = [&](const char* label, uint8_t val, int x, int warnTemp, int redTemp) {
+        if (val >= redTemp) setMainColor(red);
+        else if (val >= warnTemp) setMainColor(yellow);
+        else setMainColor(green);
+
+        drawRect({(uint16_t)x, (uint16_t)topY},
+                 {(uint16_t)(x + topW), (uint16_t)(topY + topH)});
+        setMainColor(black);
+        drawFormattedText(x + topW / 2, topY + topH / 2, label, 28, OPT_CENTER, val);
+    };
+
+    setMainColor((acc_temp > ACC_WARNING_TEMP) ? red : green);
+    drawRect({(uint16_t)currX, (uint16_t)topY},
+             {(uint16_t)(currX + topW), (uint16_t)(topY + topH)});
+    setMainColor(black);
+    drawFormattedText(currX + topW / 2, topY + topH / 2, "ACC: %dC", 28, OPT_CENTER, acc_temp);
+    currX += topW + topSpacing;
+
+    drawTopBox("MTR: %dC",  mtr_temp,  currX, 80, 100);
+    currX += topW + topSpacing;
+
+    drawTopBox("CTRL: %dC", ctrl_temp, currX, 70, 85);
+
+    // main area
+    setMainColor(black);
+    drawRect({30, 100}, {770, 470}, 3);
+
+    const int boxW = 120;
+    const int boxH = 135;
+    const int horizontalGap = 140;
+    const int verticalGap = 40;
+    const int textLineHeight = 35;
+
+    int leftBoxX = 400 - (horizontalGap / 2) - boxW;
+    int rightBoxX = 400 + (horizontalGap / 2);
+
+    auto drawWheelPod = [&](int x, int y, float surface, float side, float brk,
+                            const char* label, bool isLeft) {
+        int avgVal = (int)((surface + side) / 2.0f);
+        int iSurface = (int)surface;
+        int iSide = (int)side;
+        int iBrk = (int)brk;
+
+        setTempColor(avgVal, 80, 100);
+        drawRect({(uint16_t)x, (uint16_t)y},
+                 {(uint16_t)(x + boxW), (uint16_t)(y + boxH)});
+
+        // inner boxes
+        setMainColor(black);
+        drawFormattedText(x + boxW / 2, y + boxH / 2 - 25, label, 30, OPT_CENTER);
+        drawFormattedText(x + boxW / 2, y + boxH / 2 + 25, "%dC", 30, OPT_CENTER, avgVal);
+
+        // side text
+        int textX = isLeft ? (x - 25) : (x + boxW + 25);
+        uint16_t align = isLeft ? OPT_RIGHTX : 0;
+        int textStartY = y + 15;
+
+        setTempColor(iSurface, 80, 100);
+        drawFormattedText(textX, textStartY, "Surface: %dC", 24, align, iSurface);
+
+        setTempColor(iSide, 80, 100);
+        drawFormattedText(textX, textStartY + textLineHeight, "Side: %dC", 24, align, iSide);
+
+        setTempColor(iBrk, 80, 100);
+        drawFormattedText(textX, textStartY + (textLineHeight * 2), "Brk Disc: %dC", 24, align, iBrk);
+    };
+
+    int frontY = 130;
+    int rearY = frontY + boxH + verticalGap;
+
+    drawWheelPod(leftBoxX,  frontY, fl_surface, fl_side, brake_fl, "FL:", true);
+    drawWheelPod(rightBoxX, frontY, fr_surface, fr_side, brake_fr, "FR:", false);
+    drawWheelPod(leftBoxX,  rearY,  rl_surface, rl_side, brake_rl, "RL:", true);
+    drawWheelPod(rightBoxX, rearY,  rr_surface, rr_side, brake_rr, "RR:", false);
+
+    // brake balance
+    int bb_f = 50;
+    int bb_r = 50;
+
+    if ((brake_f + brake_r) > 0.1f) {
+        bb_f = (int)(100 * (brake_f / (brake_f + brake_r)));
+        bb_r = 100 - bb_f;
+    }
+
+    setMainColor(black);
+    drawFormattedText(400, 270, "BB:", 30, OPT_CENTER);
+    drawFormattedText(400, 300, "%02d/%02d", 30, OPT_CENTER, bb_f, bb_r);
+
+    endFrame();
+}
 void Layouts::drawDebugFaultLayout(                    
                     uint8_t bms, //BMS_FAULT
                     uint8_t imd, //IMD_FAULT
