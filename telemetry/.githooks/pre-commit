@@ -1,0 +1,33 @@
+#!/bin/sh
+set -e
+
+# Header
+printf "\n"
+printf "=====================================\n"
+printf "      FS-3 Telemetry Code Checks     \n"
+printf "=====================================\n"
+
+# Get staged files
+FILES=$(git diff --cached --name-only --diff-filter=ACM)
+FORMATTABLE_FILES=$(printf "%s\n" "$FILES" | grep -E '\.(c|cpp|h|hpp)$' || true)
+
+# Check if there are any files to format
+if [ -z "$FORMATTABLE_FILES" ]; then
+    printf "✅ No files to format. You're good to go!\n\n"
+    exit 0
+fi
+
+TOTAL=$(printf "%s\n" "$FORMATTABLE_FILES" | wc -l | tr -d ' ')
+
+# Format loops
+INDEX=1
+printf "%s\n" "$FORMATTABLE_FILES" | while IFS= read -r FILE; do
+    TOOL="🎨 clang-format"
+    clang-format -i "$FILE" >/dev/null 2>&1
+    git add "$FILE"
+    printf "[%d/%d] %s: %s\n" "$INDEX" "$TOTAL" "$TOOL" "$FILE"
+    INDEX=$((INDEX + 1))
+done
+
+# Final message
+printf "\n✅ All formatted! Pre-commit complete.\n"

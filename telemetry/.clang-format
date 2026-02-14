@@ -1,0 +1,7 @@
+# Options: https://clang.llvm.org/docs/ClangFormatStyleOptions.html
+BasedOnStyle: Google
+AllowShortIfStatementsOnASingleLine: false
+AllowShortLoopsOnASingleLine: false
+ColumnLimit: 80
+IndentWidth: 4
+UseTab: Never
