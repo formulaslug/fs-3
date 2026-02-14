@@ -44,6 +44,11 @@ struct ETCState {
     int16_t torque_demand;
     bool brakes_implausibility;
     float brake_pedal_travel;
+
+    float wheel_speed_fl;
+    float wheel_speed_fr;
+    float wheel_speed_rl;
+    float wheel_speed_rr;
 };
 
 
