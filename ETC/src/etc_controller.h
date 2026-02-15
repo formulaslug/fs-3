@@ -45,7 +45,7 @@ struct ETCState {
     bool cockpit;
     int16_t torque_demand;
     bool brakes_implausibility;
-    float speed;
+    float brake_pedal_travel;
 };
 
 
@@ -67,6 +67,8 @@ class ETCController {
     DigitalOut rtdsOutput;
     /** Output pin to turn on the brake light. */
     DigitalOut brakeLightOutput;
+
+    AnalogIn brakePedalTravel;
 
     /** Timer for implausibility via HE sensor travel percent mismatch. */
     Timer implausTravelTimer;

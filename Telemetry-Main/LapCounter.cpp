@@ -82,7 +82,7 @@ void LapCounter::updateLapCounter(VehicleState state) {
 
     //  Lap has been completed, all conditions pass
     data.lap_counter++;
-    data.lap_time = std::chrono::duration<float>{timer.elapsed_time()}.count();
+    data.lap_time = getTime();
 
     timer.reset();
     timer.start();

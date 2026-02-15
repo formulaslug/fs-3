@@ -24,6 +24,10 @@ inline Color green{0, 186, 81};
 
 inline Color red{255, 0, 0};
 
+inline Color yellow{255, 200, 0};
+
+inline Color blue{0, 160, 240};
+
 struct Point {
   uint16_t x;
   uint16_t y;
