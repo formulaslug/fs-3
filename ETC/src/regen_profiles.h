@@ -1,6 +1,6 @@
 /**
- * NOTE: All profiles should only accept inputs in range [0.0, 1.0] and return
- *       outputs from [-1.0, 1.0]
+ * NOTE: ALL PROFILES SHOULD ONLY ACCEPT INPUTS IN RANGE [0.0, 1.0] AND RETURN
+ *       OUTPUTS FROM [-1.0, 1.0]
  */
 
 #ifndef REGEN_PROFILES_H_
