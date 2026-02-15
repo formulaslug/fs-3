@@ -1,5 +1,6 @@
 #include "can_wrapper.h"
 #include "etc_controller.h"
+#include "filtered_analog_in.h"
 #include "mbed.h"
 #include <cstdint>
 

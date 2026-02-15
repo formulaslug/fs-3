@@ -10,6 +10,7 @@
 
 
 #include "mbed.h"
+#include "filtered_analog_in.h"
 #include <cstdint>
 
 
@@ -55,11 +56,11 @@ struct ETCState {
  */
 class ETCController {
     /** The pin connected to the hall-effect 1 sensor. */
-    AnalogIn he1Input;
+    FilteredAnalogIn he1Input;
     /** The pin connected to the hall-effect 2 sensor. */
-    AnalogIn he2Input;
+    FilteredAnalogIn he2Input;
     /** The pin connected to the brake pedal sensor. */
-    AnalogIn brakePedalInput;
+    FilteredAnalogIn brakePedalInput;
     /** Interrupt to trigger when the cockpit switch is set. */
     InterruptIn cockpitSwitchInterrupt;
     /** Interrupt to trigger when the reverse switch is set. */
@@ -69,7 +70,7 @@ class ETCController {
     /** Output pin to turn on the brake light. */
     DigitalOut brakeLightOutput;
 
-    AnalogIn brakePedalTravel;
+    FilteredAnalogIn brakePedalTravel;
 
     /** Timer for implausibility via HE sensor travel percent mismatch. */
     Timer implausTravelTimer;

@@ -1,19 +1,25 @@
 #include "etc_controller.h"
 #include "regen_profiles.h"
+#include "filtered_analog_in.h"
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
 
+//  probably not a best practice....?
+AnalogIn he1Temp(PA_7);
+AnalogIn he2Temp(PA_1);
+AnalogIn brakePedalTemp(PA_0);
+AnalogIn brakePedalTravelTemp(PA_4);
 
 ETCController::ETCController()
-    : he1Input(PA_7),
-      he2Input(PA_1),
-      brakePedalInput(PA_0),
+    : he1Input(he1Temp, 10),
+      he2Input(he2Temp, 10),
+      brakePedalInput(brakePedalTemp, 10),
       cockpitSwitchInterrupt(PB_0),
       reverseSwitchInterrupt(PB_1),
       rtdsOutput(PB_5),
       brakeLightOutput(PB_4),
-      brakePedalTravel(PA_4)
+      brakePedalTravel(brakePedalTravelTemp, 10)
 {
     // Initialize state variables to their default conditions
     this->resetState();
