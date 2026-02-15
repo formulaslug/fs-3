@@ -153,7 +153,7 @@ void CANWrapper::processCANRx() {
                 int16_t rpm = (rx.data[0] << 8) + rx.data[1];
                 float speed = (float) rpm * 2 * M_PI;       // rad / min
                 speed *= 60.0f;                             // rad / hr
-                speed /= WHEEL_RADIUS * 1000.0f;            // km  / hr
+                speed *= WHEEL_RADIUS / 1000.0f;            // km  / hr
 
                 ETCState state = this->etc.getState();
                 state.speed = speed;

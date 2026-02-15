@@ -45,6 +45,7 @@ struct ETCState {
     bool cockpit;
     int16_t torque_demand;
     bool brakes_implausibility;
+    float speed;
     float brake_pedal_travel;
 };
 

@@ -1,4 +1,5 @@
 #include "etc_controller.h"
+#include "regen_profiles.h"
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
@@ -114,11 +115,15 @@ void ETCController::updateState() {
      *      should also consider when both brakes and throttle are depressed
      *  should call various profiles
      */
-    this->state.torque_demand = (this->state.motor_enabled &&
-            (!this->state.brakes_implausibility && !this->hasImplausibility()))
-        ? static_cast<int16_t>(generic_profile(pedalTravel, 0.5, this->state.speed)) : 0;
+    if (!this->state.motor_enabled || this->hasImplausibility())
+        this->state.torque_demand = 0.0f;
+    else {
+        float brake_input = state.brakes_read / ETCController::MAX_VOLTAGE;
+        float scale = variable_profile(pedalTravel, brake_input, 0.35, this->state.speed);
+        this->state.torque_demand = static_cast<int16_t>(ETCController::MAX_TORQUE_DEMAND * scale);
+    }
     if (!this->can_regen && this->state.torque_demand < 0) {
-        this->state.torque_demand = 0;
+        this->state.torque_demand = 0.0f;
     }
 
 
@@ -291,5 +296,6 @@ bool ETCController::isBraking() {
 bool ETCController::hasImplausibility() {
     // return this->implausTravelTimerRunning || this->implausBoundsTimerRunning;
     return this->implausTravelTimer.elapsed_time() >= 100ms
-        || this->implausBoundsTimer.elapsed_time() >= 100ms;
+        || this->implausBoundsTimer.elapsed_time() >= 100ms
+        || this ->state.brakes_implausibility;
 }

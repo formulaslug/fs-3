@@ -7,23 +7,30 @@
 #define REGEN_PROFILES_H_
 
 /**
- * Generic profile
+ * Variable profile that can be adjusted to be more or less linear based on
+ * `linearity` parameter, and more throttle or brake heavy based on ratio parameter.
  *
- * @param driver_input      normalized throttle travel
+ * NOTE: technically does work with any value for linearity, recommended below 2.3
+ *
+ * @param accel_input       normalized throttle travel ([0.0, 1.0])
+ * @param brake_input       normalized brake travel ([0.0, 1.0])
  * @param linearity         lower val -> less linear (in range [0.0, 1.0])
  * @param speed             car speed in kph
+ *
+ * @return scalar (in range [0.0, 1.0] for torque demand
  */
-float generic_profile(float driver_input, float linearity, float speed);
+float variable_profile(float accel_input, float brake_input, float linearity, float speed);
 
 /**
- * Template profile
- * Takes in the driver input and aligns it to a curve 
+ * Template profile.
+ * Takes in the driver input and aligns it to a curve.
  * 
- * @param driver_input      considers both braking and throttle inputs
+ * @param accel_input       normalized throttle travel ([0.0, 1.0])
+ * @param brake_input       normalized brake travel ([0.0, 1.0])
  * @param speed             car speed in kph
  *
- * @return something like the strength of regen braking
+ * @return scalar (in range [0.0, 1.0] for torque demand
  */
-float template_profile(float driver_input, float speed);
+float template_profile(float accel_input, float brake_input, float speed);
 
 #endif //   REGEN_PROFILES_H_
