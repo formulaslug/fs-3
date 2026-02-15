@@ -3,6 +3,7 @@
 #include "mbed.h"
 #include <cstdint>
 
+const float WHEEL_RADIUS = 0.30f;       // radius from center to tire edge in meters
 
 CANWrapper::CANWrapper(ETCController& etcController, EventFlags& events)
     : globalEvents(events),
@@ -22,7 +23,7 @@ CANWrapper::CANWrapper(ETCController& etcController, EventFlags& events)
 
     this->stateTicker.attach(callback([this]() {
         this->globalEvents.set(CANWrapper::STATE_FLAG);
-    }), 100ms);
+    }), 10ms);
 
     this->limitsTicker.attach(callback([this]() {
         this->globalEvents.set(CANWrapper::LIMITS_FLAG);
@@ -92,7 +93,8 @@ void CANWrapper::sendState() {
         (this->etc.isBraking() << 3) |
         (state.motor_enabled << 4) |
         (this->etc.hasImplausibility() << 5) |
-        (state.ts_ready << 6);
+        (state.ts_ready << 6) |
+        (this->etc.can_regen << 7);
 
     this->bus->write(stateMessage);
     ThisThread::sleep_for(1ms);
@@ -114,8 +116,8 @@ void CANWrapper::sendCurrentLimits() {
     currentMessage.id = 0x286;
 
     // Constant charge current = 0A
-    currentMessage.data[0] = 0x00;
-    currentMessage.data[1] = 0x00;
+    currentMessage.data[0] = static_cast<uint16_t>(100);
+    currentMessage.data[1] = static_cast<uint16_t>(100) >> 8;
 
     // Constant discharge current = 400A (split into little endian order)
     currentMessage.data[2] = static_cast<uint8_t>(400);
@@ -138,7 +140,7 @@ void CANWrapper::processCANRx() {
     CANMessage rx;
     while (this->bus->read(rx)) {
         switch (rx.id) {
-            case 0x188: // ACC_TPDO_STATUS
+            case 0x188: { // ACC_TPDO_STATUS
                 ETCState state = this->etc.getState();
                 state.ts_ready = rx.data[0] & 0b00001000;
                 this->etc.updateStateFromCAN(state);
@@ -146,6 +148,34 @@ void CANWrapper::processCANRx() {
                     this->etc.turnOffMotor();
                 }
                 break;
+            }
+            case 0x482: { // SME_TRQSPD_Speed
+                int16_t rpm = (rx.data[0] << 8) + rx.data[1];
+                float speed = (float) rpm * 2 * M_PI;       // rad / min
+                speed *= 60.0f;                             // rad / hr
+                speed /= WHEEL_RADIUS * 1000.0f;            // km  / hr
+
+                ETCState state = this->etc.getState();
+                state.speed = speed;
+                this->etc.updateStateFromCAN(state);
+
+                break;
+            }
+            case 0x291:
+            case 0x292:
+            case 0x293:
+            case 0x294:
+            case 0x295: {
+                CANMessage msg;
+                this->bus->read(msg);
+                for (int i=0; i<6; i++) {
+                    int8_t temp = msg.data[i];
+                    if (temp > 43) {
+                        this->etc.can_regen = false;
+                        this->etc.reenableRegenDelay.attach([&](){ this->etc.can_regen = true; }, 1s);
+                    }
+                }
+            }
         }
     }
 }

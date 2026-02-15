@@ -28,6 +28,8 @@
  * @field motor_forward  Whether the motor is in forward drive mode (as opposed to reverse).
  * @field cockpit        Whether the cockpit switch is in the ON position.
  * @field torque_demand  The current torque demand in RPM.
+ * @field brakes_implausibility 
+ * @field speed          The speed of the car in KPH
  */
 struct ETCState {
     uint8_t mbb_alive;
@@ -86,11 +88,20 @@ class ETCController {
     /** State of the ETC. */
     ETCState state;
 
+    public:
+    // Whether or not the acc cell temps are low enough to regen
+    bool can_regen = true;
+    /** Delay for turning regen back on */
+    Timeout reenableRegenDelay;
+
 public:
     /** The maximum motor speed in RPM. */
     static constexpr int16_t MAX_SPEED = 7500;
-    /** The maximum motor torque in Nm. */
-    static constexpr int16_t MAX_TORQUE = 30000;
+    /** The maximum motor torque. */
+    static constexpr int16_t MAX_TORQUE_DEMAND = 30000;
+    /** The percentage of the bottom of the torque demand range which is
+     *  converted into regen braking. */
+    static constexpr float PRECENT_REGEN = 0.5f;
     /** The maximum microcontroller pin voltage in volts. */
     static constexpr float MAX_VOLTAGE = 3.3f;
 
