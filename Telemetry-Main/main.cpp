@@ -13,8 +13,7 @@
 constexpr bool ENABLE_RADIO = false;
 constexpr bool ENABLE_SD = false;
 constexpr bool ENABLE_DASH = true;
-constexpr bool LAP_SET = false;
-
+bool LAP_SET = false;
 
 constexpr chrono::duration SD_UPDATE_HZ = 10ms;
 constexpr chrono::duration DASH_UPDATE_HZ = 20ms;
@@ -55,25 +54,26 @@ void update_dash() {
 
     // find max cell temp
     uint8_t max_temp = 0;
-    for (auto [TEMPS_CELL0, TEMPS_CELL1, TEMPS_CELL2, TEMPS_CELL3, TEMPS_CELL4, TEMPS_CELL5] : vsm_state.accSegTemps) 
+    for (auto [TEMPS_CELL0, TEMPS_CELL1, TEMPS_CELL2, TEMPS_CELL3, TEMPS_CELL4, TEMPS_CELL5] : vsm_state.accSegTemps)
     {
        max_temp = max(TEMPS_CELL0, max(TEMPS_CELL1, max(TEMPS_CELL2, max(TEMPS_CELL3, max(TEMPS_CELL4, TEMPS_CELL5)))));
     }
-    
+    static const char* laptime = "12.1";
     eve.drawMainDisplay(
-      vsm_state.accStatus.SHUTDOWN_STATE, 
-      vsm_state.smeTemp.FAULT_LEVEL, 
-      vsm_state.etcStatus.RTD, 
-      vsm_state.accStatus.PRECHARGE_DONE, 
-      true /*fans*/, 
-      vsm_state.accPower.PACK_VOLTAGE, 
-      max_temp, 
-      vsm_state.accPower.SOC, 
+      vsm_state.accStatus.SHUTDOWN_STATE,
+      vsm_state.smeTemp.FAULT_LEVEL,
+      vsm_state.etcStatus.RTD,
+      vsm_state.accStatus.PRECHARGE_DONE,
+      true /*fans*/,
+      vsm_state.accPower.PACK_VOLTAGE,
+      max_temp,
+      vsm_state.accPower.SOC,
       n,
-      vsm_state.vdmGpsData.SPEED, 
-      vsm.getLapTime(), 
-      vsm_state.accStatus.GLV_VOLTAGE, 
-      vsm_state.smeTemp.MOTOR_TEMP, 
+      vsm_state.vdmGpsData.SPEED,
+      //vsm.getLapTime(),
+      laptime,
+      vsm_state.accStatus.GLV_VOLTAGE,
+      vsm_state.smeTemp.MOTOR_TEMP,
       vsm_state.smeTemp.CONTROLLER_TEMP,
       vsm_state.smeTemp.DC_BUS_V
     );
@@ -81,10 +81,10 @@ void update_dash() {
     //eve.debugCellTemps(vsm_state.accSegTemps);
     // eve.drawDebugFaultLayout(
     //     vsm_state.accStatus.BMS_FAULT,
-    //     vsm_state.accStatus.IMD_FAULT, 
+    //     vsm_state.accStatus.IMD_FAULT,
     //     vsm_state.accStatus.SHUTDOWN_STATE,
     //     vsm_state.accStatus.PRECHARGE_DONE,
-    //     vsm_state.accStatus.PRECHARGING, 
+    //     vsm_state.accStatus.PRECHARGING,
     //     vsm_state.accStatus.CHARGING,
     //     vsm_state.accPower.PACK_VOLTAGE,
     //     vsm_state.accStatus.GLV_VOLTAGE,
@@ -103,7 +103,39 @@ void update_dash() {
     //     vsm_state.smeTemp.FAULT_LEVEL,
     //     n
     // );
+
+    uint8_t max_acc_temp = 0;
+    for (int i = 0; i < 5; i++) {
+        uint8_t seg_max = std::max({
+            vsm_state.accSegTemps[i].TEMPS_CELL0, vsm_state.accSegTemps[i].TEMPS_CELL1,
+            vsm_state.accSegTemps[i].TEMPS_CELL2, vsm_state.accSegTemps[i].TEMPS_CELL3,
+            vsm_state.accSegTemps[i].TEMPS_CELL4, vsm_state.accSegTemps[i].TEMPS_CELL5
+        });
+        if (seg_max > max_acc_temp) max_acc_temp = seg_max;
+    }
+
+    eve.drawThermalScreen(
+        max_acc_temp,
+        vsm_state.smeTemp.MOTOR_TEMP,
+        vsm_state.smeTemp.CONTROLLER_TEMP,
+        // FL
+        avgSurfaceTemp8(vsm_state.tperiphTireTemp[0]),
+        (float)vsm_state.tperiphData[0].SIDE_TIRE_TEMP,
+        // FR
+        avgSurfaceTemp8(vsm_state.tperiphTireTemp[1]),
+        (float)vsm_state.tperiphData[1].SIDE_TIRE_TEMP,
+        // RL
+        avgSurfaceTemp8(vsm_state.tperiphTireTemp[2]),
+        (float)vsm_state.tperiphData[2].SIDE_TIRE_TEMP,
+        // RR
+        avgSurfaceTemp8(vsm_state.tperiphTireTemp[3]),
+        (float)vsm_state.tperiphData[3].SIDE_TIRE_TEMP,
+        0.0f, 0.0f, 0.0f, 0.0f,
+        vsm_state.brake_sensor_f,
+        vsm_state.brake_sensor_r
+    );
 }
+
 
 int main() {
     printf("Hello world\n");
@@ -149,12 +181,12 @@ int main() {
             LAP_SET = true;
         }
     });
-    
+
     // LapCounter lap_counter(vsm.getState());
     // lap_counter.resetLapCounter(vsm.getState());
 
     if (true){
-        queue.call_every(100ms, []() {
+        queue.call_every(50ms, []() {
             const VehicleState state = vsm.getState();
             const uint8_t tmain_data[] = {
                 static_cast<uint8_t>(state.brake_sensor_f),
@@ -175,7 +207,7 @@ int main() {
         // t.reset();
         vsm.update();
         const VehicleState state = vsm.getState();
-        lap_counter.updateLapCounter(state);
+        //LapCounter.updateLapCounter(state);
 
         // SME
         current_row.SME_THROTL_TorqueDemand = state.smeThrottleDemand.TORQUE_DEMAND;

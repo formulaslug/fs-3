@@ -29,10 +29,10 @@ void VehicleStateManager::update() {
 void VehicleStateManager::readSensorValues() {
     // TODO: scale these to correct ranges
 
-    _vehicleState.steering_sensor =  _steering_sensor.read() * 3.3f;
+    _vehicleState.steering_sensor =static_cast<uint16_t>(_steering_sensor.read() * 3.3f * 1000.0f * (3.0f/2.0f)); //Millivolts at sensor
 
-    _vehicleState.brake_sensor_f =_brake_sensor_f.read() * 3.3f;
-    _vehicleState.brake_sensor_r =_brake_sensor_r.read() * 3.3f;
+    _vehicleState.brake_sensor_f =static_cast<uint16_t>(_brake_sensor_f.read() * 3.3f * 1000.0f * (3.0f/2.0f)); //Millivolts at sensor
+    _vehicleState.brake_sensor_r =static_cast<uint16_t>(_brake_sensor_r.read() * 3.3f * 1000.0f * (3.0f/2.0f)); //Millivolts at sensor
 }
 
 void VehicleStateManager::processCANMessage() {
@@ -163,9 +163,9 @@ void VehicleStateManager::processCANMessage() {
             }
             // VDM Messages
             //
-            // 
+            //
             // (TODO: REVERSE ORDER)
-            // 
+            //
             //
             case CAN_ID::VDM_GPS_LAT_LONG: {
                 const VDM_GPS_LAT_LONG_t* data = reinterpret_cast<const VDM_GPS_LAT_LONG_t*>(msg.data);

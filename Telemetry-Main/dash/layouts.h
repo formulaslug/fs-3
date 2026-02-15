@@ -6,28 +6,30 @@
 #define LAYOUTS_H
 
 #include "BT817Q.hpp"
-#include "CANProtocol.hpp"
+#include "../CANProtocol.hpp"
 
 struct Faults {
   bool fans : 1;
   bool precharge : 1;
   bool shutdown : 1;
+  int mcFaultLevel = 0;
+  int mcFaultCode = 0;
 };
 
 class Layouts : public BT817Q {
 private:
   // color intervals
   static const uint8_t CELL_WARNING_TEMP = 50;
-  static const uint8_t CELL_NORMAL_TEMP = 45; 
-  static const uint8_t CELL_LOW_TEMP = 15; 
-  
-  static const uint16_t CELL_HIGH_VOLT = 4000;
-  static const uint16_t CELL_STD_VOLT = 3400; 
-  static const uint16_t CELL_LOW_VOLT = 2800; 
+  static const uint8_t CELL_NORMAL_TEMP = 45;
+  static const uint8_t CELL_LOW_TEMP = 15;
 
-  static const uint16_t PACK_STD_VOLT = 10300;  
-  static const uint16_t PACK_WARNING_VOLT = 10000; 
-  static const uint16_t PACK_FLASH_VOLT = 9400; 
+  static const uint16_t CELL_HIGH_VOLT = 4000;
+  static const uint16_t CELL_STD_VOLT = 3400;
+  static const uint16_t CELL_LOW_VOLT = 2800;
+
+  static const uint16_t PACK_STD_VOLT = 10300;
+  static const uint16_t PACK_WARNING_VOLT = 10000;
+  static const uint16_t PACK_FLASH_VOLT = 9400;
 
   // debug grid cell dimensions
   static const uint16_t CELL_WIDTH = 100;
@@ -170,7 +172,14 @@ public:
                     float brake_f
                     );
 
-  void drawTestLayout(int var);
+  void drawThermalScreen(
+    uint8_t acc_temp, uint8_t mtr_temp, uint8_t ctrl_temp,
+    float fl_surface, float fl_side, 
+    float fr_surface, float fr_side, 
+    float rl_surface, float rl_side, 
+    float rr_surface, float rr_side,
+    float brake_fl, float brake_fr, float brake_rl, float brake_rr,
+    float brake_f, float brake_r);
 
   void drawDebugFaultLayout(
                     uint8_t bms,
@@ -196,9 +205,9 @@ public:
                     uint8_t faultlevel,
                     int tick
                     );
-  void drawMainDisplay(bool shtd, bool mtr_ctrl, bool rtd, bool pchg, bool fans, 
-	uint16_t acc_volt, uint8_t acc_temp, uint8_t soc, int tick, uint16_t speed, 
-	const char* lap_time, uint16_t glv, uint8_t mtr_temp, uint8_t ctrl_temp, 
+  void drawMainDisplay(bool shtd, bool mtr_ctrl, bool rtd, bool pchg, bool fans,
+	uint16_t acc_volt, uint8_t acc_temp, uint8_t soc, int tick, uint16_t speed,
+	const char* lap_time, uint16_t glv, uint8_t mtr_temp, uint8_t ctrl_temp,
 	uint16_t dc_bus);
 
   void debugCellTemps(const ACC_SEG_TEMPS_t seg_temps[5]);
