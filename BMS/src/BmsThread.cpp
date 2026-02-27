@@ -9,14 +9,26 @@
 
 #include "EnergusTempSensor.h"
 
+#include "LTC6811.h"
+
+TMP1075_Handle_t tempSensor = {
+    .i2c_address = 0x53,  // Verify actual I2C address
+    .temp_reg = 0xAA      // Temperature register address
+};
+
 BMSThread::BMSThread(LTC681xBus &bus, unsigned int frequency, BmsEventMailbox* bmsEventMailbox, MainToBMSMailbox* mainToBMSMailbox)
     : m_bus(bus), bmsEventMailbox(bmsEventMailbox), mainToBMSMailbox(mainToBMSMailbox) {
   for (int i = 0; i < BMS_BANK_COUNT; i++) {
     m_chips.push_back(LTC6811(bus, i));
   }
   for (int i = 0; i < BMS_BANK_COUNT; i++) {
-    // m_chips[i].getConfig().gpio5 = LTC6811::GPIOOutputState::kLow;
-    // m_chips[i].getConfig().gpio4 = LTC6811::GPIOOutputState::kPassive;
+    // m_chips[i].getConfig().gpio4 = LTC6810::GPIOOutputState::kHigh;
+    // m_chips[i].getConfig().gpio3 = LTC6810::GPIOOutputState::kHigh;
+
+    // for LTC6811
+    m_chips[i].getConfig().gpio5 = LTC6811::GPIOOutputState::kHigh;
+    m_chips[i].getConfig().gpio4 = LTC6811::GPIOOutputState::kHigh;
+    //m_chips[i].getConfig().gpio3 = LTC6811::GPIOOutputState::kHigh; maybe?
 
     m_chips[i].updateConfig();
   }
@@ -94,7 +106,7 @@ void BMSThread::threadWorker() {
   std::array<int8_t, BMS_BANK_COUNT * BMS_BANK_TEMP_COUNT> allTemps;
   uint32_t cell_faults = 0;
   while (true) {
-
+      
       bool isBalancing = false;
       bool cell_volt_high = false;
       bool cell_temp_high = false;
@@ -102,39 +114,51 @@ void BMSThread::threadWorker() {
       bool cell_temp_low = false;
       bool cell_temp_high_charging = false;
 
+
     while(!mainToBMSMailbox->empty()) { // checks if maintoBMSMailbox pointer is NOT empty (assuming in order to read
                                         // inforation from that mailbox that has data in it?  )
-        MainToBMSEvent *mainToBMSEvent;
+      MainToBMSEvent *mainToBMSEvent;
 
-        osEvent evt = mainToBMSMailbox->get(); //osEvent type of variable(?) evt is being assigned to information
-                                               // that is being being sent to BMS using the mainToBMSMailbox
-        if (evt.status == osEventMessage) { // if the message went through (?) then status will equal osEventMessage
-            mainToBMSEvent = (MainToBMSEvent*)evt.value.p; //set mainToBMSEvent to evt.value(casted to MainToBMSEvent* pointer!)
-        } else { //otherwise keep going
-            continue;
-        }
+      osEvent evt = mainToBMSMailbox->get(); //osEvent type of variable(?) evt is being assigned to information
+                                              // that is being being sent to BMS using the mainToBMSMailbox
+      if (evt.status == osEventMessage) { // if the message went through (?) then status will equal osEventMessage
+          mainToBMSEvent = (MainToBMSEvent*)evt.value.p; //set mainToBMSEvent to evt.value(casted to MainToBMSEvent* pointer!)
+      } else { //otherwise keep going
+          continue;
+      }
 
-        balanceAllowed = mainToBMSEvent->balanceAllowed; // assign balanceAllowed to mainToBMSEvent
-                                                         // that is assigned the value held by balanceAllowed
-        charging = mainToBMSEvent->charging;// assign charging to mainToBMSEvent
-                                            // that is assigned the value held by charging
-        // printf("Balance Allowed: %x\nCharging: %x\n", balanceAllowed, charging);
-        delete mainToBMSEvent; // deallocate memory that was previously allocated dynamically to mainToBMSEvent
+      balanceAllowed = mainToBMSEvent->balanceAllowed; // assign balanceAllowed to mainToBMSEvent
+                                                        // that is assigned the value held by balanceAllowed
+      charging = mainToBMSEvent->charging;// assign charging to mainToBMSEvent
+                                          // that is assigned the value held by charging
+      // printf("Balance Allowed: %x\nCharging: %x\n", balanceAllowed, charging);
+      
+      delete mainToBMSEvent; // deallocate memory that was previously allocated dynamically to mainToBMSEvent
     }
-
+    if (true) {
+      // Read temperature from I2C sensor on each bank
+      for (int i = 0; i < BMS_BANK_COUNT; i++) {
+        float temp = m_chips[i].readTemperatureTMP1075(&tempSensor);
+        printf("Bank %d I2C Temperature: %.2f°C\n", i, temp);
+      }
+    }
 
 
     m_bus.WakeupBus();
 
     // Set all status lights high
     // TODO: This should be in some sort of config class
-
+    //???
+   /* 
     for (int i = 0; i < BMS_BANK_COUNT; i++) {
       LTC6811::Configuration &config = m_chips[i].getConfig();
       config.gpio5 = LTC6811::GPIOOutputState::kLow;
       m_chips[i].updateConfig();
+      ThisThread::sleep_for(5ms);
+      config.gpio5 = LTC6811::GPIOOutputState::kHigh;
+      m_chips[i].updateConfig();
     }
-
+*/
     // turn off cell balancing for voltage reading
     for (int i = 0; i < BMS_BANK_COUNT; i++) {
         LTC6811::Configuration &config = m_chips[i].getConfig();
@@ -214,7 +238,7 @@ void BMSThread::threadWorker() {
                                                 : LTC6811::GPIOOutputState::kLow;
               config.gpio3 = ((j & 0b100) >> 2) ? LTC6811::GPIOOutputState::kHigh
                                                 : LTC6811::GPIOOutputState::kLow;
-              config.gpio4 = LTC6811::GPIOOutputState::kPassive;
+              // config.gpio4 = LTC6811::GPIOOutputState::kPassive;
 
               m_chips[i].updateConfig();
 
@@ -365,17 +389,19 @@ void BMSThread::threadWorker() {
       for (int i = 0; i < BMS_BANK_COUNT; i++) {
 
         LTC6811::Configuration &config = m_chips[i].getConfig();
+        config.gpio4 = LTC6811::GPIOOutputState::kHigh;
+        config.gpio5 = LTC6811::GPIOOutputState::kHigh;
         config.dischargeState.value = 0x0000;
         m_chips[i].updateConfig();
       }
     }
-
+/*
     for (int i = 0; i < BMS_BANK_COUNT; i++) {
       LTC6811::Configuration &config = m_chips[i].getConfig();
       config.gpio5 = LTC6811::GPIOOutputState::kLow;
       m_chips[i].updateConfig();
     }
-
+*/
     if (!bmsEventMailbox->full()) { // if the bmsEventMailbox is not full
         BmsEvent* msg = new BmsEvent(); // create new BMSevent obj and assign it to pointer msg
 //        for (int i = 0; i < BMS_BANK_COUNT*BMS_BANK_CELL_COUNT; i++) { // loop through all bank cells

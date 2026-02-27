@@ -28,12 +28,15 @@ public:
     bool cell_temp_high;
     bool cell_temp_low;
     bool cell_temp_high_charging;
+
+    
 };
 
 class MainToBMSEvent {
 public:
     bool balanceAllowed = false;
     bool charging = false;
+    bool readI2CTemp;
 };
 
 static constexpr auto mailboxSize = 4;
