@@ -426,8 +426,6 @@ void Layouts::drawLayout4(Faults faults, float acc_volt, uint8_t acc_temp,
 }
 
 #define ACC_WARNING_TEMP   54
-static const Color yellow = Color{255, 200, 0};
-static const Color orange = Color{255, 140, 0};
 
 void Layouts::drawThermalScreen(
     uint8_t acc_temp, uint8_t mtr_temp, uint8_t ctrl_temp,

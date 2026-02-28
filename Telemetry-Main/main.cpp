@@ -104,36 +104,36 @@ void update_dash() {
     //     n
     // );
 
-    uint8_t max_acc_temp = 0;
-    for (int i = 0; i < 5; i++) {
-        uint8_t seg_max = std::max({
-            vsm_state.accSegTemps[i].TEMPS_CELL0, vsm_state.accSegTemps[i].TEMPS_CELL1,
-            vsm_state.accSegTemps[i].TEMPS_CELL2, vsm_state.accSegTemps[i].TEMPS_CELL3,
-            vsm_state.accSegTemps[i].TEMPS_CELL4, vsm_state.accSegTemps[i].TEMPS_CELL5
-        });
-        if (seg_max > max_acc_temp) max_acc_temp = seg_max;
-    }
-
-    eve.drawThermalScreen(
-        max_acc_temp,
-        vsm_state.smeTemp.MOTOR_TEMP,
-        vsm_state.smeTemp.CONTROLLER_TEMP,
-        // FL
-        avgSurfaceTemp8(vsm_state.tperiphTireTemp[0]),
-        (float)vsm_state.tperiphData[0].SIDE_TIRE_TEMP,
-        // FR
-        avgSurfaceTemp8(vsm_state.tperiphTireTemp[1]),
-        (float)vsm_state.tperiphData[1].SIDE_TIRE_TEMP,
-        // RL
-        avgSurfaceTemp8(vsm_state.tperiphTireTemp[2]),
-        (float)vsm_state.tperiphData[2].SIDE_TIRE_TEMP,
-        // RR
-        avgSurfaceTemp8(vsm_state.tperiphTireTemp[3]),
-        (float)vsm_state.tperiphData[3].SIDE_TIRE_TEMP,
-        0.0f, 0.0f, 0.0f, 0.0f,
-        vsm_state.brake_sensor_f,
-        vsm_state.brake_sensor_r
-    );
+    // uint8_t max_acc_temp = 0;
+    // for (int i = 0; i < 5; i++) {
+    //     uint8_t seg_max = std::max({
+    //         vsm_state.accSegTemps[i].TEMPS_CELL0, vsm_state.accSegTemps[i].TEMPS_CELL1,
+    //         vsm_state.accSegTemps[i].TEMPS_CELL2, vsm_state.accSegTemps[i].TEMPS_CELL3,
+    //         vsm_state.accSegTemps[i].TEMPS_CELL4, vsm_state.accSegTemps[i].TEMPS_CELL5
+    //     });
+    //     if (seg_max > max_acc_temp) max_acc_temp = seg_max;
+    // }
+    //
+    // eve.drawThermalScreen(
+    //     max_acc_temp,
+    //     vsm_state.smeTemp.MOTOR_TEMP,
+    //     vsm_state.smeTemp.CONTROLLER_TEMP,
+    //     // FL
+    //     avgSurfaceTemp8(vsm_state.tperiphTireTemp[0]),
+    //     (float)vsm_state.tperiphData[0].SIDE_TIRE_TEMP,
+    //     // FR
+    //     avgSurfaceTemp8(vsm_state.tperiphTireTemp[1]),
+    //     (float)vsm_state.tperiphData[1].SIDE_TIRE_TEMP,
+    //     // RL
+    //     avgSurfaceTemp8(vsm_state.tperiphTireTemp[2]),
+    //     (float)vsm_state.tperiphData[2].SIDE_TIRE_TEMP,
+    //     // RR
+    //     avgSurfaceTemp8(vsm_state.tperiphTireTemp[3]),
+    //     (float)vsm_state.tperiphData[3].SIDE_TIRE_TEMP,
+    //     0.0f, 0.0f, 0.0f, 0.0f,
+    //     vsm_state.brake_sensor_f,
+    //     vsm_state.brake_sensor_r
+    // );
 }
 
 
