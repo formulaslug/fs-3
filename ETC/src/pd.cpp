@@ -1,4 +1,4 @@
- #include "pD.h"
+ #include "pd.h"
 #include "etc_controller.h"
 
 PDController::PDController(float kp, float kd, float dt)
