@@ -740,7 +740,7 @@ void Layouts::drawDebugFaultLayout(
   endFrame();
 }
 
-void Layouts::drawMainDisplay(bool shtd, bool mtr_ctrl, bool rtd, bool pchg, bool fans, 
+void Layouts::drawMainDisplay(bool shtd_closed, bool mtr_ctrl_fault, bool rtd, bool pchg, bool fans, 
 	uint16_t acc_volt, uint8_t acc_temp, uint8_t soc, int tick, uint16_t speed, 
 	const char* lap_time, uint16_t glv, uint8_t mtr_temp, uint8_t ctrl_temp, uint16_t dc_bus)
 {
@@ -788,7 +788,7 @@ void Layouts::drawMainDisplay(bool shtd, bool mtr_ctrl, bool rtd, bool pchg, boo
 	
 	// Faults
 	// 	shutdown circuit
-	if (shtd)
+	if (!shtd_closed)
 	{
 		Color shtd_c = yellow;
 		if (tick % 2 == 0) shtd_c = red;
@@ -796,10 +796,10 @@ void Layouts::drawMainDisplay(bool shtd, bool mtr_ctrl, bool rtd, bool pchg, boo
 	}
 	drawText(200, 375, "SHTD", 31, OPT_CENTER);
 	// 	motor controller
-	if (mtr_ctrl)
+	if (mtr_ctrl_fault)
 	{
 		Color mctrl_c = yellow;
-		if (tick % 2 == 0) mctrl_c = red;
+		if (tick % 2 == 1) mctrl_c = red;
 		drawRect(Point{100, 400}, Point{300, 450}, mctrl_c, 32);
 	}
 	drawText(200, 425, "MCTRL", 31, OPT_CENTER);

@@ -61,7 +61,7 @@ void update_dash() {
     static const char* laptime = "12.1";
     eve.drawMainDisplay(
       vsm_state.accStatus.SHUTDOWN_STATE,
-      vsm_state.smeTemp.FAULT_LEVEL,
+      vsm_state.smeTemp.FAULT_LEVEL < 4 && vsm_state.smeTemp.FAULT_LEVEL > 0,
       vsm_state.etcStatus.RTD,
       vsm_state.accStatus.PRECHARGE_DONE,
       true /*fans*/,
