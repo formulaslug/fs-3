@@ -11,6 +11,7 @@
 
 #include "mbed.h"
 #include <cstdint>
+#include "pd.h"
 
 
 /**
@@ -91,6 +92,9 @@ class ETCController {
     /** State of the ETC. */
     ETCState state;
 
+    /** PDController for traction control. */
+    PDController pdController;
+
 public:
     /** The maximum motor speed in RPM. */
     static constexpr int16_t MAX_SPEED = 7500;
@@ -102,6 +106,10 @@ public:
     /** The percentage tolerance for the brake pedal to be considered pressed. */
     static constexpr float BRAKE_TOLERANCE_HIGH = 0.42f;
     static constexpr float BRAKE_TOLERANCE_LOW = 0.36f;
+
+    /** Traction control tuning variables */
+    static constexpr float kp = 4.0f;
+    static constexpr float kd = 0.0f;
 
     /** The voltage divider slope for the hall-effect 1 sensor. */
     static constexpr float HE1_SCALE = (330.0f / 480.0f);
