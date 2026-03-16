@@ -69,7 +69,7 @@ void update_dash() {
       max_temp,
       vsm_state.accPower.SOC,
       n,
-      vsm_state.vdmGpsData.SPEED,
+      vsm_state.smeTrqSpd.SPEED,
       //vsm.getLapTime(),
       laptime,
       vsm_state.accStatus.GLV_VOLTAGE,

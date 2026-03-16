@@ -773,9 +773,13 @@ void Layouts::drawMainDisplay(bool shtd_closed, bool mtr_ctrl_fault, bool rtd, b
 	drawFormattedText(550, 120, "%d.%dV", 31, OPT_CENTER, acc_volt / 100, acc_volt % 100);
 
 	// speedometer
-	drawFormattedText(400, 315, "%u", 1, OPT_CENTER, speed);
-
-	// Non-fault bools
+  float wheel_radius = 0.190f; // meters
+  float ground_speed = (11 / 40.0f) * ( 2 * M_PI * wheel_radius); // gear ratio * circumference
+  ground_speed *= speed; // meters / minute
+  ground_speed *= 60.0f / 1000.0f; // km / hr
+  drawFormattedText(400, 315, "%d", 1, OPT_CENTER, static_cast<int>(ground_speed));
+  
+  // Non-fault bools
 	// 	RTD
 	if (rtd) drawRect(Point{100, 200}, Point{300, 250}, green, 32);
 	drawText(200, 225, "RTD", 31, OPT_CENTER);
