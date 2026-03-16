@@ -12,14 +12,14 @@ AnalogIn brakePedalTemp(PA_0);
 AnalogIn brakePedalTravelTemp(PA_4);
 
 ETCController::ETCController()
-    : he1Input(he1Temp, 10),
-      he2Input(he2Temp, 10),
-      brakePedalInput(brakePedalTemp, 10),
+    : he1Input(he1Temp, 1),
+      he2Input(he2Temp, 1),
+      brakePedalInput(brakePedalTemp, 1),
       cockpitSwitchInterrupt(PB_0),
       reverseSwitchInterrupt(PB_1),
       rtdsOutput(PB_5),
       brakeLightOutput(PB_4),
-      brakePedalTravel(brakePedalTravelTemp, 10)
+      brakePedalTravel(brakePedalTravelTemp, 1)
 {
     // Initialize state variables to their default conditions
     this->resetState();
@@ -113,19 +113,27 @@ void ETCController::updateState() {
     this->state.he2_read = this->he2Input.read() * ETCController::MAX_VOLTAGE;
     this->state.he1_travel = he1Travel;
     this->state.he2_travel = he2Travel;
+
+    // this->state.brake_pedal_travel = brakePedalTravel.read()*100.0; // Ranges 0-100
+    const float _brakePedalTravelRaw = brakePedalTravel.read();
+    const float _brakePedalTravelScaled = ((0.74 - _brakePedalTravelRaw)/(0.74-0.70))*100.0;
+    this->state.brake_pedal_travel = max(0.0f, min(100.0f, _brakePedalTravelScaled));
+
     /** 
-     * NOTE: REGEN BRAKING ONLY WHEN SPEED < 5.0 KPH
+     * NOTE: REGEN BRAKING ONLY WHEN SPEED > 5.0 KPH
      * REGEN: 
      * find true torque demand (negative if regen braking)
      *      also should ensure the battery temp is low enough to accomodate regen braking
      *      should also consider when both brakes and throttle are depressed
      *  should call various profiles
      */
+    // printf("pedalTravel: %f, brakeTravel: %f, speed: %f\n", pedalTravel, this->state.brake_pedal_travel/100, this->state.speed);
     if (!this->state.motor_enabled || this->hasImplausibility())
         this->state.torque_demand = 0.0f;
     else {
-        float brake_input = state.brakes_read / ETCController::MAX_VOLTAGE;
-        float scale = variable_profile(pedalTravel, brake_input, 0.35, this->state.speed);
+        // float brake_input = state.brakes_read / ETCController::MAX_VOLTAGE;
+        float brake_input = state.brake_pedal_travel / 100;
+        float scale = variable_profile(pedalTravel, brake_input, 0.2, this->state.speed);
         this->state.torque_demand = static_cast<int16_t>(ETCController::MAX_TORQUE_DEMAND * scale);
     }
     if (!this->can_regen && this->state.torque_demand < 0) {
@@ -138,8 +146,6 @@ void ETCController::updateState() {
     } else if (this->state.brakes_read <= ETCController::BRAKE_TOLERANCE_LOW) {
         this->brakeLightOutput.write(0);
     }
-
-    this->state.brake_pedal_travel = brakePedalTravel.read()*100.0; // Ranges 0-100
 }
 
 

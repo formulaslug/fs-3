@@ -151,7 +151,7 @@ void CANWrapper::processCANRx() {
                 break;
             }
             case 0x482: { // SME_TRQSPD_Speed
-                int16_t rpm = (rx.data[0] << 8) + rx.data[1];
+                int16_t rpm = (rx.data[1] << 8) + rx.data[0];
                 float speed = (float) rpm * 2 * M_PI;       // rad / min
                 speed *= 60.0f;                             // rad / hr
                 speed *= WHEEL_RADIUS / 1000.0f;            // km  / hr
@@ -167,15 +167,15 @@ void CANWrapper::processCANRx() {
             case 0x293:
             case 0x294:
             case 0x295: {
-                CANMessage msg;
-                this->bus->read(msg);
-                for (int i=0; i<6; i++) {
-                    int8_t temp = msg.data[i];
-                    if (temp > 43) {
-                        this->etc.can_regen = false;
-                        this->etc.reenableRegenDelay.attach([&](){ this->etc.can_regen = true; }, 1s);
-                    }
-                }
+                // CANMessage msg;
+                // this->bus->read(msg);
+                // for (int i=0; i<6; i++) {
+                //     int8_t temp = msg.data[i];
+                //     if (temp > 43) {
+                //         this->etc.can_regen = false;
+                //         this->etc.reenableRegenDelay.attach([&](){ this->etc.can_regen = true; }, 1s);
+                //     }
+                // }
             }
         }
     }
