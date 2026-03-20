@@ -135,16 +135,32 @@ void CANWrapper::processCANRx() {
     // printf("rxerr: %d\n", this->bus->rderror());
     // printf("txerr: %d\n", this->bus->tderror());
     // printf("rx\n");
+    ETCState state = this->etc.getState();
     CANMessage rx;
     while (this->bus->read(rx)) {
         switch (rx.id) {
             case 0x188: // ACC_TPDO_STATUS
-                ETCState state = this->etc.getState();
                 state.ts_ready = rx.data[0] & 0b00001000;
                 this->etc.updateStateFromCAN(state);
                 if (!this->etc.getState().ts_ready) {
                     this->etc.turnOffMotor();
                 }
+                break;
+            case 418: // TPERIPH_FL
+                state.wheel_speed_fl = (rx.data[0] + (rx.data[1] << 8)) * 0.1;
+                this->etc.updateStateFromCAN(state);
+                break;
+            case 419: // TPERIPH_FR
+                state.wheel_speed_fr = (rx.data[0] + (rx.data[1] << 8)) * 0.1;
+                this->etc.updateStateFromCAN(state);
+                break;
+            case 420: // TPERIPH_BL
+                state.wheel_speed_rl = (rx.data[0] + (rx.data[1] << 8)) * 0.1;
+                this->etc.updateStateFromCAN(state);
+                break;
+            case 421: // TPERIPH_BR
+                state.wheel_speed_rr = (rx.data[0] + (rx.data[1] << 8)) * 0.1;
+                this->etc.updateStateFromCAN(state);
                 break;
         }
     }

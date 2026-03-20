@@ -11,6 +11,7 @@
 
 #include "mbed.h"
 #include <cstdint>
+#include "pd.h"
 
 
 /**
@@ -44,6 +45,12 @@ struct ETCState {
     int16_t torque_demand;
     bool brakes_implausibility;
     float brake_pedal_travel;
+
+    float wheel_speed_fl;
+    float wheel_speed_fr;
+    float wheel_speed_rl;
+    float wheel_speed_rr;
+    float slip_error;
 };
 
 
@@ -87,6 +94,8 @@ class ETCController {
     ETCState state;
 
 public:
+    /** PDController for traction control. */
+    PDController pdController;
     /** The maximum motor speed in RPM. */
     static constexpr int16_t MAX_SPEED = 7500;
     /** The maximum motor torque in Nm. */
@@ -97,6 +106,10 @@ public:
     /** The percentage tolerance for the brake pedal to be considered pressed. */
     static constexpr float BRAKE_TOLERANCE_HIGH = 0.42f;
     static constexpr float BRAKE_TOLERANCE_LOW = 0.36f;
+
+    /** Traction control tuning variables */
+    static constexpr float kp = 1.0f;
+    static constexpr float kd = 0.0f;
 
     /** The voltage divider slope for the hall-effect 1 sensor. */
     static constexpr float HE1_SCALE = (330.0f / 480.0f);

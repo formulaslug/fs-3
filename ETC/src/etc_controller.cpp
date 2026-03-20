@@ -12,7 +12,8 @@ ETCController::ETCController()
       reverseSwitchInterrupt(PB_1),
       rtdsOutput(PB_5),
       brakeLightOutput(PB_4),
-      brakePedalTravel(PA_4)
+      brakePedalTravel(PA_4),
+      pdController(this->kp, this->kd)
 {
     // Initialize state variables to their default conditions
     this->resetState();
@@ -106,11 +107,20 @@ void ETCController::updateState() {
     this->state.he2_read = this->he2Input.read() * ETCController::MAX_VOLTAGE;
     this->state.he1_travel = he1Travel;
     this->state.he2_travel = he2Travel;
-    this->state.torque_demand =
-        (this->state.motor_enabled && (!this->state.brakes_implausibility && !this->hasImplausibility())) ?
-        static_cast<int16_t>(pedalTravel * ETCController::MAX_TORQUE) :
-        0;
 
+    float torque_rf = pdController.update(this->state.wheel_speed_fl,
+						this->state.wheel_speed_fr,
+						this->state.wheel_speed_rl,
+						this->state.wheel_speed_rr);
+
+    if (this->state.motor_enabled && (!this->state.brakes_implausibility && !this->hasImplausibility()))
+    {
+	this->state.torque_demand = static_cast<int16_t>(pedalTravel * ETCController::MAX_TORQUE * torque_rf);
+    }
+    else
+    {
+	this->state.torque_demand = 0;
+    }
 
     if (this->state.brakes_read >= ETCController::BRAKE_TOLERANCE_HIGH) {
         this->brakeLightOutput.write(1);
