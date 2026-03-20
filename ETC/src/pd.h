@@ -8,6 +8,7 @@ public:
     PDController(float kp, float kd);
     float update(float ws_fl, float ws_fr, float ws_rl, float ws_rr);
     void reset();
+    float getLastErr();
 
 private:
     float Kp;
@@ -17,10 +18,9 @@ private:
     float minOutput;
     float maxOutput;
     Timer loopTimer;
+    bool prevErrorStale;
 
-    // TODO: replace with appropriate value
-    // TC active when avg front wheel speed is greater than minimum_tc_rpm
-    static constexpr float minimum_tc_rpm = 1.0f;
+    static constexpr float MIN_TC_RPM = 100.0f;
 };
 
 #endif // PD_H

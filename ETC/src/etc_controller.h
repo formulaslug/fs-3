@@ -50,6 +50,7 @@ struct ETCState {
     float wheel_speed_fr;
     float wheel_speed_rl;
     float wheel_speed_rr;
+    float slip_error;
 };
 
 
@@ -92,10 +93,9 @@ class ETCController {
     /** State of the ETC. */
     ETCState state;
 
+public:
     /** PDController for traction control. */
     PDController pdController;
-
-public:
     /** The maximum motor speed in RPM. */
     static constexpr int16_t MAX_SPEED = 7500;
     /** The maximum motor torque in Nm. */
@@ -108,7 +108,7 @@ public:
     static constexpr float BRAKE_TOLERANCE_LOW = 0.36f;
 
     /** Traction control tuning variables */
-    static constexpr float kp = 4.0f;
+    static constexpr float kp = 1.0f;
     static constexpr float kd = 0.0f;
 
     /** The voltage divider slope for the hall-effect 1 sensor. */
