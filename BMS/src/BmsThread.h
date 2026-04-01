@@ -32,6 +32,7 @@ public:
 private:
     bool balanceAllowed = false;
     bool charging = false;
+    bool readI2CTemp;
     LTC681xBus& m_bus;
     std::vector<LTC6811> m_chips;
     BmsEventMailbox* bmsEventMailbox;
